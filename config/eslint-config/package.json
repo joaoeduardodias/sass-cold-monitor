@@ -1,0 +1,22 @@
+{
+  "name": "@cold-monitor/eslint-config",
+  "version": "0.0.0",
+  "type": "commonjs",
+  "private": true,
+  "exports": {
+    "./library": "./library.jcs",
+    "./next-js": "./next.cjs",
+    "./node": "./node.cjs"
+  },
+  "devDependencies": {
+    "@rocketseat/eslint-config": "^2.2.2",
+    "@cold-monitor/prettier": "workspace:*",
+    "eslint-plugin-simple-import-sort": "^12.1.1"
+  },
+  "prettier": "@cold-monitor/prettier",
+  "eslintConfig": {
+    "extends": [
+      "./library.cjs"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@cold-monitor/prettier",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.mjs",
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.13"
+  }
+}
