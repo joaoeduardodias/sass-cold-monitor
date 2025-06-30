@@ -4,7 +4,7 @@
   "type": "commonjs",
   "private": true,
   "exports": {
-    "./library": "./library.jcs",
+    "./library": "./library.cjs",
     "./next-js": "./next.cjs",
     "./node": "./node.cjs"
   },

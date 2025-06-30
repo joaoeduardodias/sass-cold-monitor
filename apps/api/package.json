@@ -1,0 +1,25 @@
+{
+  "name": "@cold-monitor/api",
+  "version": "1.0.0",
+  "description": "API for Cold Monitor",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@cold-monitor/auth": "workspace:*"
+  },
+  "devDependencies": {
+    "@cold-monitor/eslint-config": "workspace:*",
+    "@cold-monitor/prettier": "workspace:*",
+    "@cold-monitor/ts-config": "workspace:*",
+    "@types/node": "^24.0.7",
+    "tsx": "^4.20.3"
+  },
+  "prettier": "@cold-monitor/prettier",
+  "eslintConfig": {
+    "extends": [
+      "@cold-monitor/eslint-config"
+    ]
+  }
+}

@@ -3,7 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
+  "files": [
+    "library.json",
+    "node.json"
+  ],
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@casl/ability": "^6.7.3"
   }
 }
