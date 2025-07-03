@@ -1,5 +1,5 @@
-import { ability } from '@cold-monitor/auth';
+import { defineAbilityFor } from '@cold-monitor/auth';
 
-const testUser = ability.can('manage', 'User')
+const ability = defineAbilityFor({ role: 'ADMIN' })
 
-console.log(testUser)
+console.log(ability.can('manage', 'all')); // true
