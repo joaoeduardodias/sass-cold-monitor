@@ -2,25 +2,29 @@ import type { AbilityBuilder } from '@casl/ability'
 
 import type { AppAbility } from '.'
 import type { User } from './models/user'
+import type { Role } from './role'
 
 type PermissionsByRole = (
   user: User,
   builder: AbilityBuilder<AppAbility>,
 ) => void
 
-type Role = 'ADMIN' | 'OPERATOR' | 'OBSERVER' | 'EDITOR'
-
 export const permissions: Record<Role, PermissionsByRole> = {
-  ADMIN: (_, { can }) => {
+  SUPER_ADMIN: (_, { can }) => {
     can('manage', 'all')
   },
-  OPERATOR: (_, { can }) => {
-    can('manage', 'Data')
+  ADMIN: (user, { can }) => {
+    can('manage', ['Data', 'Company', 'User'], {
+      company_id: { $eq: user.company_id },
+    })
   },
-  OBSERVER: (_, { can }) => {
-    can('view', 'Data')
+  OPERATOR: (user, { can }) => {
+    can('update', 'Data', { company_id: { $eq: user.company_id } })
   },
-  EDITOR: (_, { can }) => {
-    can('manage', 'Data')
+  OBSERVER: (user, { can }) => {
+    can('read', 'Data', { company_id: { $eq: user.company_id } })
+  },
+  EDITOR: (user, { can }) => {
+    can(['create', 'update'], 'Data', { company_id: { $eq: user.company_id } })
   },
 }
