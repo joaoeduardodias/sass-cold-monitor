@@ -15,13 +15,12 @@ export const permissions: Record<Role, PermissionsByRole> = {
     can('manage', 'all')
   },
   OPERATOR: (_, { can }) => {
-    can('invite', 'User')
-    can('manage', 'User')
+    can('manage', 'Data')
   },
   OBSERVER: (_, { can }) => {
-    can('manage', 'User')
+    can('view', 'Data')
   },
   EDITOR: (_, { can }) => {
-    can('manage', 'User')
+    can('manage', 'Data')
   },
 }

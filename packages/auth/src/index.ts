@@ -1,18 +1,12 @@
-import type { CreateAbility, ForcedSubject, MongoAbility } from '@casl/ability'
+import type { CreateAbility, MongoAbility } from '@casl/ability'
 import { AbilityBuilder, createMongoAbility } from '@casl/ability'
 
 import type { User } from './models/user'
 import { permissions } from './permissions'
+import type { DataSubject } from './subjects/data'
+import type { UserSubject } from './subjects/user'
 
-const actions = ['manage', 'invite'] as const
-const subjects = ['User', 'all'] as const
-type AppAbilities = [
-  (typeof actions)[number],
-  (
-    | (typeof subjects)[number]
-    | ForcedSubject<Exclude<(typeof subjects)[number], 'all'>>
-  ),
-]
+type AppAbilities = UserSubject | DataSubject | ['manage', 'all']
 
 export type AppAbility = MongoAbility<AppAbilities>
 export const createAppAbility = createMongoAbility as CreateAbility<AppAbility>
