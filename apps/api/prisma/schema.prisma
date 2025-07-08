@@ -59,13 +59,13 @@ enum Role {
   SUPER_ADMIN
   ADMIN
   EDITOR
-  OBSERVER
+  VIEWER
   OPERATOR
 }
 
 model Member {
   id             String       @id @default(uuid())
-  role           Role         @default(OBSERVER)
+  role           Role         @default(VIEWER)
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
   user           User         @relation(fields: [userId], references: [id])
@@ -146,5 +146,6 @@ model JoinInstrument {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @default(now())
 
+  @@unique([firstInstrumentId, secondInstrumentId], name: "unique_instruments_pair")
   @@map("union_instruments")
 }

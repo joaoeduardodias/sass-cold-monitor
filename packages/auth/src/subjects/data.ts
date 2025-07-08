@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import { dataSchema } from '../models/data'
+import { instrumentDataSchema } from '../models/instrument-data'
 
-export const dataSubject = z.tuple([
+export const instrumentDataSubject = z.tuple([
   z.union([
     z.literal('manage'),
     z.literal('get'),
@@ -10,7 +10,7 @@ export const dataSubject = z.tuple([
     z.literal('create'),
     z.literal('update'),
   ]),
-  z.union([z.literal('Data'), dataSchema]),
+  z.union([z.literal('InstrumentData'), instrumentDataSchema]),
 ])
 
-export type DataSubject = z.infer<typeof dataSubject>
+export type DataSubject = z.infer<typeof instrumentDataSubject>

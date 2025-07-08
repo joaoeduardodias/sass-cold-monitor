@@ -4,20 +4,20 @@ import { z } from 'zod'
 
 import type { User } from './models/user'
 import { permissions } from './permissions'
-import { companySubject } from './subjects/company'
-import { dataSubject } from './subjects/data'
+import { instrumentDataSubject } from './subjects/data'
 import { instrumentSubject } from './subjects/instrument'
+import { organizationSubject } from './subjects/organization'
 import { userSubject } from './subjects/user'
 
-export * from './models/company'
-export * from './models/data'
 export * from './models/instrument'
+export * from './models/instrument-data'
+export * from './models/organization'
 export * from './models/user'
 
 const appAbilitiesSchema = z.union([
-  dataSubject,
+  instrumentDataSubject,
   userSubject,
-  companySubject,
+  organizationSubject,
   instrumentSubject,
   z.tuple([z.literal('manage'), z.literal('all')]),
 ])

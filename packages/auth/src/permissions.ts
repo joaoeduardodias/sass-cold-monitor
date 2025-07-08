@@ -14,17 +14,23 @@ export const permissions: Record<Role, PermissionsByRole> = {
     can('manage', 'all')
   },
   ADMIN: (user, { can }) => {
-    can('manage', ['Data', 'Company', 'User'], {
-      company_id: { $eq: user.company_id },
+    can('manage', ['InstrumentData', 'Organization', 'User'], {
+      organization_id: { $eq: user.organization_id },
     })
   },
   OPERATOR: (user, { can }) => {
-    can('update', 'Data', { company_id: { $eq: user.company_id } })
+    can('update', 'InstrumentData', {
+      organization_id: { $eq: user.organization_id },
+    })
   },
-  OBSERVER: (user, { can }) => {
-    can('read', 'Data', { company_id: { $eq: user.company_id } })
+  VIEWER: (user, { can }) => {
+    can('read', 'InstrumentData', {
+      organization_id: { $eq: user.organization_id },
+    })
   },
   EDITOR: (user, { can }) => {
-    can(['create', 'update'], 'Data', { company_id: { $eq: user.company_id } })
+    can(['create', 'update'], 'InstrumentData', {
+      organization_id: { $eq: user.organization_id },
+    })
   },
 }
