@@ -9,6 +9,11 @@ import { dataSubject } from './subjects/data'
 import { instrumentSubject } from './subjects/instrument'
 import { userSubject } from './subjects/user'
 
+export * from './models/company'
+export * from './models/data'
+export * from './models/instrument'
+export * from './models/user'
+
 const appAbilitiesSchema = z.union([
   dataSubject,
   userSubject,

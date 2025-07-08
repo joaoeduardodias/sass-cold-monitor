@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String         @id @default(uuid())
+  name               String
+  email              String         @unique
+  passwordHash       String         @map("password_hash")
+  avatarUrl          String?        @map("avatar_url")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  tokens             Token[]
+  accounts           Account[]
+  member_on          Member[]
+  owns_organizations Organization[]
+
+  @@map("users")
+}
+
+enum TokenType {
+  PASSWORD_RECOVER
+}
+
+model Token {
+  id        String    @id @default(uuid())
+  type      TokenType
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @map("user_id")
+
+  @@map("tokens")
+}
+
+enum AccountProvider {
+  GOOGLE
+  DATABASE
+}
+
+model Account {
+  id                String          @id @default(uuid())
+  provider          AccountProvider
+  providerAccountId String          @unique @map("provider_account_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String          @map("user_id")
+
+  @@unique([provider, userId])
+  @@map("accounts")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  OBSERVER
+  OPERATOR
+}
+
+model Member {
+  id             String       @id @default(uuid())
+  role           Role         @default(OBSERVER)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String       @map("user_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@unique([organizationId, userId])
+  @@map("members")
+}
+
+model Organization {
+  id                        String       @id @default(uuid())
+  name                      String
+  slug                      String       @unique
+  domain                    String?      @unique
+  shouldAttachUsersByDomain Boolean      @default(false) @map("should_attach_users_by_domain")
+  avatarUrl                 String?      @map("avatar_url")
+  createdAt                 DateTime     @default(now()) @map("created_at")
+  updatedAt                 DateTime     @updatedAt @map("updated_at")
+  owner                     User         @relation(fields: [userId], references: [id])
+  userId                    String       @map("user_id")
+  members                   Member[]
+  instruments               Instrument[]
+
+  @@map("organizations")
+}
+
+enum InstrumentType {
+  TEMPERATURE
+  PRESSURE
+}
+
+model Instrument {
+  id                     String           @id @default(uuid())
+  name                   String
+  slug                   String           @unique
+  type                   InstrumentType
+  model                  Int
+  orderDisplay           Int              @default(autoincrement()) @map("order_display")
+  maxValue               Float            @default(100) @map("max_value")
+  minValue               Float            @default(-100) @map("min_value")
+  isActive               Boolean          @default(true) @map("is_active")
+  idSitrad               Int?             @map("id_sitrad")
+  createdAt              DateTime         @default(now()) @map("created_at")
+  updatedAt              DateTime         @updatedAt @map("updated_at")
+  organization           Organization     @relation(fields: [organizationId], references: [id])
+  organizationId         String           @map("organization_id")
+  data                   InstrumentData[]
+  joinAsFirstInstrument  JoinInstrument[] @relation("FirstInstrument")
+  joinAsSecondInstrument JoinInstrument[] @relation("SecondInstrument")
+
+  @@unique([organizationId, slug])
+  @@map("Instruments")
+}
+
+model InstrumentData {
+  id           String     @id @default(uuid())
+  data         String
+  editData     String?
+  generateData String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
+  instrumentId String     @map("instrument_id")
+
+  @@index([instrumentId, createdAt], name: "instrument_time_index")
+  @@map("instrument_data")
+}
+
+model JoinInstrument {
+  id                 String     @id @default(uuid())
+  name               String     @unique
+  firstInstrument    Instrument @relation("FirstInstrument", fields: [firstInstrumentId], references: [id])
+  firstInstrumentId  String     @map("first_instrument_id")
+  secondInstrument   Instrument @relation("SecondInstrument", fields: [secondInstrumentId], references: [id])
+  secondInstrumentId String     @map("second_instrument_id")
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @default(now())
+
+  @@map("union_instruments")
+}
