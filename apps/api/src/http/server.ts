@@ -10,6 +10,7 @@ import {
   validatorCompiler,
   ZodTypeProvider
 } from 'fastify-type-provider-zod';
+import { errorHandler } from './error-handler';
 import { authenticateWithPassword } from './routes/authenticate-with-password';
 import { createUser } from './routes/create-user';
 import { getProfile } from './routes/get-profile';
@@ -17,6 +18,7 @@ import { getProfile } from './routes/get-profile';
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 app.setSerializerCompiler(serializerCompiler)
 app.setValidatorCompiler(validatorCompiler)
+app.setErrorHandler(errorHandler)
 app.register(fastifyCors)
 
 app.register(fastifySwagger, {
