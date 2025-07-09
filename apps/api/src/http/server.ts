@@ -1,5 +1,6 @@
 
 import fastifyCors from '@fastify/cors';
+import fastifyJwt from '@fastify/jwt';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { fastify } from 'fastify';
@@ -31,6 +32,9 @@ app.register(fastifySwagger, {
 app.register(fastifySwaggerUi, {
   routePrefix: '/docs',
 });
+app.register(fastifyJwt, {
+  secret: 'my-secret-cold-monitor'
+})
 
 app.register(createUser)
 
