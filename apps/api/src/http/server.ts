@@ -11,9 +11,11 @@ import {
   ZodTypeProvider
 } from 'fastify-type-provider-zod';
 import { errorHandler } from './error-handler';
-import { authenticateWithPassword } from './routes/authenticate-with-password';
-import { createUser } from './routes/create-user';
-import { getProfile } from './routes/get-profile';
+import { authenticateWithPassword } from './routes/auth/authenticate-with-password';
+import { createUser } from './routes/auth/create-user';
+import { getProfile } from './routes/auth/get-profile';
+import { requestPasswordRecover } from './routes/auth/request-password-recover';
+import { resetPassword } from './routes/auth/reset-password';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 app.setSerializerCompiler(serializerCompiler)
@@ -43,6 +45,8 @@ app.register(fastifyJwt, {
 app.register(createUser)
 app.register(authenticateWithPassword)
 app.register(getProfile)
+app.register(requestPasswordRecover)
+app.register(resetPassword)
 
 app.listen({ port: 3001 }).then(() => {
   console.log("Server is running on http://localhost:3001")
