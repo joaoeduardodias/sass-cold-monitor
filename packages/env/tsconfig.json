@@ -1,0 +1,6 @@
+{
+  "extends": "@cold-monitor/ts-config/library.json",
+  "include": [
+    "index.ts"
+  ],
+}

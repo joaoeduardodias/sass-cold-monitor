@@ -1,4 +1,5 @@
 
+import { env } from '@cold-monitor/env';
 import fastifyCors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import fastifySwagger from '@fastify/swagger';
@@ -40,7 +41,7 @@ app.register(fastifySwaggerUi, {
   routePrefix: '/docs',
 });
 app.register(fastifyJwt, {
-  secret: 'my-secret-cold-monitor'
+  secret: env.JWT_SECRET
 })
 
 app.register(createUser)
@@ -50,6 +51,6 @@ app.register(getProfile)
 app.register(requestPasswordRecover)
 app.register(resetPassword)
 
-app.listen({ port: 3001 }).then(() => {
-  console.log("Server is running on http://localhost:3001")
+app.listen({ port: env.SERVER_PORT }).then(() => {
+  console.log(`Server is running on http://localhost:${env.SERVER_PORT}`)
 })

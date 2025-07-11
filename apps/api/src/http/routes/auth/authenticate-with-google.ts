@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { env } from "@cold-monitor/env";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
@@ -31,9 +32,9 @@ export async function authenticateWithGoogle(app: FastifyInstance) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code: formattedCode,
-        client_id: '1041206287799-u65ib35rlr5kkgi60ds2bdvik835mssl.apps.googleusercontent.com',
-        client_secret: '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',
-        redirect_uri: 'http://localhost:3000/api/auth/callback',
+        client_id: env.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret: env.GOOGLE_OAUTH_CLIENT_SECRET,
+        redirect_uri: env.GOOGLE_OAUTH_CLIENT_REDIRECT_URI,
         grant_type: 'authorization_code',
       }),
     });
