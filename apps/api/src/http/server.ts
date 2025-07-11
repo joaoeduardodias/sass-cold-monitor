@@ -11,6 +11,7 @@ import {
   ZodTypeProvider
 } from 'fastify-type-provider-zod';
 import { errorHandler } from './error-handler';
+import { authenticateWithGoogle } from './routes/auth/authenticate-with-google';
 import { authenticateWithPassword } from './routes/auth/authenticate-with-password';
 import { createUser } from './routes/auth/create-user';
 import { getProfile } from './routes/auth/get-profile';
@@ -44,6 +45,7 @@ app.register(fastifyJwt, {
 
 app.register(createUser)
 app.register(authenticateWithPassword)
+app.register(authenticateWithGoogle)
 app.register(getProfile)
 app.register(requestPasswordRecover)
 app.register(resetPassword)
