@@ -49,7 +49,7 @@ async function seed() {
       slug: 'acme-admin',
       avatarUrl: faker.image.avatarGitHub(),
       shouldAttachUsersByDomain: true,
-      userId: user.id,
+      ownerId: user.id,
       members: {
         create: [
           {
@@ -79,7 +79,7 @@ async function seed() {
       slug: 'acme',
       avatarUrl: faker.image.avatarGitHub(),
       shouldAttachUsersByDomain: true,
-      userId: anotherUser.id,
+      ownerId: anotherUser.id,
       members: {
         create: [
           {
@@ -282,7 +282,7 @@ async function seed() {
 
   await prisma.joinInstrument.create({
     data: {
-      name: 'Join Instrument',
+      name: faker.lorem.words(5),
       firstInstrumentId: instrument.id,
       secondInstrumentId: instrument1.id,
     },

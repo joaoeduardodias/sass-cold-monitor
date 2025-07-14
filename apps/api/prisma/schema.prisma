@@ -8,37 +8,29 @@ datasource db {
 }
 
 model User {
-  id                 String         @id @default(uuid())
-  name               String
-  email              String         @unique
-  passwordHash       String?        @map("password_hash")
-  avatarUrl          String?        @map("avatar_url")
-  createdAt          DateTime       @default(now()) @map("created_at")
-  updatedAt          DateTime       @updatedAt @map("updated_at")
-  tokens             Token[]
-  accounts           Account[]
-  member_on          Member[]
-  owns_organizations Organization[]
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String?        @map("password_hash")
+  avatarUrl     String?        @map("avatar_url")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  accounts      Account[]
+  member_on     Member[]
+  organizations Organization[]
+  tokens        Token[]
 
   @@map("users")
-}
-
-enum TokenType {
-  PASSWORD_RECOVER
 }
 
 model Token {
   id        String    @id @default(uuid())
   type      TokenType
   createdAt DateTime  @default(now()) @map("created_at")
-  user      User      @relation(fields: [userId], references: [id])
   userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id])
 
   @@map("tokens")
-}
-
-enum AccountProvider {
-  GOOGLE
 }
 
 model Account {
@@ -47,29 +39,21 @@ model Account {
   providerAccountId String          @unique @map("provider_account_id")
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
-  user              User            @relation(fields: [userId], references: [id])
   userId            String          @map("user_id")
+  user              User            @relation(fields: [userId], references: [id])
 
   @@unique([provider, userId])
   @@map("accounts")
 }
 
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  EDITOR
-  VIEWER
-  OPERATOR
-}
-
 model Member {
   id             String       @id @default(uuid())
   role           Role         @default(VIEWER)
-  organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
-  user           User         @relation(fields: [userId], references: [id])
   userId         String       @map("user_id")
   createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
 
   @@unique([organizationId, userId])
   @@map("members")
@@ -84,17 +68,12 @@ model Organization {
   avatarUrl                 String?      @map("avatar_url")
   createdAt                 DateTime     @default(now()) @map("created_at")
   updatedAt                 DateTime     @updatedAt @map("updated_at")
-  owner                     User         @relation(fields: [userId], references: [id])
-  userId                    String       @map("user_id")
-  members                   Member[]
+  owners                    User         @relation(fields: [ownerId], references: [id])
+  ownerId                   String
   instruments               Instrument[]
+  members                   Member[]
 
   @@map("organizations")
-}
-
-enum InstrumentType {
-  TEMPERATURE
-  PRESSURE
 }
 
 model Instrument {
@@ -110,14 +89,14 @@ model Instrument {
   idSitrad               Int?             @map("id_sitrad")
   createdAt              DateTime         @default(now()) @map("created_at")
   updatedAt              DateTime         @updatedAt @map("updated_at")
-  organization           Organization     @relation(fields: [organizationId], references: [id])
   organizationId         String           @map("organization_id")
+  organization           Organization     @relation(fields: [organizationId], references: [id])
   data                   InstrumentData[]
   joinAsFirstInstrument  JoinInstrument[] @relation("FirstInstrument")
   joinAsSecondInstrument JoinInstrument[] @relation("SecondInstrument")
 
   @@unique([organizationId, slug])
-  @@map("Instruments")
+  @@map("instruments")
 }
 
 model InstrumentData {
@@ -127,24 +106,44 @@ model InstrumentData {
   generateData String?
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
-  instrument   Instrument @relation(fields: [instrumentId], references: [id])
   instrumentId String     @map("instrument_id")
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
 
-  @@index([instrumentId, createdAt], name: "instrument_time_index")
+  @@index([instrumentId, createdAt], map: "instrument_time_index")
   @@map("instrument_data")
 }
 
 model JoinInstrument {
   id                 String     @id @default(uuid())
   name               String     @unique
-  firstInstrument    Instrument @relation("FirstInstrument", fields: [firstInstrumentId], references: [id])
   firstInstrumentId  String     @map("first_instrument_id")
-  secondInstrument   Instrument @relation("SecondInstrument", fields: [secondInstrumentId], references: [id])
   secondInstrumentId String     @map("second_instrument_id")
   isActive           Boolean    @default(true)
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @default(now())
+  firstInstrument    Instrument @relation("FirstInstrument", fields: [firstInstrumentId], references: [id])
+  secondInstrument   Instrument @relation("SecondInstrument", fields: [secondInstrumentId], references: [id])
 
   @@unique([firstInstrumentId, secondInstrumentId], name: "unique_instruments_pair")
   @@map("union_instruments")
+}
+
+enum TokenType {
+  PASSWORD_RECOVER
+}
+
+enum AccountProvider {
+  GOOGLE
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+  OPERATOR
+}
+
+enum InstrumentType {
+  TEMPERATURE
+  PRESSURE
 }

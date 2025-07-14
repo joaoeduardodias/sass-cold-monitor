@@ -1,7 +1,6 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const roleSchema = z.union([
-  z.literal('SUPER_ADMIN'),
   z.literal('ADMIN'),
   z.literal('OPERATOR'),
   z.literal('VIEWER'),

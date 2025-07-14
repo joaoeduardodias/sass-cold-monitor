@@ -1,6 +1,6 @@
 import type { CreateAbility, MongoAbility } from '@casl/ability'
 import { AbilityBuilder, createMongoAbility } from '@casl/ability'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import type { User } from './models/user'
 import { permissions } from './permissions'
@@ -13,6 +13,7 @@ export * from './models/instrument'
 export * from './models/instrument-data'
 export * from './models/organization'
 export * from './models/user'
+export * from './role'
 
 const appAbilitiesSchema = z.union([
   instrumentDataSubject,
@@ -34,5 +35,8 @@ export function defineAbilityFor(user: User) {
   }
   permissions[user.role](user, builder)
   const ability = builder.build()
+
+  ability.can = ability.can.bind(ability)
+  ability.cannot = ability.cannot.bind(ability)
   return ability
 }
