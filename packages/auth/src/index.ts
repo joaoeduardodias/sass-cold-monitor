@@ -6,6 +6,7 @@ import type { User } from './models/user'
 import { permissions } from './permissions'
 import { instrumentDataSubject } from './subjects/data'
 import { instrumentSubject } from './subjects/instrument'
+import { inviteSubject } from './subjects/invite'
 import { organizationSubject } from './subjects/organization'
 import { userSubject } from './subjects/user'
 
@@ -18,6 +19,7 @@ export * from './role'
 const appAbilitiesSchema = z.union([
   instrumentDataSubject,
   userSubject,
+  inviteSubject,
   organizationSubject,
   instrumentSubject,
   z.tuple([z.literal('manage'), z.literal('all')]),
