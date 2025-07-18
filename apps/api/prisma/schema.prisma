@@ -19,6 +19,7 @@ model User {
   member_on     Member[]
   organizations Organization[]
   tokens        Token[]
+  invites       Invite[]
 
   @@map("users")
 }
@@ -72,6 +73,7 @@ model Organization {
   ownerId                   String
   instruments               Instrument[]
   members                   Member[]
+  invites                   Invite[]
 
   @@map("organizations")
 }
@@ -126,6 +128,21 @@ model JoinInstrument {
 
   @@unique([firstInstrumentId, secondInstrumentId], name: "unique_instruments_pair")
   @@map("union_instruments")
+}
+
+model Invite {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  author         User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId       String?      @map("author_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  role           Role
+
+  @@unique([email, organizationId])
+  @@index([email])
+  @@map("invites")
 }
 
 enum TokenType {
