@@ -104,10 +104,11 @@ model Instrument {
 model InstrumentData {
   id           String     @id @default(uuid())
   data         String
-  editData     String?
-  generateData String?
+  editData     String?    @map("edit_data")
+  generateData String?    @map("generate_data")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
+  userEditData String?    @map("user_edit_data")
   instrumentId String     @map("instrument_id")
   instrument   Instrument @relation(fields: [instrumentId], references: [id])
 
