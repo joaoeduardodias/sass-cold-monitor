@@ -45,7 +45,7 @@
   "prettier": "@cold-monitor/prettier",
   "eslintConfig": {
     "extends": [
-      "@cold-monitor/eslint-config"
+      "@cold-monitor/eslint-config/node"
     ]
   }
 }
