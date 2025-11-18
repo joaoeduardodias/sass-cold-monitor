@@ -4,16 +4,21 @@ import { hash } from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function seed() {
+  await prisma.member.deleteMany()
+  await prisma.instrumentData.deleteMany()
+  await prisma.joinInstrument.deleteMany()
+  await prisma.instrument.deleteMany()
   await prisma.organization.deleteMany()
   await prisma.user.deleteMany()
+
   const passwordHash = await hash('123456', 1)
 
   const user = await prisma.user.create({
     data: {
-      name: "John Doe",
-      email: "johndoe@acme.com",
+      name: 'John Doe',
+      email: 'johndoe@acme.com',
       avatarUrl: 'https://github.com/joaoeduardodias.png',
-      passwordHash
+      passwordHash,
     },
   })
   const anotherUser = await prisma.user.create({
@@ -21,7 +26,7 @@ async function seed() {
       name: faker.person.fullName(),
       email: faker.internet.email(),
       avatarUrl: faker.image.avatarGitHub(),
-      passwordHash
+      passwordHash,
     },
   })
   const anotherUser2 = await prisma.user.create({
@@ -29,18 +34,17 @@ async function seed() {
       name: faker.person.fullName(),
       email: faker.internet.email(),
       avatarUrl: faker.image.avatarGitHub(),
-      passwordHash
-    }
+      passwordHash,
+    },
   })
   const anotherUser3 = await prisma.user.create({
     data: {
       name: faker.person.fullName(),
       email: faker.internet.email(),
       avatarUrl: faker.image.avatarGitHub(),
-      passwordHash
-    }
+      passwordHash,
+    },
   })
-
 
   const organization = await prisma.organization.create({
     data: {
@@ -54,23 +58,23 @@ async function seed() {
         create: [
           {
             userId: user.id,
-            role: 'ADMIN'
+            role: 'ADMIN',
           },
           {
             userId: anotherUser.id,
-            role: 'EDITOR'
+            role: 'EDITOR',
           },
           {
             userId: anotherUser2.id,
-            role: 'VIEWER'
+            role: 'VIEWER',
           },
           {
             userId: anotherUser3.id,
-            role: 'OPERATOR'
-          }
-        ]
-      }
-    }
+            role: 'OPERATOR',
+          },
+        ],
+      },
+    },
   })
   const organization1 = await prisma.organization.create({
     data: {
@@ -84,23 +88,19 @@ async function seed() {
         create: [
           {
             userId: user.id,
-            role: 'VIEWER'
+            role: 'ADMIN',
           },
           {
             userId: anotherUser.id,
-            role: 'ADMIN'
-          },
-          {
-            userId: anotherUser2.id,
-            role: 'VIEWER'
+            role: 'VIEWER',
           },
           {
             userId: anotherUser3.id,
-            role: 'OPERATOR'
-          }
-        ]
-      }
-    }
+            role: 'OPERATOR',
+          },
+        ],
+      },
+    },
   })
 
   const instrument = await prisma.instrument.create({
@@ -142,9 +142,9 @@ async function seed() {
               editData: String(faker.number.float({ min: 0, max: 100 })),
               generateData: String(faker.number.float({ min: 0, max: 100 })),
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     },
   })
   const instrument1 = await prisma.instrument.create({
@@ -186,9 +186,9 @@ async function seed() {
               editData: String(faker.number.float({ min: 0, max: 100 })),
               generateData: String(faker.number.float({ min: 0, max: 100 })),
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     },
   })
   await prisma.instrument.create({
@@ -230,9 +230,9 @@ async function seed() {
               editData: String(faker.number.float({ min: 0, max: 100 })),
               generateData: String(faker.number.float({ min: 0, max: 100 })),
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     },
   })
   await prisma.instrument.create({
@@ -274,9 +274,9 @@ async function seed() {
               editData: String(faker.number.float({ min: 0, max: 100 })),
               generateData: String(faker.number.float({ min: 0, max: 100 })),
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     },
   })
 
@@ -287,10 +287,8 @@ async function seed() {
       secondInstrumentId: instrument1.id,
     },
   })
-
-
 }
 
 seed().then(() => {
-  console.log("Database seeded!")
+  console.log('Database seeded!')
 })
