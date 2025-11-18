@@ -1,5 +1,5 @@
 import { AlertsPanel } from "@/components/alerts-panel";
-import { ColdStorageGrid } from "@/components/cold-storage-grid";
+import { InstrumentGrid } from "@/components/instrument-grid";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       </div>
       <div className="flex gap-6">
         <div className="flex-1">
-          <ColdStorageGrid />
+          <InstrumentGrid />
         </div>
         <AlertsPanel />
       </div>

@@ -9,8 +9,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card"
 
 type OperationalStatus = "refrigerating" | "defrosting" | "idle" | "alarm" | "fan-only" | "off"
 
-type ColdStorage = {
-  id: number
+type Instrument = {
+  id: string
   name: string
   temperature?: number
   pressure?: number
@@ -21,15 +21,15 @@ type ColdStorage = {
   lastUpdated: string
 }
 
-export function ColdStorageGrid() {
-  const [storages, setStorages] = useState<ColdStorage[]>([])
+export function InstrumentGrid() {
+  const [instruments, setInstruments] = useState<Instrument[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
 
-    const mockData: ColdStorage[] = [
+    const mockData: Instrument[] = [
       {
-        id: 1,
+        id: '1',
         name: "Câmara 01",
         temperature: -18.5,
         status: "normal",
@@ -39,7 +39,7 @@ export function ColdStorageGrid() {
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 2,
+        id: '2',
         name: "Câmara 02",
         pressure: 100.8,
         status: "warning",
@@ -49,7 +49,7 @@ export function ColdStorageGrid() {
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 3,
+        id: '3',
         name: "Câmara 03",
         temperature: -20.1,
         min: -25,
@@ -59,7 +59,7 @@ export function ColdStorageGrid() {
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 4,
+        id: '4',
         name: "Câmara 04",
         pressure: 99.7,
         min: -25,
@@ -69,7 +69,7 @@ export function ColdStorageGrid() {
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 5,
+        id: '5',
         name: "Câmara 05",
         temperature: -19.2,
         status: "normal",
@@ -79,7 +79,7 @@ export function ColdStorageGrid() {
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 6,
+        id: '6',
         name: "Câmara 06",
         temperature: -17.8,
         status: "normal",
@@ -90,28 +90,28 @@ export function ColdStorageGrid() {
       },
     ]
 
-    setStorages(mockData)
+    setInstruments(mockData)
     setLoading(false)
 
     // Atualização simulada a cada 30 segundos
     const interval = setInterval(() => {
-      setStorages((prevStorages) =>
-        prevStorages.map((storage) => {
+      setInstruments((prevInstruments) =>
+        prevInstruments.map((instrument) => {
           // Gerar um novo status operacional aleatoriamente às vezes
           const newOperationalStatus =
             Math.random() > 0.7
               ? (["refrigerating", "defrosting", "idle", "fan-only", "off", "alarm"][
                 Math.floor(Math.random() * 6)
               ] as OperationalStatus)
-              : storage.operationalStatus
+              : instrument.operationalStatus
 
           return {
-            ...storage,
-            ...(storage.temperature && {
-              temperature: storage.temperature + (Math.random() * 0.6 - 0.3),
+            ...instrument,
+            ...(instrument.temperature && {
+              temperature: instrument.temperature + (Math.random() * 0.6 - 0.3),
             }),
-            ...(storage.pressure && {
-              pressure: storage.pressure + (Math.random() * 0.2 - 0.1),
+            ...(instrument.pressure && {
+              pressure: instrument.pressure + (Math.random() * 0.2 - 0.1),
             }),
             lastUpdated: new Date().toISOString(),
             status: Math.random() > 0.8 ? (Math.random() > 0.5 ? "warning" : "critical") : "normal",
@@ -208,58 +208,58 @@ export function ColdStorageGrid() {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 min-w-72">
-      {storages.map((storage) => (
-        <Link href={`/storage/${storage.id}`} key={storage.id} className="block">
+      {instruments.map((instrument) => (
+        <Link href={`/instrument/${instrument.id}`} key={instrument.id} className="block">
           <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02] border-0 shadow-md border-t">
             <CardHeader>
               <div className="flex flex-col items-start gap-2">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg font-semibold">{storage.name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{instrument.name}</CardTitle>
                 </div>
                 <div className="w-full flex items-center justify-between">
-                  {getOperationalStatusBadge(storage.operationalStatus)}
-                  {storage.status !== "normal" && <div>{getStatusBadge(storage.status)}</div>}
+                  {getOperationalStatusBadge(instrument.operationalStatus)}
+                  {instrument.status !== "normal" && <div>{getStatusBadge(instrument.status)}</div>}
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pb-4">
               <div className="mb-4 space-y-3">
-                {storage.temperature && (
+                {instrument.temperature && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center ">
                       <Thermometer className="size-5 text-blue-600" />
                       <span className="text-base text-muted-foreground">Temperatura</span>
                     </div>
-                    <span className="text-lg font-medium">{storage.temperature.toFixed(1)}°C</span>
+                    <span className="text-lg font-medium">{instrument.temperature.toFixed(1)}°C</span>
                   </div>
                 )}
 
 
 
-                {storage.pressure && (
+                {instrument.pressure && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <PressureGauge className="size-5 text-blue-600" />
                       <span className="text-base text-muted-foreground">Pressão</span>
                     </div>
-                    <span className="text-lg font-medium">{storage.pressure.toFixed(1)} Bar</span>
+                    <span className="text-lg font-medium">{instrument.pressure.toFixed(1)} Bar</span>
                   </div>
                 )}
               </div>
 
               <div className="flex justify-center">
-                {storage.temperature && (
-                  <Gauge value={storage.temperature} min={-25} max={-10} status={storage.status} size={100} />
+                {instrument.temperature && (
+                  <Gauge value={instrument.temperature} min={-25} max={-10} status={instrument.status} size={100} />
                 )}
-                {storage.pressure && (
-                  <Gauge value={storage.pressure} min={-25} max={-10} status={storage.status} size={100} />
+                {instrument.pressure && (
+                  <Gauge value={instrument.pressure} min={-25} max={-10} status={instrument.status} size={100} />
                 )}
               </div>
             </CardContent>
             <CardFooter className="border-t pt-4 grid grid-cols-4 gap-2 w-full text-xs">
               <div className="text-center">
                 <div className="text-muted-foreground">Mín</div>
-                <div className="font-medium text-blue-600">{storage.min}°C</div>
+                <div className="font-medium text-blue-600">{instrument.min}°C</div>
               </div>
               <div className="text-center">
                 <div className="text-muted-foreground">Setpoint</div>
@@ -271,7 +271,7 @@ export function ColdStorageGrid() {
               </div>
               <div className="text-center">
                 <div className="text-muted-foreground">Máx</div>
-                <div className="font-medium text-red-600">{storage.max}°C</div>
+                <div className="font-medium text-red-600">{instrument.max}°C</div>
               </div>
 
             </CardFooter>
