@@ -49,12 +49,11 @@ export function Header() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem asChild>
-                <Link href="/profile" className="cursor-pointer">
+                <Link href="/auth/profile" className="cursor-pointer">
                   <User className="mr-2 size-4" />
                   <span>Perfil</span>
                 </Link>
               </DropdownMenuItem>
-
 
               <DropdownMenuItem>
                 <Shield className="mr-2 size-4" />
@@ -64,7 +63,7 @@ export function Header() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem asChild>
-                <Link href="/sign-in" className="cursor-pointer text-red-600 focus:text-red-600">
+                <Link href="/auth/sign-in" className="cursor-pointer text-red-600 focus:text-red-600">
                   <LogOut className="mr-2 size-4" />
                   <span>Sair</span>
                 </Link>
