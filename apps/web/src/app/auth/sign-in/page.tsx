@@ -130,7 +130,7 @@ export default function LoginPage() {
             <CardContent className="space-y-5">
               {error && (
                 <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="size-4" />
                   <AlertDescription className="text-sm leading-relaxed">{error}</AlertDescription>
                 </Alert>
               )}
@@ -141,7 +141,7 @@ export default function LoginPage() {
                     Email
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                     <Input
                       id="email"
                       type="email"
@@ -161,7 +161,7 @@ export default function LoginPage() {
                     Senha
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
@@ -184,9 +184,9 @@ export default function LoginPage() {
                       aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        <EyeOff className="size-4 text-muted-foreground" />
                       ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        <Eye className="size-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -205,7 +205,7 @@ export default function LoginPage() {
                     </Label>
                   </div>
                   <Link
-                    href="/forgot-password"
+                    href="/auth/forgot-password"
                     className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                   >
                     Esqueceu a senha?
@@ -219,7 +219,7 @@ export default function LoginPage() {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 size-4 animate-spin" />
                       Entrando...
                     </>
                   ) : (
@@ -244,7 +244,7 @@ export default function LoginPage() {
                   onClick={handleDemoLogin}
                   disabled={loading}
                 >
-                  <Gauge className="mr-2 h-4 w-4" />
+                  <Gauge className="mr-2 size-4" />
                   Demo
                 </Button>
                 <Button
@@ -253,7 +253,7 @@ export default function LoginPage() {
                   onClick={handleAdminLogin}
                   disabled={loading}
                 >
-                  <Lock className="mr-2 h-4 w-4" />
+                  <Lock className="mr-2 size-4" />
                   Admin
                 </Button>
               </div>
@@ -311,7 +311,7 @@ export default function LoginPage() {
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                <Activity className="h-4 w-4" />
+                <Activity className="size-4" />
                 <span className="text-sm font-medium">Monitoramento Inteligente</span>
               </div>
               <h2 className="text-4xl xl:text-5xl font-bold leading-tight text-balance">
