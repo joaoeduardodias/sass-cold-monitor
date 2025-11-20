@@ -1,5 +1,3 @@
-import { instrumentSchema } from '@cold-monitor/auth'
-import { InstrumentType } from '@prisma/client'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
@@ -11,29 +9,23 @@ import { getUserPermissions } from '@/utils/get-user-permissions'
 import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function updateInstrument(app: FastifyInstance) {
+export async function updateData(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .put(
-      '/organizations/:orgSlug/instruments',
+      '/organizations/:orgSlug/instrument/data',
       {
         schema: {
           tags: ['Instruments'],
-          summary: 'Update instruments.',
+          summary: 'Update a instrument data.',
           security: [{ bearerAuth: [] }],
           body: z.object({
-            instruments: z.array(
+            data: z.array(
               z.object({
                 id: z.uuid(),
-                name: z.string(),
-                model: z.number(),
-                orderDisplay: z.number(),
-                maxValue: z.number(),
-                minValue: z.number(),
-                isActive: z.boolean(),
-                type: z.enum(InstrumentType),
-                idSitrad: z.number().nullable(),
+                editData: z.number(),
+                userUpdatedAt: z.uuid(),
               }),
             ),
           }),
@@ -49,27 +41,29 @@ export async function updateInstrument(app: FastifyInstance) {
         const { orgSlug } = request.params
         const userId = await request.getCurrentUserId()
         const { membership } = await request.getUserMembership(orgSlug)
+
         const { cannot } = getUserPermissions(userId, membership.role)
 
-        const { instruments } = request.body
+        if (cannot('update', 'InstrumentData')) {
+          throw new UnauthorizedError(
+            `You're not allowed to update this instrument data.`,
+          )
+        }
+
+        const { data } = request.body
 
         await prisma.$transaction(async (tx) => {
           await Promise.all(
-            instruments.map(async (instrument) => {
-              const authInstrument = instrumentSchema.parse(instrument)
-
-              if (cannot('update', authInstrument)) {
-                throw new UnauthorizedError(
-                  `You're not allowed to update this instrument.`,
-                )
-              }
-              const result = await tx.instrument.updateMany({
-                where: { id: instrument.id },
-                data: instrument,
+            data.map(async (item) => {
+              const result = await tx.instrumentData.updateMany({
+                where: { id: item.id },
+                data: item,
               })
 
               if (result.count === 0) {
-                throw new BadRequestError(`Instrument not found.`)
+                throw new BadRequestError(
+                  `Instrument data not found: ${item.id}`,
+                )
               }
             }),
           )

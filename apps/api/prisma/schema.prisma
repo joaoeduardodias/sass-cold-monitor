@@ -103,9 +103,9 @@ model Instrument {
 
 model InstrumentData {
   id           String     @id @default(uuid())
-  data         String
-  editData     String?    @map("edit_data")
-  generateData String?    @map("generate_data")
+  data         Float
+  editData     Float      @map("edit_data")
+  generateData Float?     @map("generate_data")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   userEditData String?    @map("user_edit_data")

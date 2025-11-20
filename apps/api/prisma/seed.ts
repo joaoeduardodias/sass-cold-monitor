@@ -118,29 +118,29 @@ async function seed() {
         createMany: {
           data: [
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
           ],
         },
@@ -162,73 +162,29 @@ async function seed() {
         createMany: {
           data: [
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
-            },
-          ],
-        },
-      },
-    },
-  })
-  await prisma.instrument.create({
-    data: {
-      name: faker.lorem.words(5),
-      slug: faker.lorem.slug(5),
-      type: faker.helpers.arrayElement(['TEMPERATURE', 'PRESSURE']),
-      model: faker.helpers.arrayElement([72, 67]),
-      idSitrad: faker.number.int({ min: 1, max: 150 }),
-      isActive: true,
-      minValue: faker.number.int({ min: 0, max: 100 }),
-      maxValue: faker.number.int({ min: 100, max: 200 }),
-      organizationId: organization1.id,
-      data: {
-        createMany: {
-          data: [
-            {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
-            },
-            {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
-            },
-            {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
-            },
-            {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
-            },
-            {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
           ],
         },
@@ -250,29 +206,73 @@ async function seed() {
         createMany: {
           data: [
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
             {
-              data: String(faker.number.float({ min: 0, max: 100 })),
-              editData: String(faker.number.float({ min: 0, max: 100 })),
-              generateData: String(faker.number.float({ min: 0, max: 100 })),
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
+            },
+          ],
+        },
+      },
+    },
+  })
+  await prisma.instrument.create({
+    data: {
+      name: faker.lorem.words(5),
+      slug: faker.lorem.slug(5),
+      type: faker.helpers.arrayElement(['TEMPERATURE', 'PRESSURE']),
+      model: faker.helpers.arrayElement([72, 67]),
+      idSitrad: faker.number.int({ min: 1, max: 150 }),
+      isActive: true,
+      minValue: faker.number.int({ min: 0, max: 100 }),
+      maxValue: faker.number.int({ min: 100, max: 200 }),
+      organizationId: organization1.id,
+      data: {
+        createMany: {
+          data: [
+            {
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
+            },
+            {
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
+            },
+            {
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
+            },
+            {
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
+            },
+            {
+              data: faker.number.float({ min: 0, max: 100 }),
+              editData: faker.number.float({ min: 0, max: 100 }),
+              generateData: faker.number.float({ min: 0, max: 100 }),
             },
           ],
         },
