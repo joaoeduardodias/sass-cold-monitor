@@ -122,6 +122,6 @@ app.register(updateData)
 app.register(dashboardWs)
 app.register(agentWs)
 
-app.listen({ port: env.PORT }).then(() => {
-  console.log(`Server is running on http://localhost:${env.PORT}`)
+app.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
+  console.log(`Server is running on http://0.0.0.0:${env.PORT}`)
 })
