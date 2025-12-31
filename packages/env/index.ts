@@ -10,6 +10,8 @@ export const env = createEnv({
     GOOGLE_OAUTH_CLIENT_SECRET: z.string(),
     GOOGLE_OAUTH_CLIENT_REDIRECT_URI: z.url(),
     TIMEZONE: z.string(),
+    MQTT_USERNAME: z.string(),
+    MQTT_PASSWORD: z.string(),
   },
   client: {},
   shared: {},
@@ -22,6 +24,8 @@ export const env = createEnv({
     GOOGLE_OAUTH_CLIENT_REDIRECT_URI:
       process.env.GOOGLE_OAUTH_CLIENT_REDIRECT_URI,
     TIMEZONE: process.env.TIMEZONE,
+    MQTT_USERNAME: process.env.MQTT_USERNAME,
+    MQTT_PASSWORD: process.env.MQTT_PASSWORD,
   },
   emptyStringAsUndefined: true,
 })

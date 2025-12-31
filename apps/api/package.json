@@ -23,6 +23,7 @@
     "@fastify/jwt": "^9.1.0",
     "@fastify/swagger": "^9.5.1",
     "@fastify/swagger-ui": "^5.2.3",
+    "@fastify/websocket": "^11.2.0",
     "@prisma/client": "6.11.1",
     "@prisma/internals": "^7.0.0",
     "bcryptjs": "^3.0.2",
@@ -32,6 +33,7 @@
     "fastify-type-provider-zod": "^5.0.1",
     "googleapis": "^152.0.0",
     "uuid": "^13.0.0",
+    "ws": "^8.18.3",
     "zod": "^3.25.73"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@faker-js/faker": "^9.9.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^24.0.7",
+    "@types/ws": "^8.18.1",
     "dotenv-cli": "^8.0.0",
     "prisma": "6.11.1",
     "tsx": "^4.20.3"

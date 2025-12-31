@@ -11,6 +11,8 @@ import {
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 
+import websocketPlugin from '@/plugins/fastify-websocket'
+
 import { errorHandler } from './error-handler'
 import { authenticateWithGoogle } from './routes/auth/authenticate-with-google'
 import { authenticateWithPassword } from './routes/auth/authenticate-with-password'
@@ -18,6 +20,9 @@ import { createUser } from './routes/auth/create-user'
 import { getProfile } from './routes/auth/get-profile'
 import { requestPasswordRecover } from './routes/auth/request-password-recover'
 import { resetPassword } from './routes/auth/reset-password'
+import { generateData } from './routes/data/generate-data'
+import { getData } from './routes/data/get-data'
+import { updateData } from './routes/data/update-data'
 import { createInstrument } from './routes/instruments/create-instrument'
 import { createJoinInstrument } from './routes/instruments/create-join-instrument'
 import { deleteInstrument } from './routes/instruments/delete-instrument'
@@ -41,12 +46,14 @@ import { createOrganization } from './routes/orgs/create-organization'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
 import { updateOrganization } from './routes/orgs/update-organization'
-
+import { agentWs } from './routes/ws/agent'
+import { dashboardWs } from './routes/ws/dashboard'
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 app.setSerializerCompiler(serializerCompiler)
 app.setValidatorCompiler(validatorCompiler)
 app.setErrorHandler(errorHandler)
 app.register(fastifyCors)
+app.register(websocketPlugin)
 
 app.register(fastifySwagger, {
   openapi: {
@@ -107,6 +114,13 @@ app.register(createJoinInstrument)
 app.register(deleteJoinInstrument)
 app.register(getInstrumentsWithJoinInstruments)
 app.register(getJoinInstruments)
+
+app.register(getData)
+app.register(generateData)
+app.register(updateData)
+
+app.register(dashboardWs)
+app.register(agentWs)
 
 app.listen({ port: env.SERVER_PORT }).then(() => {
   console.log(`Server is running on http://localhost:${env.SERVER_PORT}`)

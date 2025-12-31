@@ -33,7 +33,7 @@ export function generateMissingDataItem(
 interface FilterByIntervalParams<T> {
   data: T[]
   intervalMinutes: number
-  endDate: string
+  endDate: Date
   instrumentId: string
   averageValue?: number
 }
