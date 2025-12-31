@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "pnpm env:load tsx watch src/http/server.ts",
+    "build": "tsc",
+    "start": "node dist/src/http/server.js",
     "db:migrate": "pnpm env:load prisma migrate dev",
     "db:studio": "pnpm env:load prisma studio",
     "db:generate": "pnpm env:load prisma generate",
@@ -46,6 +48,7 @@
     "@types/ws": "^8.18.1",
     "dotenv-cli": "^8.0.0",
     "prisma": "6.11.1",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.3"
   },
   "prettier": "@cold-monitor/prettier",
