@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm env:load tsx watch src/http/server.ts",
-    "build": "tsc",
+    "build": "tsup",
     "start": "node dist/src/http/server.js",
     "db:migrate": "pnpm env:load prisma migrate dev",
     "db:studio": "pnpm env:load prisma studio",
