@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify'
 
 import { dashboardConnections } from '@/realtime/dashboard-connections'
+import { createSlug } from '@/utils/create-slug'
+import { handleCreateInstrument } from '@/utils/websocket/create-instruments'
+import { agentEventSchema } from '@/utils/websocket/schemas/agent'
+import { handleValuesInstruments } from '@/utils/websocket/send-values-instruments'
 
 export async function agentWs(app: FastifyInstance) {
   app.get('/ws/agent', { websocket: true }, (conn) => {
@@ -8,29 +12,50 @@ export async function agentWs(app: FastifyInstance) {
 
     conn.on('message', async (message: Buffer) => {
       try {
-        const data = JSON.parse(message.toString())
+        const raw = JSON.parse(message.toString())
+        console.log(raw)
+        const parsed = agentEventSchema.safeParse(raw)
 
-        if (data.type !== 'TEMPERATURE_READING') return
+        if (!parsed.success) {
+          console.warn(
+            'Evento inválido recebido do agent',
+            parsed.error.format(),
+          )
+          return
+        }
+        const { type, payload } = parsed.data
 
-        const { controllerId, temperature } = data.payload
+        switch (type) {
+          case 'INSTRUMENT_CREATE': {
+            const instrument = await handleCreateInstrument(payload)
+            conn.send(
+              JSON.stringify({
+                type: 'INSTRUMENT_CREATED',
+                payload: {
+                  slug: createSlug(instrument.name),
+                  instrumentId: instrument.id,
+                },
+              }),
+            )
+            console.log('Instrument sincronizado:', instrument.id)
+            break
+          }
 
-        // 1️⃣ Salvar no banco
-        // await prisma.temperatureReading.create({
-        //   data: {
-        //     controllerId,
-        //     temperature,
-        //   },
-        // })
+          case 'TEMPERATURE_READING': {
+            const reading = await handleValuesInstruments(payload)
 
-        // 2️⃣ Enviar em tempo real para dashboards
-        const payload = JSON.stringify({
-          controllerId,
-          temperature,
-        })
+            dashboardConnections.forEach((ws) => {
+              ws.send(
+                JSON.stringify({
+                  type: 'TEMPERATURE_UPDATE',
+                  payload: reading,
+                }),
+              )
+            })
 
-        dashboardConnections.forEach((ws) => {
-          ws.send(payload)
-        })
+            break
+          }
+        }
       } catch (err) {
         console.error('Erro no WS do agent:', err)
       }

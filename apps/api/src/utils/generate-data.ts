@@ -1,6 +1,5 @@
-import { Prisma } from '@prisma/client'
-
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@/prisma/generated/client'
 
 interface GenerateInstrumentDataInput {
   instrumentId: string
