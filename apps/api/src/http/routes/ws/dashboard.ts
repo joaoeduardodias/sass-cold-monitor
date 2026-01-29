@@ -6,9 +6,17 @@ import { dashboardConnectionsByOrg } from '@/realtime/dashboard-connections'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
 export async function dashboardWs(app: FastifyInstance) {
-  app
-    .register(auth)
-    .get('/ws/dashboard', { websocket: true }, (conn, request) => {
+  app.register(auth).get(
+    '/ws/dashboard',
+    {
+      schema: {
+        tags: ['WebSocket'],
+        summary: 'WebSocket endpoint for dashboard.',
+        operationId: 'dashboardWs',
+      },
+      websocket: true,
+    },
+    (conn, request) => {
       console.log('Dashboard conectado, aguardando AUTH')
 
       let orgId: string | null = null
@@ -96,5 +104,6 @@ export async function dashboardWs(app: FastifyInstance) {
           }
         }
       })
-    })
+    },
+  )
 }

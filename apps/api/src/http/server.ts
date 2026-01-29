@@ -58,8 +58,8 @@ app.register(websocketPlugin)
 app.register(fastifySwagger, {
   openapi: {
     info: {
-      title: 'Cold Monitor',
-      description: 'App monitoring cold',
+      title: 'Api Documentation - Cold Monitor',
+      description: 'App documentation  cold monitor',
       version: '1.0.0',
     },
     components: {

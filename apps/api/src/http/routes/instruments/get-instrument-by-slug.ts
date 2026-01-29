@@ -20,6 +20,7 @@ export async function getInstrumentBySlug(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Get instrument by slug.',
+          operationId: 'getInstrumentBySlug',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),

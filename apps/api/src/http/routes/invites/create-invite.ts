@@ -20,6 +20,7 @@ export async function createInvite(app: FastifyInstance) {
         schema: {
           tags: ['Invites'],
           summary: 'Create a new invite.',
+          operationId: 'createInvite',
           security: [{ bearerAuth: [] }],
           body: z.object({
             email: z.email(),

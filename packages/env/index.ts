@@ -11,7 +11,9 @@ export const env = createEnv({
     GOOGLE_OAUTH_CLIENT_REDIRECT_URI: z.url(),
     TIMEZONE: z.string(),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_API_URL: z.url(),
+  },
   shared: {},
   runtimeEnv: {
     PORT: process.env.PORT,
@@ -22,6 +24,7 @@ export const env = createEnv({
     GOOGLE_OAUTH_CLIENT_REDIRECT_URI:
       process.env.GOOGLE_OAUTH_CLIENT_REDIRECT_URI,
     TIMEZONE: process.env.TIMEZONE,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   emptyStringAsUndefined: true,
 })

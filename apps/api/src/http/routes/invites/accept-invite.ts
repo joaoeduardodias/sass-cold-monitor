@@ -17,6 +17,7 @@ export async function acceptInvite(app: FastifyInstance) {
         schema: {
           tags: ['Invites'],
           summary: 'Accept an invite.',
+          operationId: 'acceptInvite',
           params: z.object({
             inviteId: z.url(),
           }),

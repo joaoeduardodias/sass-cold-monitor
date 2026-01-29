@@ -21,6 +21,7 @@ export async function updateInstrument(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Update instruments.',
+          operationId: 'updateInstruments',
           security: [{ bearerAuth: [] }],
           body: z.object({
             instruments: z.array(

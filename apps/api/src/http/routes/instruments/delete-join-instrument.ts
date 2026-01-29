@@ -19,6 +19,7 @@ export async function deleteJoinInstrument(app: FastifyInstance) {
         schema: {
           tags: ['joinInstruments'],
           summary: 'Delete a join instrument',
+          operationId: 'deleteJoinInstrument',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),

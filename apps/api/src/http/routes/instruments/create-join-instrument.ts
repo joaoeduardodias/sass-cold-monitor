@@ -19,6 +19,7 @@ export async function createJoinInstrument(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Create join instruments.',
+          operationId: 'createJoinInstrument',
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),

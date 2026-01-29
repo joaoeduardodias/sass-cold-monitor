@@ -19,6 +19,7 @@ export async function createInstrument(app: FastifyInstance) {
         schema: {
           tags: ['Instrument'],
           summary: 'Create a new instrument',
+          operationId: 'createInstrument',
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),

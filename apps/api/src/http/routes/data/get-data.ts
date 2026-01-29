@@ -60,6 +60,7 @@ export async function getData(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Get instrument data',
+          operationId: 'getData',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),

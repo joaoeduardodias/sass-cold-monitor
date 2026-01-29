@@ -19,6 +19,7 @@ export async function deleteInstrument(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Delete a instrument',
+          operationId: 'deleteInstrument',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),

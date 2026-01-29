@@ -5,6 +5,8 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
 
 import { prisma } from '@/lib/prisma'
+
+import { BadRequestError } from '../_errors/bad-request-error'
 export async function createUser(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
     '/users',
@@ -12,6 +14,7 @@ export async function createUser(app: FastifyInstance) {
       schema: {
         tags: ['Auth'],
         summary: 'Create user.',
+        operationId: 'createUser',
         body: z.object({
           name: z.string().min(1, 'Name is required'),
           email: z.email('Invalid e-mail format'),
@@ -19,6 +22,9 @@ export async function createUser(app: FastifyInstance) {
             .string()
             .min(6, 'Password must be at least 6 characters long'),
         }),
+        response: {
+          201: z.null()
+        },
       },
     },
     async (request, reply) => {
@@ -28,9 +34,7 @@ export async function createUser(app: FastifyInstance) {
       })
 
       if (userWithSameEmail) {
-        return reply
-          .status(400)
-          .send({ error: 'User with same e-mail already exists.' })
+        throw new BadRequestError('User with same e-mail already exists.')
       }
 
       const [, domain] = email.split('@')

@@ -20,6 +20,7 @@ export async function updateOrganization(app: FastifyInstance) {
         schema: {
           tags: ['Organization'],
           summary: 'Update organization details.',
+          operationId: 'updateOrganization',
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),

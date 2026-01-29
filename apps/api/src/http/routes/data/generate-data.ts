@@ -23,6 +23,7 @@ export async function generateData(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Generate instrument data.',
+          operationId: 'generateData',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),

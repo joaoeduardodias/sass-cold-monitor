@@ -36,7 +36,11 @@ export function defineAbilityFor(user: User) {
     throw new Error(`Permissions for role ${user.role} not defined.`)
   }
   permissions[user.role](user, builder)
-  const ability = builder.build()
+  const ability = builder.build({
+    detectSubjectType(subject) {
+      return subject.__typename
+    },
+  })
 
   ability.can = ability.can.bind(ability)
   ability.cannot = ability.cannot.bind(ability)

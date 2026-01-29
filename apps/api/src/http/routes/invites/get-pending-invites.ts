@@ -18,6 +18,7 @@ export async function getPendingInvites(app: FastifyInstance) {
         schema: {
           tags: ['Invites'],
           summary: 'Get all user pending invites.',
+          operationId: 'getPendingInvites',
           response: {
             200: z.object({
               invites: z.array(

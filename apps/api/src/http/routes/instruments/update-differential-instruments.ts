@@ -20,6 +20,7 @@ export async function updateDifferentialInstrument(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Update Differential instrument.',
+          operationId: 'updateDifferentialInstrument',
           security: [{ bearerAuth: [] }],
           body: z.object({
             differential: z.number().min(0).max(1000),

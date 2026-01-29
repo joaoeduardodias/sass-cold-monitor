@@ -18,6 +18,7 @@ export async function getJoinInstruments(app: FastifyInstance) {
         schema: {
           tags: ['Instruments'],
           summary: 'Get join instruments of organization.',
+          operationId: 'getJoinInstruments',
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),
