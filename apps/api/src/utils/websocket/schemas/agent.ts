@@ -6,15 +6,16 @@ export const createInstrumentPayloadSchema = z.object({
   name: z.string().min(1),
   idSitrad: z.number().int().optional(),
   organizationId: z.uuid(),
+  processStatusText: z.string().optional(),
   type: z.enum(InstrumentType),
   model: z.number().int(),
 })
 
-export const temperatureReadingPayloadSchema = z.object({
+const temperatureReadingPayloadSchema = z.object({
   readings: z.array(
     z.object({
       instrumentId: z.uuid(),
-      data: z.number(),
+      data: z.array(z.any()),
     }),
   ),
 })

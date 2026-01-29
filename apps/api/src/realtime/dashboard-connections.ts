@@ -1,3 +1,3 @@
 import type WebSocket from 'ws'
 
-export const dashboardConnections = new Set<WebSocket>()
+export const dashboardConnectionsByOrg = new Map<string, Set<WebSocket>>()
