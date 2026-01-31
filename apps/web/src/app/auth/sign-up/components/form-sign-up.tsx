@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useFormState } from "@/hooks/use-form-state"
 
+import { ButtonGoogle } from "@/components/button-google"
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -171,6 +172,8 @@ export function FormSignUp() {
             "Criar conta"
           )}
         </Button>
+        <ButtonGoogle isPending={isPending} />
+
 
         <div className="text-center text-sm text-gray-600">
           Já possui conta?{" "}

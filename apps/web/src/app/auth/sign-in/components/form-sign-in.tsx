@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { useFormState } from "@/hooks/use-form-state"
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
 
+import { ButtonGoogle } from "@/components/button-google"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -19,7 +20,7 @@ export function FormSignIn() {
 
   const [{ success, message, errors }, handleSubmit, isPending] =
     useFormState(signInAction, () => {
-      router.push("/")
+      router.push("/select-organization")
     })
 
   return (
@@ -107,7 +108,7 @@ export function FormSignIn() {
             "Entrar"
           )}
         </Button>
-
+        <ButtonGoogle isPending={isPending} />
         <div className="text-center text-sm text-gray-600">
           Não tem uma conta?{" "}
           <Link
