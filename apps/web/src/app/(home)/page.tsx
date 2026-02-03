@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <>
       <Header />
-      <main className="container mx-auto pt-4 mb-8">
+      <main className="container mx-auto pt-4 mb-8 min-[1200px]:px-4">
         Selecione uma empresa
       </main>
     </>

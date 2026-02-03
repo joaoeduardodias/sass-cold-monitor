@@ -105,7 +105,7 @@ export default async function InstrumentPage({
   return (
     <>
       <Header />
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-6 min-[1200px]:px-4">
         <div className="mb-6 flex items-center gap-4">
           <Button variant="outline" size="icon" asChild>
             <Link href="/">

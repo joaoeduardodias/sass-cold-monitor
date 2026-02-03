@@ -11,7 +11,7 @@ export function Header({ currentOrg }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-      <div className="container mx-auto flex h-16 items-center justify-between py-4">
+      <div className="container mx-auto flex h-16 items-center justify-between py-4 px-4">
         <div className="flex gap-2">
           <div className="flex items-center gap-2">
             <Gauge className="h-6 w-6 text-blue-600" />

@@ -23,7 +23,7 @@ export default async function Settings() {
   const { organization } = await getOrganization(currentOrg!)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-[1200px]:px-4">
       <h1 className="text-2xl font-bold">Configurações</h1>
 
       <div className="space-y-4">
