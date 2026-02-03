@@ -1,19 +1,19 @@
-import { AlertsPanel } from "@/components/alerts-panel";
-import { InstrumentGrid } from "@/components/instrument-grid";
+import { getCurrentOrg } from "@/auth/auth";
+import { Header } from "@/components/header";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const currentOrg = await getCurrentOrg()
+  if (!currentOrg) {
+    redirect('/select-organization');
+  }
+
   return (
-    <main className="container mx-auto pt-4 mb-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Monitoramento de Câmaras Frias</h2>
-        <p className="text-muted-foreground">Monitore os dados em tempo real.</p>
-      </div>
-      <div className="flex gap-6">
-        <div className="flex-1">
-          <InstrumentGrid />
-        </div>
-        <AlertsPanel />
-      </div>
-    </main>
+    <>
+      <Header />
+      <main className="container mx-auto pt-4 mb-8">
+        Selecione uma empresa
+      </main>
+    </>
   );
 }

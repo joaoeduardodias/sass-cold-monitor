@@ -20,13 +20,17 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 
-export async function getCurrentOrg() {
+export async function getCurrentOrg(explicitOrg?: string) {
+  if (explicitOrg) {
+    return explicitOrg;
+  }
+
   const cookiesStore = await cookies();
   return cookiesStore.get('org')?.value;
 }
 
-export async function getCurrentMembership() {
-  const org = await getCurrentOrg()
+export async function getCurrentMembership(explicitOrg?: string) {
+  const org = await getCurrentOrg(explicitOrg)
 
   if (!org) {
     return null

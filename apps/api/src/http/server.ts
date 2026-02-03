@@ -43,6 +43,7 @@ import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
 import { updateMember } from './routes/members/update-member'
 import { createOrganization } from './routes/orgs/create-organization'
+import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
 import { updateOrganization } from './routes/orgs/update-organization'
@@ -88,12 +89,15 @@ app.register(authenticateWithGoogle)
 app.register(getProfile)
 app.register(requestPasswordRecover)
 app.register(resetPassword)
+
 app.register(getOrganization)
 app.register(getOrganizations)
 app.register(updateOrganization)
 app.register(createOrganization)
 
 app.register(getMembers)
+app.register(getMembership)
+
 app.register(updateMember)
 app.register(removeMember)
 

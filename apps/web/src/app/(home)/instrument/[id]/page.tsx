@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { Header } from "@/components/header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -102,112 +103,115 @@ export default async function InstrumentPage({
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6 flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">{instrument.name}</h1>
-          {getOperationalStatusBadge(instrument.operationalStatus)}
+    <>
+      <Header />
+      <div className="container mx-auto py-6">
+        <div className="mb-6 flex items-center gap-4">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{instrument.name}</h1>
+            {getOperationalStatusBadge(instrument.operationalStatus)}
+          </div>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Thermometer className="h-6 w-6 text-blue-600" />
-              Temperatura
-            </CardTitle>
-            <CardDescription>Monitoramento principal da câmara fria</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Thermometer className="h-5 w-5 text-blue-600" />
-                <span className="text-sm text-muted-foreground">Temperatura Atual</span>
+        <div className="mb-6">
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Thermometer className="h-6 w-6 text-blue-600" />
+                Temperatura
+              </CardTitle>
+              <CardDescription>Monitoramento principal da câmara fria</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Thermometer className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm text-muted-foreground">Temperatura Atual</span>
+                </div>
+                <span className="text-4xl font-bold">{instrument.temperature.toFixed(1)}°C</span>
               </div>
-              <span className="text-4xl font-bold">{instrument.temperature.toFixed(1)}°C</span>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-3 text-sm text-muted-foreground">
-              <div>
-                <span className="font-medium">Setpoint:</span>
-                <div className="text-lg font-semibold text-foreground">{instrument.setpoint}°C</div>
-              </div>
-              <div>
-                <span className="font-medium">Faixa Operacional:</span>
-                <div className="text-lg font-semibold text-foreground">
-                  {instrument.minTemp}°C a {instrument.maxTemp}°C
+              <div className="grid gap-4 md:grid-cols-3 text-sm text-muted-foreground">
+                <div>
+                  <span className="font-medium">Setpoint:</span>
+                  <div className="text-lg font-semibold text-foreground">{instrument.setpoint}°C</div>
+                </div>
+                <div>
+                  <span className="font-medium">Faixa Operacional:</span>
+                  <div className="text-lg font-semibold text-foreground">
+                    {instrument.minTemp}°C a {instrument.maxTemp}°C
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-      </div>
+        </div>
 
-      <div className="mt-6">
-        <Tabs defaultValue="realtime">
-          <TabsList>
-            <TabsTrigger value="realtime" className="flex items-center gap-2">
-              <Thermometer className="h-4 w-4" />
-              Tempo Real
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <History className="h-4 w-4" />
-              Histórico
-            </TabsTrigger>
-            <TabsTrigger value="alerts" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Alertas
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="realtime" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monitoramento e Controle em Tempo Real</CardTitle>
-                <CardDescription>Visualização dos sensores e controles operacionais</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RealtimeGauges
-                  id={id}
-                  initialSetpoint={instrument.setpoint}
-                  initialDifferential={instrument.differential}
-                  initialDefrost={instrument.defrost}
-                  initialFan={instrument.fan}
-                  operationalStatus={instrument.operationalStatus}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="history" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Histórico de Leituras</CardTitle>
-                <CardDescription>Últimas 100 leituras</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <HistoryTable instrumentName={instrument.name} id={id} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="alerts" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuração de Alertas</CardTitle>
-                <CardDescription>Defina os limites para notificações</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AlertSettings id={id} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <div className="mt-6">
+          <Tabs defaultValue="realtime">
+            <TabsList>
+              <TabsTrigger value="realtime" className="flex items-center gap-2">
+                <Thermometer className="h-4 w-4" />
+                Tempo Real
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                Histórico
+              </TabsTrigger>
+              <TabsTrigger value="alerts" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                Alertas
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="realtime" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Monitoramento e Controle em Tempo Real</CardTitle>
+                  <CardDescription>Visualização dos sensores e controles operacionais</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RealtimeGauges
+                    id={id}
+                    initialSetpoint={instrument.setpoint}
+                    initialDifferential={instrument.differential}
+                    initialDefrost={instrument.defrost}
+                    initialFan={instrument.fan}
+                    operationalStatus={instrument.operationalStatus}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="history" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Histórico de Leituras</CardTitle>
+                  <CardDescription>Últimas 100 leituras</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <HistoryTable instrumentName={instrument.name} id={id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="alerts" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configuração de Alertas</CardTitle>
+                  <CardDescription>Defina os limites para notificações</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <AlertSettings id={id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

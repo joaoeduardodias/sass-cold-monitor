@@ -1,97 +1,23 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import type React from "react"
-import { useState } from "react"
 
-import { Input } from "@/components/ui/input"
 
 import {
-  Building2,
-  Search
+  Building2
 } from "lucide-react"
 
-import { toast } from "sonner"
 import { OrganizationCard } from "./organization-card"
 
-
-export interface Organization {
-  id: string
-  name: string
-  logo?: string
-  role: "admin" | "operator" | "viewer"
-  plan: "free" | "starter" | "professional" | "enterprise"
-  chambersCount: number
-  alertsCount: number
-  status: "online" | "offline" | "warning"
-  lastAccess?: string
-  isFavorite?: boolean
+interface SelectOrganizationViewProps {
+  organizations: {
+    id: string;
+    name: string;
+    slug: string;
+    avatarUrl: string | null;
+  }[]
 }
 
-
-const mockOrganizations: Organization[] = [
-  {
-    id: "1",
-    name: "Frigorífico São Paulo",
-    role: "admin",
-    plan: "enterprise",
-    chambersCount: 24,
-    alertsCount: 2,
-    status: "warning",
-    lastAccess: "Há 2 horas",
-    isFavorite: true,
-  },
-]
-
-const currentUser = {
-  name: "João Silva",
-  email: "joao.silva@email.com",
-  avatar: "",
-}
-
-
-export function SelectOrganizationView() {
-  const router = useRouter()
-
-  const [searchTerm, setSearchTerm] = useState("")
-  const [loading, setLoading] = useState<string | null>(null)
-  const [organizations, setOrganizations] =
-    useState<Organization[]>(mockOrganizations)
-
-  const filteredOrganizations = organizations.filter((org) =>
-    org.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  const handleSelectOrganization = async (
-    organization: Organization,
-  ) => {
-    setLoading(organization.id)
-
-    await new Promise((resolve) => setTimeout(resolve, 800))
-
-    toast.success(`Acessando ${organization.name}`)
-
-    setTimeout(() => router.push("/"), 300)
-  }
-
-  const toggleFavorite = (
-    e: React.MouseEvent,
-    organizationId: string,
-  ) => {
-    e.stopPropagation()
-
-    setOrganizations((prev) =>
-      prev.map((o) =>
-        o.id === organizationId
-          ? { ...o, isFavorite: !o.isFavorite }
-          : o,
-      ),
-    )
-
-    toast.success("Favoritos atualizados")
-  }
-
-
+export function SelectOrganizationView({ organizations }: SelectOrganizationViewProps) {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
@@ -111,34 +37,12 @@ export function SelectOrganizationView() {
             </p>
           </div>
 
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-
-              <Input
-                type="search"
-                placeholder="Buscar organização..."
-                value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
-                className="pl-10 h-11"
-              />
-            </div>
-          </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredOrganizations.map((org: Organization) => (
+            {organizations.map((org) => (
               <OrganizationCard
                 key={org.id}
                 organization={org}
-                loading={loading === org.id}
-                onSelect={() =>
-                  handleSelectOrganization(org)
-                }
-                onToggleFavorite={(e: React.MouseEvent) =>
-                  toggleFavorite(e, org.id)
-                }
               />
             ))}
           </div>
