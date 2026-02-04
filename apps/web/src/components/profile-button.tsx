@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
 
-import { auth } from '@/auth/auth'
+import { auth, getCurrentOrg } from '@/auth/auth'
 
 import { getInitials } from '@/utils/get-initials'
 import Link from 'next/link'
@@ -16,8 +16,10 @@ import {
 
 
 
+
 export async function ProfileButton() {
   const { user } = await auth()
+  const currentOrg = await getCurrentOrg()
 
   return (
     <DropdownMenu>
@@ -44,10 +46,12 @@ export async function ProfileButton() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
-            <Settings className="mr-2 size-4" />
-            <span>Configurações</span>
-          </Link>
+          {currentOrg && (
+            <Link href={`/org/${currentOrg}/settings`} className="cursor-pointer">
+              <Settings className="mr-2 size-4" />
+              <span>Configurações</span>
+            </Link>
+          )}
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/auth/profile" className="cursor-pointer">
@@ -69,4 +73,3 @@ export async function ProfileButton() {
     </DropdownMenu>
   )
 }
-

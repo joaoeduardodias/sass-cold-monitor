@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle, CircleDollarSign, Loader2 } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useFormState } from '@/hooks/use-form-state'
 
+import { Separator } from '@/components/ui/separator'
 import {
   createOrganizationAction,
   OrganizationSchema,
@@ -36,7 +37,7 @@ export function OrganizationForm({
       {success === false && message && (
         <Alert variant="destructive">
           <AlertTriangle className="size-4" />
-          <AlertTitle>Falha ao salvar organização!</AlertTitle>
+          <AlertTitle>Falha ao salvar empresa!</AlertTitle>
           <AlertDescription>
             <p>{message}</p>
           </AlertDescription>
@@ -54,7 +55,7 @@ export function OrganizationForm({
       )}
 
       <div className="space-y-1">
-        <Label htmlFor="name">Nome da organização</Label>
+        <Label htmlFor="name">Nome da empresa</Label>
         <Input name="name" id="name" defaultValue={initialData?.name} />
 
         {errors?.name && (
@@ -97,7 +98,7 @@ export function OrganizationForm({
             </span>
             <p className="text-sm text-muted-foreground">
               Isso trará automaticamente todos os membros com o mesmo domínio de e-mail
-              para esta organização.
+              para esta empresa.
             </p>
           </label>
         </div>
@@ -108,12 +109,33 @@ export function OrganizationForm({
           </p>
         )}
       </div>
+      <div className="space-y-4">
+        <Separator />
+
+        <div className="flex items-center gap-2">
+          <CircleDollarSign className="size-5 text-blue-600" />
+          <h3 className="text-lg font-medium">Informações de Custo</h3>
+        </div>
+
+        <div className="gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="currency">Custo</Label>
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-sm text-muted-foreground">Plano </span>
+                <span className="text-2xl font-bold">R$ 2.000</span>
+                <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Button className="w-full" type="submit" disabled={isPending}>
         {isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
-          'Salvar organização'
+          'Salvar empresa'
         )}
       </Button>
     </form>

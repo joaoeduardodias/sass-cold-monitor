@@ -1,4 +1,8 @@
+import Link from "next/link"
+
 import { ability, getCurrentOrg } from '@/auth/auth'
+import { Header } from "@/components/header"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -6,66 +10,107 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getOrganization } from '@/http/organizations/get-organization'
+import { ArrowLeft, Building, Settings, Thermometer } from "lucide-react"
 
+import { ChamberSettings } from "@/app/(home)/settings/components/chamber-settings"
 import { OrganizationForm } from '../../organization-form'
-import { Billing } from './billing'
 import { ShutdownOrganizationButton } from './shutdown-organization-button'
 
-export default async function Settings() {
+export default async function SettingsPage() {
   const currentOrg = await getCurrentOrg()
   const permissions = await ability()
 
   const canUpdateOrganization = permissions?.can('update', 'Organization')
-  const canGetBilling = permissions?.can('manage', 'Organization')
   const canShutdownOrganization = permissions?.can('delete', 'Organization')
 
   const { organization } = await getOrganization(currentOrg!)
 
   return (
-    <div className="space-y-4 min-[1200px]:px-4">
-      <h1 className="text-2xl font-bold">Configurações</h1>
+    <>
+      <Header />
+      <div className="container mx-auto py-6 min-[1200px]:px-4">
+        <div className="mb-6 flex items-center gap-4">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Configurações do Sistema</h1>
+            <p className="text-muted-foreground">Gerencie as configurações globais do ColdMonitor</p>
+          </div>
+        </div>
 
-      <div className="space-y-4">
-        {canUpdateOrganization && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações da organização</CardTitle>
-              <CardDescription>
-                Atualize os detalhes da sua organização
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <OrganizationForm
-                isUpdating
-                initialData={{
-                  name: organization.name,
-                  domain: organization.domain,
-                  shouldAttachUsersByDomain:
-                    organization.shouldAttachUsersByDomain,
-                }}
-              />
-            </CardContent>
-          </Card>
-        )}
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 transition-all duration-300 ease-in-out">
+            <TabsTrigger value="general" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
+              <Settings className="size-4" />
+              <span className="hidden sm:inline">Geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="instruments" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
+              <Thermometer className="size-4" />
+              <span className="hidden sm:inline">Instrumentos</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {canGetBilling && <Billing />}
+          <TabsContent value="general" className="animate-in fade-in-50 duration-400 space-y-4">
+            {canUpdateOrganization && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configurações Gerais</CardTitle>
+                  <CardDescription>Configurações básicas do sistema e empresa</CardDescription>
+                </CardHeader>
 
-        {canShutdownOrganization && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Encerrar organização</CardTitle>
-              <CardDescription>
-                Isso irá excluir todos os dados da organização, incluindo todos os instrumentos.
-                Você não pode desfazer essa ação.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ShutdownOrganizationButton />
-            </CardContent>
-          </Card>
-        )}
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Building className="size-5 text-blue-600" />
+                    <h3 className="text-lg font-medium">Informações da Empresa</h3>
+                  </div>
+                  <OrganizationForm
+                    isUpdating
+                    initialData={{
+                      name: organization.name,
+                      domain: organization.domain,
+                      shouldAttachUsersByDomain:
+                        organization.shouldAttachUsersByDomain,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+
+            {canShutdownOrganization && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Encerrar organização</CardTitle>
+                  <CardDescription>
+                    Isso irá excluir todos os dados da organização, incluindo todos os instrumentos.
+                    Você não pode desfazer essa ação.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ShutdownOrganizationButton />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="instruments" className="animate-in fade-in-50 duration-400">
+            <Card>
+              <CardHeader>
+                <CardTitle>Configuração das Câmaras</CardTitle>
+                <CardDescription>Gerencie todas as câmaras frias em um só local</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChamberSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </>
   )
 }
