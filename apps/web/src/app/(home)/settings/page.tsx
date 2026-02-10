@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { getCurrentOrg } from "@/auth/auth"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +15,9 @@ import { SecuritySettings } from "./components/security-settings"
 import { UserManagement } from "./components/user-management"
 
 
-export default function Page() {
+export default async function Page() {
+  const currentOrg = await getCurrentOrg()
+
   return (
     <>
       <Header />
@@ -94,7 +97,7 @@ export default function Page() {
                 <CardDescription>Gerencie usuários, permissões e grupos de acesso</CardDescription>
               </CardHeader>
               <CardContent>
-                <UserManagement />
+                <UserManagement organizationSlug={currentOrg ?? undefined} />
               </CardContent>
             </Card>
           </TabsContent>

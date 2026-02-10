@@ -14,50 +14,64 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import type { Role } from "@cold-monitor/auth"
+import { useQuery } from "@tanstack/react-query"
 import { Edit, Plus, Shield, Trash2, UserCheck, UserX } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
+import { getMembers } from "@/http/members/get-members"
+
+type Member = {
+  id: string
+  userId: string
+  role: Role
+  name: string | null
+  email: string
+  avatarUrl: string | null
+}
+
 type User = {
-  id: number
+  id: string
   name: string
   email: string
-  role: "admin" | "operator" | "viewer"
+  role: Role
   status: "active" | "inactive"
   lastLogin: string
   createdAt: string
 }
 
-export function UserManagement() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      name: "João Silva",
-      email: "joao@empresa.com",
-      role: "admin",
-      status: "active",
-      lastLogin: "2024-01-15 14:30",
-      createdAt: "2024-01-01",
+type UserManagementProps = {
+  organizationSlug?: string
+}
+
+export function UserManagement({ organizationSlug }: UserManagementProps) {
+  const { data: membersData, isLoading, error } = useQuery({
+    queryKey: ["members", organizationSlug],
+    queryFn: async () => {
+      if (!organizationSlug) return []
+      const { members } = await getMembers(organizationSlug)
+      return members
     },
-    {
-      id: 2,
-      name: "Maria Santos",
-      email: "maria@empresa.com",
-      role: "operator",
-      status: "active",
-      lastLogin: "2024-01-15 09:15",
-      createdAt: "2024-01-05",
-    },
-    {
-      id: 3,
-      name: "Pedro Costa",
-      email: "pedro@empresa.com",
-      role: "viewer",
-      status: "inactive",
-      lastLogin: "2024-01-10 16:45",
-      createdAt: "2024-01-10",
-    },
-  ])
+    enabled: Boolean(organizationSlug),
+    staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+
+  const users = useMemo<User[]>(
+    () =>
+      (membersData || []).map((member: Member) => ({
+        id: member.id,
+        name: member.name ?? "Sem nome",
+        email: member.email,
+        role: member.role,
+        status: "active",
+        lastLogin: "—",
+        createdAt: "—",
+      })),
+    [membersData],
+  )
 
   const [newUser, setNewUser] = useState<{
     name: string
@@ -77,44 +91,29 @@ export function UserManagement() {
       return
     }
 
-    const user: User = {
-      id: users.length + 1,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      status: "active",
-      lastLogin: "Nunca",
-      createdAt: new Date().toISOString().split("T")[0],
-    }
-
-    setUsers([...users, user])
+    toast.info("A criação de usuários reais ainda não está habilitada.")
     setNewUser({ name: "", email: "", role: "viewer" })
     setIsDialogOpen(false)
-    toast.success("Usuário adicionado com sucesso!")
   }
 
-  const toggleUserStatus = (id: number) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, status: user.status === "active" ? "inactive" : "active" } : user,
-      ),
-    )
-    toast.success("Status do usuário alterado!")
+  const toggleUserStatus = (id: string) => {
+    toast.info("A alteração de status ainda não está habilitada.")
   }
 
-  const deleteUser = (id: number) => {
-    setUsers(users.filter((user) => user.id !== id))
-    toast.success("Usuário removido!")
+  const deleteUser = (id: string) => {
+    toast.info("A remoção de usuários ainda não está habilitada.")
   }
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (role: Role) => {
     switch (role) {
-      case "admin":
+      case "ADMIN":
         return <Badge className="bg-red-500 hover:bg-red-500">Administrador</Badge>
-      case "operator":
+      case "OPERATOR":
         return <Badge className="bg-blue-500 hover:bg-blue-500">Operador</Badge>
-      case "viewer":
+      case "VIEWER":
         return <Badge className="bg-gray-500 hover:bg-gray-500">Visualizador</Badge>
+      case "EDITOR":
+        return <Badge className="bg-purple-500 hover:bg-purple-500">Editor</Badge>
       default:
         return <Badge>Desconhecido</Badge>
     }
@@ -127,6 +126,10 @@ export function UserManagement() {
       <Badge className="bg-gray-500 hover:bg-gray-500">Inativo</Badge>
     )
   }
+
+  const hasData = users.length > 0
+  const canFetch = Boolean(organizationSlug)
+  const hasError = Boolean(error)
 
   return (
     <div className="space-y-6">
@@ -208,6 +211,27 @@ export function UserManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
+            {canFetch && isLoading && !hasData && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                  Carregando usuários...
+                </TableCell>
+              </TableRow>
+            )}
+            {canFetch && hasError && !hasData && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                  Não foi possível carregar os usuários.
+                </TableCell>
+              </TableRow>
+            )}
+            {canFetch && !isLoading && !hasData && !hasError && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                  Nenhum usuário encontrado.
+                </TableCell>
+              </TableRow>
+            )}
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.name}</TableCell>

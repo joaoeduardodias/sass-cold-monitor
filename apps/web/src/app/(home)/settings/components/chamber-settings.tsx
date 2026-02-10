@@ -1,5 +1,6 @@
 "use client"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,6 +20,7 @@ import {
   AlertCircle,
   ArrowDown,
   ArrowUp,
+  ArrowUpDown,
   CheckCircle,
   ChevronsLeft,
   ChevronsRight,
@@ -150,11 +152,18 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
   const [editValue, setEditValue] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [nameSortDirection, setNameSortDirection] = useState<"asc" | "desc" | null>(null)
+  const [pendingNameSortDirection, setPendingNameSortDirection] = useState<"asc" | "desc" | null>(null)
+  const [showNameSortAlert, setShowNameSortAlert] = useState(false)
 
-  const sortedInstruments = useMemo(
-    () => [...instruments].sort((a, b) => a.orderDisplay - b.orderDisplay),
-    [instruments],
-  )
+  const sortedInstruments = useMemo(() => {
+    const list = [...instruments]
+    if (nameSortDirection) {
+      const direction = nameSortDirection === "asc" ? 1 : -1
+      return list.sort((a, b) => direction * a.name.localeCompare(b.name, "pt-BR"))
+    }
+    return list.sort((a, b) => a.orderDisplay - b.orderDisplay)
+  }, [instruments, nameSortDirection])
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(instruments.length / itemsPerPage)),
     [instruments.length, itemsPerPage],
@@ -356,6 +365,10 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
   }
 
   const moveOrderDisplay = (instrumentsId: string, direction: "up" | "down") => {
+    if (nameSortDirection) {
+      toast.info("Desative a ordenação por nome para ajustar a ordem manualmente.")
+      return
+    }
     const instrument = instruments.find((c) => c.id === instrumentsId)
     if (!instrument) return
 
@@ -399,6 +412,55 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
   const deleteInstruments = (id: string) => {
     setInstruments(instruments.filter((c) => c.id !== id))
     toast.success("Câmara removida")
+  }
+
+  const applyNameSort = (direction: "asc" | "desc") => {
+    const multiplier = direction === "asc" ? 1 : -1
+    const sortedByName = [...instruments].sort((a, b) =>
+      multiplier * a.name.localeCompare(b.name, "pt-BR"),
+    )
+    setInstruments(
+      sortedByName.map((instrument, index) => ({
+        ...instrument,
+        orderDisplay: index + 1,
+      })),
+    )
+    setNameSortDirection(direction)
+  }
+
+  const toggleSortByName = () => {
+    const nextDirection =
+      nameSortDirection === null ? "asc" : nameSortDirection === "asc" ? "desc" : null
+
+    if (nextDirection) {
+      if (nameSortDirection) {
+        applyNameSort(nextDirection)
+        return
+      }
+
+      if (showNameSortAlert && pendingNameSortDirection === nextDirection) {
+        confirmNameSort()
+        return
+      }
+
+      setPendingNameSortDirection(nextDirection)
+      setShowNameSortAlert(true)
+      return
+    }
+
+    setNameSortDirection(null)
+  }
+
+  const confirmNameSort = () => {
+    if (!pendingNameSortDirection) return
+    applyNameSort(pendingNameSortDirection)
+    setPendingNameSortDirection(null)
+    setShowNameSortAlert(false)
+  }
+
+  const cancelNameSort = () => {
+    setPendingNameSortDirection(null)
+    setShowNameSortAlert(false)
   }
 
   const { mutateAsync: updateInstrumentsMutation, isPending: isSaving } = useMutation({
@@ -730,12 +792,44 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         </div>
       )}
 
+      {showNameSortAlert && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Ordenação por nome</AlertTitle>
+          <AlertDescription>
+            Ao ordenar pelo nome, o campo de ordem de exibição (orderDisplay) será alterado.
+            <div className="mt-3 flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={cancelNameSort}>
+                Cancelar
+              </Button>
+              <Button size="sm" onClick={confirmNameSort}>
+                Continuar
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className={`rounded-md border ${!hasData ? "opacity-60 pointer-events-none" : ""}`}>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-16">Ordem</TableHead>
-              <TableHead>Nome</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="group h-7 w-full justify-between px-2 -ml-2 cursor-pointer"
+                  onClick={toggleSortByName}
+                >
+                  <span className="text-left">Nome</span>
+                  {nameSortDirection === "asc" && <ArrowUp className="ml-2 h-3 w-3" />}
+                  {nameSortDirection === "desc" && <ArrowDown className="ml-2 h-3 w-3" />}
+                  {!nameSortDirection && (
+                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  )}
+                </Button>
+              </TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Min (°C)</TableHead>
