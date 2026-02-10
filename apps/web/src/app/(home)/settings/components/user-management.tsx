@@ -20,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import type { Role } from "@cold-monitor/auth"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Clock, Edit, Mail, Plus, RefreshCw, Search, Send, Shield, Trash2, UserCheck, UserPlus, UserX, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo, useState, type Dispatch, type SetStateAction, type ReactNode } from "react"
 import { toast } from "sonner"
 
 import {
@@ -40,6 +40,7 @@ import { getInvites } from "@/http/invites/get-invites"
 import { revokeInvite } from "@/http/invites/revoke-invite"
 import { removeMember } from "@/http/members/remove-member"
 import { toggleStatusMember } from "@/http/members/toggle-status-member"
+import { updateMember } from "@/http/members/update-member"
 
 type Member = {
   id: string
@@ -93,6 +94,9 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
   const queryClient = useQueryClient()
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null)
   const [togglingMemberId, setTogglingMemberId] = useState<string | null>(null)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingMember, setEditingMember] = useState<User | null>(null)
+  const [editRole, setEditRole] = useState<Role>("VIEWER")
   const { data: membersData, isLoading, error } = useQuery({
     queryKey: ["members", organizationSlug],
     queryFn: async () => {
@@ -176,6 +180,22 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     }
   }
 
+  const { mutateAsync: updateMemberMutation, isPending: isUpdatingMember } = useMutation({
+    mutationFn: async ({ memberId, role }: { memberId: string; role: Role }) => {
+      if (!organizationSlug) {
+        throw new Error("Slug da organização não informado")
+      }
+      await updateMember({ org: organizationSlug, memberId, role })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["members", organizationSlug] })
+      toast.success("Membro atualizado!")
+    },
+    onError: () => {
+      toast.error("Não foi possível atualizar o membro.")
+    },
+  })
+
   const { mutateAsync: toggleMemberStatusMutation } = useMutation({
     mutationFn: async ({ memberId, status }: { memberId: string; status: "active" | "inactive" }) => {
       if (!organizationSlug) {
@@ -199,6 +219,18 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     } finally {
       setTogglingMemberId(null)
     }
+  }
+
+  const openEditMember = (user: User) => {
+    setEditingMember(user)
+    setEditRole(user.role)
+    setIsEditOpen(true)
+  }
+
+  const handleUpdateMember = async () => {
+    if (!editingMember) return
+    await updateMemberMutation({ memberId: editingMember.id, role: editRole })
+    setIsEditOpen(false)
   }
 
   const getRoleBadge = (role: Role) => {
@@ -387,382 +419,590 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
             </TabsList>
           </div>
 
-          <TabsContent value="users" className="space-y-4 mt-0">
-            <div className="flex items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar usuário..."
-                  value={searchUser}
-                  onChange={(e) => setSearchUser(e.target.value)}
-                  className="pl-9 h-9"
-                />
-              </div>
+          <UsersTab
+            searchUser={searchUser}
+            setSearchUser={setSearchUser}
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+            newUser={newUser}
+            setNewUser={setNewUser}
+            handleAddUser={handleAddUser}
+            canFetch={canFetch}
+            isLoading={isLoading}
+            hasData={hasData}
+            hasError={hasError}
+            filteredUsers={filteredUsers}
+            deletingMemberId={deletingMemberId}
+            togglingMemberId={togglingMemberId}
+            onToggleStatus={toggleUserStatus}
+            onDelete={deleteUser}
+            onEdit={openEditMember}
+            getRoleBadge={getRoleBadge}
+            getStatusBadge={getStatusBadge}
+          />
 
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Adicionar
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Adicionar Novo Usuário</DialogTitle>
-                    <DialogDescription>Preencha as informações do novo usuário</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="user-name">Nome Completo</Label>
-                      <Input
-                        id="user-name"
-                        value={newUser.name}
-                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                        placeholder="Digite o nome completo"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="user-email">Email</Label>
-                      <Input
-                        id="user-email"
-                        type="email"
-                        value={newUser.email}
-                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        placeholder="Digite o email"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="user-role">Função</Label>
-                      <Select value={newUser.role} onValueChange={(value: "viewer" | "operator" | "admin") => setNewUser({ ...newUser, role: value })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="viewer">Visualizador</SelectItem>
-                          <SelectItem value="operator">Operador</SelectItem>
-                          <SelectItem value="admin">Administrador</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex justify-end gap-2 pt-4">
-                      <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                        Cancelar
-                      </Button>
-                      <Button onClick={handleAddUser}>Adicionar Usuário</Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {canFetch && isLoading && !hasData && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                        Carregando usuários...
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {canFetch && hasError && !hasData && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                        Não foi possível carregar os usuários.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {canFetch && !isLoading && !hasData && !hasError && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                        Nenhum usuário encontrado.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {filteredUsers.map((user) => {
-                    const nextStatus = user.isActive ? "inactive" : "active"
-                    const isToggling = togglingMemberId === user.id
-                    return (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{getRoleBadge(user.role)}</TableCell>
-                        <TableCell>{getStatusBadge(user.isActive)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="outline" size="sm" disabled={isToggling}>
-                                      {user.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {user.isActive ? "Inativar usuário" : "Ativar usuário"}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    {user.isActive ? "Inativar usuário" : "Ativar usuário"}
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja {user.isActive ? "inativar" : "ativar"} este usuário?
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => toggleUserStatus(user.id, nextStatus)}>
-                                    Confirmar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Edit className="size-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Editar usuário</TooltipContent>
-                            </Tooltip>
-
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      disabled={deletingMemberId === user.id}
-                                      className="text-red-600 hover:text-red-700"
-                                    >
-                                      <Trash2 className="size-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Remover usuário</TooltipContent>
-                                </Tooltip>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Remover usuário</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja remover este usuário da organização?
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteUser(user.id)}>
-                                    Remover
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div className="rounded-lg bg-blue-50 p-4">
-              <div className="flex items-start gap-3">
-                <Shield className="size-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-blue-900">Níveis de Permissão</h4>
-                  <div className="mt-2 space-y-1 text-sm text-blue-800">
-                    <p>
-                      <strong>Administrador:</strong> Acesso completo ao sistema, incluindo configurações
-                    </p>
-                    <p>
-                      <strong>Operador:</strong> Pode visualizar dados e controlar equipamentos
-                    </p>
-                    <p>
-                      <strong>Visualizador:</strong> Apenas visualização de dados e relatórios
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="invites" className="space-y-4 mt-0">
-            <div className="flex items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por email..."
-                  value={searchInvite}
-                  onChange={(e) => setSearchInvite(e.target.value)}
-                  className="pl-9 h-9"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Convidar
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Convidar Membros</DialogTitle>
-                      <DialogDescription>
-                        Envie convites por email para novos membros da organização
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 pt-2">
-                      <div className="space-y-2">
-                        <Label>Emails</Label>
-                        <Textarea
-                          value={inviteForm.emails}
-                          onChange={(e) => setInviteForm({ ...inviteForm, emails: e.target.value })}
-                          placeholder={"email1@exemplo.com\nemail2@exemplo.com\nemail3@exemplo.com"}
-                          rows={4}
-                          className="resize-none font-mono text-sm"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Separe múltiplos emails por linha, vírgula ou ponto e vírgula
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Função</Label>
-                        <Select
-                          value={inviteForm.role}
-                          onValueChange={(v: any) => setInviteForm({ ...inviteForm, role: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="viewer">Visualizador</SelectItem>
-                            <SelectItem value="operator">Operador</SelectItem>
-                            <SelectItem value="admin">Administrador</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>
-                          Mensagem <span className="text-muted-foreground font-normal">(opcional)</span>
-                        </Label>
-                        <Textarea
-                          value={inviteForm.message}
-                          onChange={(e) => setInviteForm({ ...inviteForm, message: e.target.value })}
-                          placeholder="Escreva uma mensagem personalizada para o convite..."
-                          rows={3}
-                          className="resize-none"
-                        />
-                      </div>
-                      <div className="flex justify-end gap-2 pt-2">
-                        <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
-                          Cancelar
-                        </Button>
-                        <Button onClick={handleSendInvites}>
-                          <Send className="mr-2 h-4 w-4" />
-                          Enviar Convites
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            {isInvitesLoading && filteredInvites.length === 0 && (
-              <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
-                Carregando convites...
-              </div>
-            )}
-
-            {invitesError && filteredInvites.length === 0 && (
-              <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
-                Não foi possível carregar os convites.
-              </div>
-            )}
-
-            {pendingInvites.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Pendentes ({pendingInvites.length})</p>
-                <div className="rounded-lg border divide-y">
-                  {pendingInvites.map((invite) => {
-                    const remaining = getTimeRemaining(invite.expiresAt)
-                    const roleKey = roleToLabelKey(invite.role)
-                    return (
-                      <div key={invite.id} className="flex items-center justify-between gap-4 p-3 group">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 shrink-0">
-                            <Mail className="h-4 w-4 text-amber-600" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{invite.email}</p>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>Enviado por {invite.sentBy}</span>
-                              <span>/</span>
-                              <span>{invite.sentAt}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <Badge variant="outline" className={roleColors[roleKey]}>
-                            {roleLabels[roleKey]}
-                          </Badge>
-                          {remaining && (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>{remaining}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => resendInvite(invite)}>
-                              <RefreshCw className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-red-600 hover:text-red-700"
-                              onClick={() => revokeInviteAction(invite.id)}
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {filteredInvites.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p className="text-sm font-medium">Nenhum convite encontrado</p>
-                <p className="text-xs text-muted-foreground mt-1">Envie convites para adicionar novos membros</p>
-              </div>
-            )}
-          </TabsContent>
+          <InvitesTab
+            searchInvite={searchInvite}
+            setSearchInvite={setSearchInvite}
+            isInviteOpen={isInviteOpen}
+            setIsInviteOpen={setIsInviteOpen}
+            inviteForm={inviteForm}
+            setInviteForm={setInviteForm}
+            handleSendInvites={handleSendInvites}
+            isInvitesLoading={isInvitesLoading}
+            invitesError={Boolean(invitesError)}
+            pendingInvites={pendingInvites}
+            roleToLabelKey={roleToLabelKey}
+            roleLabels={roleLabels}
+            roleColors={roleColors}
+            getTimeRemaining={getTimeRemaining}
+            resendInvite={resendInvite}
+            revokeInviteAction={revokeInviteAction}
+          />
         </Tabs>
+
+        <EditMemberDialog
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          member={editingMember}
+          role={editRole}
+          onRoleChange={setEditRole}
+          onSave={handleUpdateMember}
+          isSaving={isUpdatingMember}
+        />
       </div>
     </TooltipProvider>
+  )
+}
+
+type NewUserForm = {
+  name: string
+  email: string
+  role: "admin" | "operator" | "viewer"
+}
+
+type InviteForm = {
+  emails: string
+  role: "admin" | "operator" | "viewer"
+  message: string
+}
+
+type UsersTabProps = {
+  searchUser: string
+  setSearchUser: Dispatch<SetStateAction<string>>
+  isDialogOpen: boolean
+  setIsDialogOpen: Dispatch<SetStateAction<boolean>>
+  newUser: NewUserForm
+  setNewUser: Dispatch<SetStateAction<NewUserForm>>
+  handleAddUser: () => void
+  canFetch: boolean
+  isLoading: boolean
+  hasData: boolean
+  hasError: boolean
+  filteredUsers: User[]
+  deletingMemberId: string | null
+  togglingMemberId: string | null
+  onToggleStatus: (id: string, status: "active" | "inactive") => void
+  onDelete: (id: string) => void
+  onEdit: (user: User) => void
+  getRoleBadge: (role: Role) => ReactNode
+  getStatusBadge: (isActive: boolean) => ReactNode
+}
+
+function UsersTab({
+  searchUser,
+  setSearchUser,
+  isDialogOpen,
+  setIsDialogOpen,
+  newUser,
+  setNewUser,
+  handleAddUser,
+  canFetch,
+  isLoading,
+  hasData,
+  hasError,
+  filteredUsers,
+  deletingMemberId,
+  togglingMemberId,
+  onToggleStatus,
+  onDelete,
+  onEdit,
+  getRoleBadge,
+  getStatusBadge,
+}: UsersTabProps) {
+  return (
+    <TabsContent value="users" className="space-y-4 mt-0">
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar usuário..."
+            value={searchUser}
+            onChange={(e) => setSearchUser(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Usuário</DialogTitle>
+              <DialogDescription>Preencha as informações do novo usuário</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="user-name">Nome Completo</Label>
+                <Input
+                  id="user-name"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  placeholder="Digite o nome completo"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-email">Email</Label>
+                <Input
+                  id="user-email"
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  placeholder="Digite o email"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="user-role">Função</Label>
+                <Select value={newUser.role} onValueChange={(value: "viewer" | "operator" | "admin") => setNewUser({ ...newUser, role: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="viewer">Visualizador</SelectItem>
+                    <SelectItem value="operator">Operador</SelectItem>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleAddUser}>Adicionar Usuário</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Função</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {canFetch && isLoading && !hasData && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                  Carregando usuários...
+                </TableCell>
+              </TableRow>
+            )}
+            {canFetch && hasError && !hasData && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                  Não foi possível carregar os usuários.
+                </TableCell>
+              </TableRow>
+            )}
+            {canFetch && !isLoading && !hasData && !hasError && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                  Nenhum usuário encontrado.
+                </TableCell>
+              </TableRow>
+            )}
+            {filteredUsers.map((user) => {
+              const nextStatus = user.isActive ? "inactive" : "active"
+              const isToggling = togglingMemberId === user.id
+              return (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{getRoleBadge(user.role)}</TableCell>
+                  <TableCell>{getStatusBadge(user.isActive)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="outline" size="sm" disabled={isToggling}>
+                                {user.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {user.isActive ? "Inativar usuário" : "Ativar usuário"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              {user.isActive ? "Inativar usuário" : "Ativar usuário"}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja {user.isActive ? "inativar" : "ativar"} este usuário?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onToggleStatus(user.id, nextStatus)}>
+                              Confirmar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
+                            <Edit className="size-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Editar membro</TooltipContent>
+                      </Tooltip>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={deletingMemberId === user.id}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Remover usuário</TooltipContent>
+                          </Tooltip>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Remover usuário</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja remover este usuário da organização?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(user.id)}>
+                              Remover
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="rounded-lg bg-blue-50 p-4">
+        <div className="flex items-start gap-3">
+          <Shield className="size-5 text-blue-600 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-blue-900">Níveis de Permissão</h4>
+            <div className="mt-2 space-y-1 text-sm text-blue-800">
+              <p>
+                <strong>Administrador:</strong> Acesso completo ao sistema, incluindo configurações
+              </p>
+              <p>
+                <strong>Operador:</strong> Pode visualizar dados e controlar equipamentos
+              </p>
+              <p>
+                <strong>Visualizador:</strong> Apenas visualização de dados e relatórios
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </TabsContent>
+  )
+}
+
+type InvitesTabProps = {
+  searchInvite: string
+  setSearchInvite: Dispatch<SetStateAction<string>>
+  isInviteOpen: boolean
+  setIsInviteOpen: Dispatch<SetStateAction<boolean>>
+  inviteForm: InviteForm
+  setInviteForm: Dispatch<SetStateAction<InviteForm>>
+  handleSendInvites: () => void
+  isInvitesLoading: boolean
+  invitesError: boolean
+  pendingInvites: Invite[]
+  roleToLabelKey: (role: Role) => keyof typeof roleLabels
+  roleLabels: Record<string, string>
+  roleColors: Record<string, string>
+  getTimeRemaining: (expiresAt: string) => string | null
+  resendInvite: (invite: Invite) => void
+  revokeInviteAction: (inviteId: string) => void
+}
+
+function InvitesTab({
+  searchInvite,
+  setSearchInvite,
+  isInviteOpen,
+  setIsInviteOpen,
+  inviteForm,
+  setInviteForm,
+  handleSendInvites,
+  isInvitesLoading,
+  invitesError,
+  pendingInvites,
+  roleToLabelKey,
+  roleLabels,
+  roleColors,
+  getTimeRemaining,
+  resendInvite,
+  revokeInviteAction,
+}: InvitesTabProps) {
+  return (
+    <TabsContent value="invites" className="space-y-4 mt-0">
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por email..."
+            value={searchInvite}
+            onChange={(e) => setSearchInvite(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Convidar
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Convidar Membros</DialogTitle>
+                <DialogDescription>
+                  Envie convites por email para novos membros da organização
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Emails</Label>
+                  <Textarea
+                    value={inviteForm.emails}
+                    onChange={(e) => setInviteForm({ ...inviteForm, emails: e.target.value })}
+                    placeholder={"email1@exemplo.com\nemail2@exemplo.com\nemail3@exemplo.com"}
+                    rows={4}
+                    className="resize-none font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Separe múltiplos emails por linha, vírgula ou ponto e vírgula
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Função</Label>
+                  <Select
+                    value={inviteForm.role}
+                    onValueChange={(v: any) => setInviteForm({ ...inviteForm, role: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="viewer">Visualizador</SelectItem>
+                      <SelectItem value="operator">Operador</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>
+                    Mensagem <span className="text-muted-foreground font-normal">(opcional)</span>
+                  </Label>
+                  <Textarea
+                    value={inviteForm.message}
+                    onChange={(e) => setInviteForm({ ...inviteForm, message: e.target.value })}
+                    placeholder="Escreva uma mensagem personalizada para o convite..."
+                    rows={3}
+                    className="resize-none"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleSendInvites}>
+                    <Send className="mr-2 h-4 w-4" />
+                    Enviar Convites
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {isInvitesLoading && pendingInvites.length === 0 && (
+        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+          Carregando convites...
+        </div>
+      )}
+
+      {invitesError && pendingInvites.length === 0 && (
+        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+          Não foi possível carregar os convites.
+        </div>
+      )}
+
+      {pendingInvites.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">Pendentes ({pendingInvites.length})</p>
+          <div className="rounded-lg border divide-y">
+            {pendingInvites.map((invite) => {
+              const remaining = getTimeRemaining(invite.expiresAt)
+              const roleKey = roleToLabelKey(invite.role)
+              return (
+                <div key={invite.id} className="flex items-center justify-between gap-4 p-3 group">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 shrink-0">
+                      <Mail className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{invite.email}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>Enviado por {invite.sentBy}</span>
+                        <span>/</span>
+                        <span>{invite.sentAt}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className={roleColors[roleKey]}>
+                      {roleLabels[roleKey]}
+                    </Badge>
+                    {remaining && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>{remaining}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => resendInvite(invite)}>
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-600 hover:text-red-700"
+                        onClick={() => revokeInviteAction(invite.id)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {pendingInvites.length === 0 && !isInvitesLoading && !invitesError && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
+            <Mail className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium">Nenhum convite encontrado</p>
+          <p className="text-xs text-muted-foreground mt-1">Envie convites para adicionar novos membros</p>
+        </div>
+      )}
+    </TabsContent>
+  )
+}
+
+type EditMemberDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  member: User | null
+  role: Role
+  onRoleChange: (role: Role) => void
+  onSave: () => void
+  isSaving: boolean
+}
+
+function EditMemberDialog({
+  open,
+  onOpenChange,
+  member,
+  role,
+  onRoleChange,
+  onSave,
+  isSaving,
+}: EditMemberDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar membro</DialogTitle>
+          <DialogDescription>Atualize a função do membro na organização.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">{member?.name ?? "Sem nome"}</p>
+            <p className="text-xs text-muted-foreground">{member?.email ?? "—"}</p>
+          </div>
+          <div className="space-y-2">
+            <Label>Função</Label>
+            <Select value={role} onValueChange={(value) => onRoleChange(value as Role)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="VIEWER">Visualizador</SelectItem>
+                <SelectItem value="OPERATOR">Operador</SelectItem>
+                <SelectItem value="ADMIN">Administrador</SelectItem>
+                <SelectItem value="EDITOR">Editor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={onSave} disabled={!member || isSaving}>
+              {isSaving ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
