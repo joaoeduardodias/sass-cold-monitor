@@ -49,15 +49,20 @@ export async function updateInstrument(app: FastifyInstance) {
       async (request, reply) => {
         const { orgSlug } = request.params
         const userId = await request.getCurrentUserId()
-        const { membership } = await request.getUserMembership(orgSlug)
+        const { membership, organization } = await request.getUserMembership(orgSlug)
         const { cannot } = getUserPermissions(userId, membership.role)
 
         const { instruments } = request.body
 
+
         await prisma.$transaction(async (tx) => {
           await Promise.all(
             instruments.map(async (instrument) => {
-              const authInstrument = instrumentSchema.parse(instrument)
+              const authInstrument = instrumentSchema.parse({
+                __typename: 'Instrument',
+                id: instrument.id,
+                organization_id: organization.id,
+              })
 
               if (cannot('update', authInstrument)) {
                 throw new UnauthorizedError(

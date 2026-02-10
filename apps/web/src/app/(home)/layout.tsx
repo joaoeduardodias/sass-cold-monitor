@@ -13,7 +13,8 @@ export default function HomeLayout({
   }
 
   return (
-    <div className="min-[1600px]:px-4">
+    <div>
+
       {children}
     </div>
   );

@@ -1,8 +1,9 @@
+import type { Role } from "@/prisma/generated/enums";
 import { defineAbilityFor, userSchema } from "@cold-monitor/auth";
-import type { Role } from "@prisma/client";
 
 export function getUserPermissions(userId: string, role: Role) {
   const authUser = userSchema.parse({
+    __typename: "User",
     id: userId,
     role: role,
   })

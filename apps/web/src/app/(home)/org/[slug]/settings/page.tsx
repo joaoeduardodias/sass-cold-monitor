@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments-by-organization"
 import { getOrganization } from '@/http/organizations/get-organization'
 import { ArrowLeft, Building, Settings, Thermometer } from "lucide-react"
 
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
   const canShutdownOrganization = permissions?.can('delete', 'Organization')
 
   const { organization } = await getOrganization(currentOrg!)
+  const { instruments } = await getInstrumentsByOrganization(currentOrg!)
 
   return (
     <>
@@ -105,7 +107,7 @@ export default async function SettingsPage() {
                 <CardDescription>Gerencie todas as câmaras frias em um só local</CardDescription>
               </CardHeader>
               <CardContent>
-                <ChamberSettings />
+                <ChamberSettings initialInstruments={instruments} organizationSlug={currentOrg!} />
               </CardContent>
             </Card>
           </TabsContent>

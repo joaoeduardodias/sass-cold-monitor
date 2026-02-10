@@ -17,7 +17,7 @@ export async function createInstrument(app: FastifyInstance) {
       '/organizations/:slug/instrument',
       {
         schema: {
-          tags: ['Instrument'],
+          tags: ['Instruments'],
           summary: 'Create a new instrument',
           operationId: 'createInstrument',
           security: [{ bearerAuth: [] }],
