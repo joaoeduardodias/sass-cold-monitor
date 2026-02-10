@@ -30,6 +30,7 @@ export type MemberMinAggregateOutputType = {
   organizationId: string | null
   userId: string | null
   createdAt: Date | null
+  isActive: boolean | null
 }
 
 export type MemberMaxAggregateOutputType = {
@@ -38,6 +39,7 @@ export type MemberMaxAggregateOutputType = {
   organizationId: string | null
   userId: string | null
   createdAt: Date | null
+  isActive: boolean | null
 }
 
 export type MemberCountAggregateOutputType = {
@@ -46,6 +48,7 @@ export type MemberCountAggregateOutputType = {
   organizationId: number
   userId: number
   createdAt: number
+  isActive: number
   _all: number
 }
 
@@ -56,6 +59,7 @@ export type MemberMinAggregateInputType = {
   organizationId?: true
   userId?: true
   createdAt?: true
+  isActive?: true
 }
 
 export type MemberMaxAggregateInputType = {
@@ -64,6 +68,7 @@ export type MemberMaxAggregateInputType = {
   organizationId?: true
   userId?: true
   createdAt?: true
+  isActive?: true
 }
 
 export type MemberCountAggregateInputType = {
@@ -72,6 +77,7 @@ export type MemberCountAggregateInputType = {
   organizationId?: true
   userId?: true
   createdAt?: true
+  isActive?: true
   _all?: true
 }
 
@@ -153,6 +159,7 @@ export type MemberGroupByOutputType = {
   organizationId: string
   userId: string
   createdAt: Date
+  isActive: boolean
   _count: MemberCountAggregateOutputType | null
   _min: MemberMinAggregateOutputType | null
   _max: MemberMaxAggregateOutputType | null
@@ -182,6 +189,7 @@ export type MemberWhereInput = {
   organizationId?: Prisma.StringFilter<"Member"> | string
   userId?: Prisma.StringFilter<"Member"> | string
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
+  isActive?: Prisma.BoolFilter<"Member"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -192,6 +200,7 @@ export type MemberOrderByWithRelationInput = {
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
@@ -206,6 +215,7 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   organizationId?: Prisma.StringFilter<"Member"> | string
   userId?: Prisma.StringFilter<"Member"> | string
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
+  isActive?: Prisma.BoolFilter<"Member"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "organizationId_userId">
@@ -216,6 +226,7 @@ export type MemberOrderByWithAggregationInput = {
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   _count?: Prisma.MemberCountOrderByAggregateInput
   _max?: Prisma.MemberMaxOrderByAggregateInput
   _min?: Prisma.MemberMinOrderByAggregateInput
@@ -230,12 +241,14 @@ export type MemberScalarWhereWithAggregatesInput = {
   organizationId?: Prisma.StringWithAggregatesFilter<"Member"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Member"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Member"> | Date | string
+  isActive?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
 }
 
 export type MemberCreateInput = {
   id?: string
   role?: $Enums.Role
   createdAt?: Date | string
+  isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
   user: Prisma.UserCreateNestedOneWithoutMember_onInput
 }
@@ -246,12 +259,14 @@ export type MemberUncheckedCreateInput = {
   organizationId: string
   userId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutMember_onNestedInput
 }
@@ -262,6 +277,7 @@ export type MemberUncheckedUpdateInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberCreateManyInput = {
@@ -270,12 +286,14 @@ export type MemberCreateManyInput = {
   organizationId: string
   userId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberUncheckedUpdateManyInput = {
@@ -284,6 +302,7 @@ export type MemberUncheckedUpdateManyInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberListRelationFilter = {
@@ -307,6 +326,7 @@ export type MemberCountOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type MemberMaxOrderByAggregateInput = {
@@ -315,6 +335,7 @@ export type MemberMaxOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type MemberMinOrderByAggregateInput = {
@@ -323,6 +344,7 @@ export type MemberMinOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type MemberCreateNestedManyWithoutUserInput = {
@@ -371,6 +393,10 @@ export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type MemberCreateNestedManyWithoutOrganizationInput = {
   create?: Prisma.XOR<Prisma.MemberCreateWithoutOrganizationInput, Prisma.MemberUncheckedCreateWithoutOrganizationInput> | Prisma.MemberCreateWithoutOrganizationInput[] | Prisma.MemberUncheckedCreateWithoutOrganizationInput[]
   connectOrCreate?: Prisma.MemberCreateOrConnectWithoutOrganizationInput | Prisma.MemberCreateOrConnectWithoutOrganizationInput[]
@@ -417,6 +443,7 @@ export type MemberCreateWithoutUserInput = {
   id?: string
   role?: $Enums.Role
   createdAt?: Date | string
+  isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
 }
 
@@ -425,6 +452,7 @@ export type MemberUncheckedCreateWithoutUserInput = {
   role?: $Enums.Role
   organizationId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberCreateOrConnectWithoutUserInput = {
@@ -462,12 +490,14 @@ export type MemberScalarWhereInput = {
   organizationId?: Prisma.StringFilter<"Member"> | string
   userId?: Prisma.StringFilter<"Member"> | string
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
+  isActive?: Prisma.BoolFilter<"Member"> | boolean
 }
 
 export type MemberCreateWithoutOrganizationInput = {
   id?: string
   role?: $Enums.Role
   createdAt?: Date | string
+  isActive?: boolean
   user: Prisma.UserCreateNestedOneWithoutMember_onInput
 }
 
@@ -476,6 +506,7 @@ export type MemberUncheckedCreateWithoutOrganizationInput = {
   role?: $Enums.Role
   userId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberCreateOrConnectWithoutOrganizationInput = {
@@ -509,12 +540,14 @@ export type MemberCreateManyUserInput = {
   role?: $Enums.Role
   organizationId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
 }
 
@@ -523,6 +556,7 @@ export type MemberUncheckedUpdateWithoutUserInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberUncheckedUpdateManyWithoutUserInput = {
@@ -530,6 +564,7 @@ export type MemberUncheckedUpdateManyWithoutUserInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberCreateManyOrganizationInput = {
@@ -537,12 +572,14 @@ export type MemberCreateManyOrganizationInput = {
   role?: $Enums.Role
   userId: string
   createdAt?: Date | string
+  isActive?: boolean
 }
 
 export type MemberUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutMember_onNestedInput
 }
 
@@ -551,6 +588,7 @@ export type MemberUncheckedUpdateWithoutOrganizationInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MemberUncheckedUpdateManyWithoutOrganizationInput = {
@@ -558,6 +596,7 @@ export type MemberUncheckedUpdateManyWithoutOrganizationInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -568,6 +607,7 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   organizationId?: boolean
   userId?: boolean
   createdAt?: boolean
+  isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["member"]>
@@ -578,6 +618,7 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   organizationId?: boolean
   userId?: boolean
   createdAt?: boolean
+  isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["member"]>
@@ -588,6 +629,7 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   organizationId?: boolean
   userId?: boolean
   createdAt?: boolean
+  isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["member"]>
@@ -598,9 +640,10 @@ export type MemberSelectScalar = {
   organizationId?: boolean
   userId?: boolean
   createdAt?: boolean
+  isActive?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "role" | "organizationId" | "userId" | "createdAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "role" | "organizationId" | "userId" | "createdAt" | "isActive", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -626,6 +669,7 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     organizationId: string
     userId: string
     createdAt: Date
+    isActive: boolean
   }, ExtArgs["result"]["member"]>
   composites: {}
 }
@@ -1056,6 +1100,7 @@ export interface MemberFieldRefs {
   readonly organizationId: Prisma.FieldRef<"Member", 'String'>
   readonly userId: Prisma.FieldRef<"Member", 'String'>
   readonly createdAt: Prisma.FieldRef<"Member", 'DateTime'>
+  readonly isActive: Prisma.FieldRef<"Member", 'Boolean'>
 }
     
 

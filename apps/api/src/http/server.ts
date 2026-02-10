@@ -41,6 +41,7 @@ import { rejectInvite } from './routes/invites/reject-invite'
 import { revokeInvite } from './routes/invites/revoke-invite'
 import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
+import { toggleStatusMember } from './routes/members/toggle-status-member'
 import { updateMember } from './routes/members/update-member'
 import { createOrganization } from './routes/orgs/create-organization'
 import { getMembership } from './routes/orgs/get-membership'
@@ -101,7 +102,7 @@ app.register(createOrganization)
 
 app.register(getMembers)
 app.register(getMembership)
-
+app.register(toggleStatusMember)
 app.register(updateMember)
 app.register(removeMember)
 

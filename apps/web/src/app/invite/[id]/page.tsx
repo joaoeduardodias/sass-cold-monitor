@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { CheckCircle, LogIn, LogOut } from 'lucide-react'
+import { ArrowLeft, CheckCircle, LogIn, LogOut, XCircle } from 'lucide-react'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -11,17 +11,36 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { acceptInvite } from '@/http/invites/accept-invite'
 import { getInvite } from '@/http/invites/get-invite'
+import { getInitials } from '@/utils/get-initials'
 
 dayjs.extend(relativeTime)
 
 interface InvitePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
+}
+
+const roleLabels: Record<string, string> = {
+  admin: "Administrador",
+  operator: "Operador",
+  viewer: "Visualizador",
+}
+
+const roleDescriptions: Record<string, string> = {
+  admin: "Acesso completo, incluindo configurações e gerenciamento de usuários",
+  operator: "Visualizar dados e controlar equipamentos",
+  viewer: "Apenas visualização de dados e relatórios",
+}
+
+const roleColors: Record<string, string> = {
+  admin: "bg-red-50 text-red-700 border-red-200",
+  operator: "bg-blue-50 text-blue-700 border-blue-200",
+  viewer: "bg-zinc-100 text-zinc-700 border-zinc-200",
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const inviteId = params.id
+  const { id: inviteId } = await params
 
   const { invite } = await getInvite(inviteId)
   const isUserAuthenticated = await isAuthenticated()
@@ -51,7 +70,33 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
     await acceptInvite(inviteId)
 
-    redirect('/')
+    redirect(`/org/${invite.organization.slug}`)
+  }
+
+  if (!invite) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4">
+        <div className="w-full max-w-sm space-y-6 text-center">
+          <div className="flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+              <XCircle className="h-8 w-8 text-red-500" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold">Convite nao encontrado</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Este convite pode ter sido revogado ou o link esta incorreto.
+            </p>
+          </div>
+          <Button variant="outline" asChild className="bg-transparent">
+            <Link href="/auth/sign-in">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar para o login
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -62,18 +107,12 @@ export default async function InvitePage({ params }: InvitePageProps) {
             {invite.author?.avatarUrl && (
               <AvatarImage src={invite.author.avatarUrl} />
             )}
-            <AvatarFallback />
+            <AvatarFallback className='bg-blue-100 text-blue-700 text-lg font-semibold'>{getInitials(invite.author?.name ?? '')}</AvatarFallback>
           </Avatar>
 
           <p className="text-balance text-center leading-relaxed text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {invite.author?.name ?? 'Someone'}
-            </span>{' '}
-            Convite recebido para participar da empresa{' '}
-            <span className="font-medium text-foreground">
-              {invite.organization.name}
-            </span>
-            .{' '}
+            <span className="font-medium text-foreground">{invite.author?.name}</span> convidou voce para participar de{" "}
+            <span className="font-medium text-foreground">{invite.organization.name}</span>.{" "}
             <span className="text-xs">{dayjs(invite.createdAt).fromNow()}</span>
           </p>
         </div>
@@ -82,7 +121,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
         {!isUserAuthenticated && (
           <form action={signInFromInvite}>
-            <Button type="submit" variant="secondary" className="w-full">
+            <Button type="submit" className="w-full">
               <LogIn className="mr-2 size-4" />
               Faça Login para aceitar o convite
             </Button>
@@ -91,7 +130,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
         {userIsAuthenticatedWithSameEmailFromInvite && (
           <form action={acceptInviteAction}>
-            <Button type="submit" variant="secondary" className="w-full">
+            <Button type="submit" className="w-full">
               <CheckCircle className="mr-2 size-4" />
               Convite {invite.organization.name}
             </Button>
@@ -113,7 +152,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </p>
 
             <div className="space-y-2">
-              <Button className="w-full" variant="secondary" asChild>
+              <Button className="w-full" asChild>
                 <a href="/api/auth/sign-out">
                   <LogOut className="mr-2 size-4" />
                   Sair de {currentUserEmail}

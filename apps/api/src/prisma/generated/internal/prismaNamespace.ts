@@ -1157,7 +1157,8 @@ export const MemberScalarFieldEnum = {
   role: 'role',
   organizationId: 'organizationId',
   userId: 'userId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  isActive: 'isActive'
 } as const
 
 export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof MemberScalarFieldEnum]

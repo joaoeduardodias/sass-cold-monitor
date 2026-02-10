@@ -7,6 +7,7 @@ interface GetMembersResponse {
     userId: string
     role: Role
     name: string | null
+    isActive: boolean
     email: string
     avatarUrl: string | null
   }[]

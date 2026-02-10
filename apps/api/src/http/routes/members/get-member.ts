@@ -32,6 +32,7 @@ export async function getMembers(app: FastifyInstance) {
                   userId: z.uuid(),
                   role: roleSchema,
                   name: z.string().nullable(),
+                  isActive: z.boolean(),
                   email: z.email(),
                   avatarUrl: z.url().nullable(),
                 }),
@@ -58,6 +59,7 @@ export async function getMembers(app: FastifyInstance) {
           select: {
             id: true,
             role: true,
+            isActive: true,
             user: {
               select: {
                 id: true,

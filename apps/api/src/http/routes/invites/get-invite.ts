@@ -16,7 +16,7 @@ export async function getInvite(app: FastifyInstance) {
         summary: 'Get an invite.',
         operationId: 'getInvite',
         params: z.object({
-          inviteId: z.url(),
+          inviteId: z.uuid(),
         }),
         response: {
           200: z.object({
@@ -34,6 +34,7 @@ export async function getInvite(app: FastifyInstance) {
                 .nullable(),
               organization: z.object({
                 name: z.string(),
+                slug: z.string(),
               }),
             }),
           }),
@@ -62,6 +63,7 @@ export async function getInvite(app: FastifyInstance) {
           organization: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },

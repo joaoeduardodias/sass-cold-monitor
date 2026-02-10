@@ -9,6 +9,7 @@ interface GetInviteResponse {
     createdAt: string
     organization: {
       name: string
+      slug: string
     }
     author: {
       id: string

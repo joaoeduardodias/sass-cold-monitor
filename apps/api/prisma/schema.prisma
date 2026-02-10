@@ -54,6 +54,7 @@ model Member {
   organizationId String       @map("organization_id")
   userId         String       @map("user_id")
   createdAt      DateTime     @default(now()) @map("created_at")
+  isActive      Boolean       @default(true) @map("is_active")
   organization   Organization @relation(fields: [organizationId], references: [id])
   user           User         @relation(fields: [userId], references: [id])
 

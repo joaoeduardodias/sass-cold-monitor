@@ -13,11 +13,13 @@ export async function createInvite({
   org,
   email,
   role,
-}: CreateInviteRequest): Promise<CreateInviteResponse> {
-  await api.post(`organizations/${org}/invites`, {
+}: CreateInviteRequest): Promise<{ inviteId: string }> {
+  const result = await api.post(`organizations/${org}/invites`, {
     json: {
       email,
       role,
     },
-  })
+  }).json<{ inviteId: string }>()
+
+  return result
 }

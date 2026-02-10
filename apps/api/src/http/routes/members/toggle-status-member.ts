@@ -6,24 +6,26 @@ import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
-import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function revokeInvite(app: FastifyInstance) {
+export async function toggleStatusMember(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .post(
-      '/organizations/:slug/invites/:inviteId',
+    .patch(
+      '/organizations/:slug/members/:memberId/status',
       {
         schema: {
-          tags: ['Invites'],
-          summary: 'Revoke an invite.',
-          operationId: 'revokeInvite',
+          tags: ['Members'],
+          summary: 'Toggle an member status.',
+          operationId: 'toggleStatusMember',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
-            inviteId: z.uuid(),
+            memberId: z.uuid(),
+          }),
+          body: z.object({
+            status: z.enum(['active', 'inactive']),
           }),
           response: {
             204: z.null(),
@@ -31,31 +33,27 @@ export async function revokeInvite(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
-        const { slug, inviteId } = request.params
+        const { slug, memberId } = request.params
         const userId = await request.getCurrentUserId()
         const { membership, organization } =
           await request.getUserMembership(slug)
 
         const { cannot } = getUserPermissions(userId, membership.role)
 
-        if (cannot('delete', 'Invite')) {
-          throw new UnauthorizedError(`You're not allowed to delete an invite.`)
+        if (cannot('update', 'User')) {
+          throw new UnauthorizedError(
+            `You're not allowed to update status of this member.`,
+          )
         }
+        const { status } = request.body
 
-        const invite = await prisma.invite.findUnique({
+        await prisma.member.update({
           where: {
-            id: inviteId,
-          },
-        })
-
-        if (!invite) {
-          throw new BadRequestError('Invite not found.')
-        }
-
-        await prisma.invite.delete({
-          where: {
-            id: inviteId,
+            id: memberId,
             organizationId: organization.id,
+          },
+          data: {
+            isActive: status === 'active' ? true : false,
           },
         })
 

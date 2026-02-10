@@ -19,7 +19,7 @@ export async function acceptInvite(app: FastifyInstance) {
           summary: 'Accept an invite.',
           operationId: 'acceptInvite',
           params: z.object({
-            inviteId: z.url(),
+            inviteId: z.uuid(),
           }),
           response: {
             204: z.null(),

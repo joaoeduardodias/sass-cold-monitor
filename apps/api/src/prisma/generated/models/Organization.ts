@@ -487,10 +487,6 @@ export type OrganizationUpdateOneRequiredWithoutMembersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutMembersInput, Prisma.OrganizationUpdateWithoutMembersInput>, Prisma.OrganizationUncheckedUpdateWithoutMembersInput>
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type OrganizationCreateNestedOneWithoutInstrumentsInput = {
   create?: Prisma.XOR<Prisma.OrganizationCreateWithoutInstrumentsInput, Prisma.OrganizationUncheckedCreateWithoutInstrumentsInput>
   connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutInstrumentsInput

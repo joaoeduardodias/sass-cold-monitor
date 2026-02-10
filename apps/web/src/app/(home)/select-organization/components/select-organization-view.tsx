@@ -4,9 +4,9 @@
 
 import {
   Building2
-} from "lucide-react"
+} from "lucide-react";
 
-import { OrganizationCard } from "./organization-card"
+import { OrganizationCard } from "./organization-card";
 
 interface SelectOrganizationViewProps {
   organizations: {
@@ -42,7 +42,10 @@ export function SelectOrganizationView({ organizations }: SelectOrganizationView
             {organizations.map((org) => (
               <OrganizationCard
                 key={org.id}
-                organization={org}
+                avatarUrl={org.avatarUrl}
+                name={org.name}
+                slug={org.slug}
+                id={org.id}
               />
             ))}
           </div>
