@@ -20,6 +20,7 @@ import { createUser } from './routes/auth/create-user'
 import { getProfile } from './routes/auth/get-profile'
 import { requestPasswordRecover } from './routes/auth/request-password-recover'
 import { resetPassword } from './routes/auth/reset-password'
+import { updateProfile } from './routes/auth/update-profile'
 import { generateData } from './routes/data/generate-data'
 import { getData } from './routes/data/get-data'
 import { updateData } from './routes/data/update-data'
@@ -97,6 +98,7 @@ app.register(createUser)
 app.register(authenticateWithPassword)
 app.register(authenticateWithGoogle)
 app.register(getProfile)
+app.register(updateProfile)
 app.register(requestPasswordRecover)
 app.register(resetPassword)
 

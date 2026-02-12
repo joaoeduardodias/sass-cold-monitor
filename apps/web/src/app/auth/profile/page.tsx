@@ -1,5 +1,4 @@
-"use client"
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,54 +6,58 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Building, Calendar, Mail, Save, Shield, Upload, User } from "lucide-react"
+import { getCurrentOrg } from "@/auth/auth"
+import { getProfile } from "@/http/users/get-profile"
+import { getInitials } from "@/utils/get-initials"
+import { AlertCircle, ArrowLeft, Calendar, Mail, Save, Shield, User } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
-import { toast } from "sonner"
+import { redirect } from "next/navigation"
+import { updateProfileAction } from "./actions"
 
-export default function ProfilePage() {
-  const [loading, setLoading] = useState(false)
-  const [profile, setProfile] = useState({
-    name: "João Silva",
-    email: "joao@empresa.com",
-    phone: "+55 11 98765-4321",
-    company: "Empresa Exemplo Ltda",
-    position: "Gerente de Operações",
-    department: "Logística",
-    avatar: "/placeholder.svg?height=128&width=128",
-    joinDate: "2023-01-15",
-    lastLogin: "2024-01-15 14:30:25",
-    role: "Administrador",
-    permissions: ["Visualizar", "Editar", "Configurar", "Gerenciar Usuários"],
-  })
+const roleLabels: Record<"ADMIN" | "EDITOR" | "OPERATOR" | "VIEWER", string> = {
+  ADMIN: "Administrador",
+  EDITOR: "Editor",
+  OPERATOR: "Operador",
+  VIEWER: "Visualizador",
+}
 
-  const handleInputChange = (field: string, value: string) => {
-    setProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
+type ProfilePageProps = {
+  searchParams: Promise<{
+    success?: string
+    error?: string
+  }>
+}
+
+async function submitProfile(formData: FormData) {
+  "use server"
+
+  const result = await updateProfileAction(formData)
+
+  if (!result.success) {
+    const fallbackError = "Não foi possível salvar seu perfil."
+    const message = encodeURIComponent(result.message ?? fallbackError)
+    redirect(`/auth/profile?error=${message}`)
   }
 
-  const handleSave = async () => {
-    setLoading(true)
+  redirect("/auth/profile?success=1")
+}
 
-    // Simular salvamento
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const [params, currentOrg, profileResponse] = await Promise.all([
+    searchParams,
+    getCurrentOrg(),
+    getProfile(),
+  ])
 
-    toast.success("Perfil atualizado com sucesso!")
-    setLoading(false)
-  }
-
-  const handleAvatarUpload = () => {
-    // Simular upload de avatar
-    toast.info("Funcionalidade de upload será implementada em breve")
-  }
+  const { user } = profileResponse
+  const primaryMembership = user.memberships?.[0]
+  const backHref = currentOrg ? `/org/${currentOrg}` : "/select-organization"
 
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6 flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
-          <Link href="/">
+          <Link href={backHref}>
             <ArrowLeft className="size-4" />
           </Link>
         </Button>
@@ -64,172 +67,150 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Sidebar com Avatar e Info Básica */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="text-center">
-              <div className="flex justify-center">
-                <Avatar className="size-24">
-                  <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} />
-                  <AvatarFallback className="bg-blue-600 text-white text-2xl">
-                    {profile.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <CardTitle>{profile.name}</CardTitle>
-              <CardDescription>{profile.position}</CardDescription>
-              <Badge className="bg-blue-600 hover:bg-blue-600 w-fit mx-auto">{profile.role}</Badge>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Button variant="outline" onClick={handleAvatarUpload} className="w-full">
-                <Upload className="mr-2 size-4" />
-                Alterar Foto
-              </Button>
-            </CardContent>
-          </Card>
+      <form action={submitProfile}>
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="text-center">
+                <div className="flex justify-center">
+                  <Avatar className="size-24">
+                    <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name ?? "Usuário"} />
+                    <AvatarFallback className="bg-blue-600 text-white text-2xl">
+                      {getInitials(user.name || "Usuário")}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <CardTitle>{user.name || "Usuário"}</CardTitle>
+                <CardDescription>{user.email || "Sem e-mail"}</CardDescription>
+                <Badge className="bg-blue-600 hover:bg-blue-600 w-fit mx-auto">
+                  {primaryMembership ? roleLabels[primaryMembership.role] : "Minha Conta"}
+                </Badge>
+              </CardHeader>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="size-5 text-blue-600" />
-                Permissões
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {profile.permissions.map((permission, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-sm">{permission}</span>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="size-5 text-blue-600" />
+                  Permissões
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  {(user.permissions ?? []).length === 0 ? (
+                    <span className="text-muted-foreground">Sem permissões registradas</span>
+                  ) : (
+                    user.permissions.map((permission) => (
+                      <div key={permission} className="flex items-center gap-2">
+                        <div className="size-2 rounded-full bg-green-500" />
+                        <span>{permission}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="size-5 text-blue-600" />
+                  Informações da Conta
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Data de Ingresso</Label>
+                  <p className="text-sm font-medium">
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString("pt-BR") : "—"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Última Atualização</Label>
+                  <p className="text-sm font-medium">
+                    {user.updatedAt ? new Date(user.updatedAt).toLocaleString("pt-BR") : "—"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">ID do Usuário</Label>
+                  <p className="text-sm font-medium break-all">{user.id}</p>
+                </div>
+                {primaryMembership && (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Organização Atual</Label>
+                    <p className="text-sm font-medium">{primaryMembership.organization.name}</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="size-5 text-blue-600" />
-                Informações da Conta
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs text-muted-foreground">Data de Ingresso</Label>
-                <p className="text-sm font-medium">{new Date(profile.joinDate).toLocaleDateString("pt-BR")}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Último Login</Label>
-                <p className="text-sm font-medium">{profile.lastLogin}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="md:col-span-2 space-y-6">
+            {params.error && (
+              <Alert variant="destructive">
+                <AlertCircle className="size-4" />
+                <AlertTitle>Falha ao salvar perfil</AlertTitle>
+                <AlertDescription>
+                  <p>{decodeURIComponent(params.error)}</p>
+                </AlertDescription>
+              </Alert>
+            )}
 
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="size-5 text-blue-600" />
-                Informações Pessoais
-              </CardTitle>
-              <CardDescription>Atualize suas informações pessoais</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+            {params.success && (
+              <Alert>
+                <AlertTitle>Perfil atualizado</AlertTitle>
+                <AlertDescription>Suas informações foram salvas com sucesso.</AlertDescription>
+              </Alert>
+            )}
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="size-5 text-blue-600" />
+                  Informações Pessoais
+                </CardTitle>
+                <CardDescription>Atualize suas informações pessoais</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input id="name" value={profile.name} onChange={(e) => handleInputChange("name", e.target.value)} />
+                  <Label htmlFor="profile-name">Nome Completo</Label>
+                  <Input id="profile-name" name="name" defaultValue={user.name ?? ""} required minLength={2} />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="size-5 text-blue-600" />
+                  Informações de Contato
+                </CardTitle>
+                <CardDescription>Mantenha suas informações de contato atualizadas</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="position">Cargo</Label>
-                  <Input
-                    id="position"
-                    value={profile.position}
-                    onChange={(e) => handleInputChange("position", e.target.value)}
-                  />
+                  <Label htmlFor="profile-email">Email</Label>
+                  <Input id="profile-email" name="email" type="email" defaultValue={user.email} required />
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="department">Departamento</Label>
-                <Input
-                  id="department"
-                  value={profile.department}
-                  onChange={(e) => handleInputChange("department", e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
+            <input type="hidden" name="avatarUrl" value={user.avatarUrl ?? ""} />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="size-5 text-blue-600" />
-                Informações de Contato
-              </CardTitle>
-              <CardDescription>Mantenha suas informações de contato atualizadas</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={profile.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                />
-              </div>
+            <Separator />
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" value={profile.phone} onChange={(e) => handleInputChange("phone", e.target.value)} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="size-5 text-blue-600" />
-                Informações da Empresa
-              </CardTitle>
-              <CardDescription>Informações relacionadas à sua empresa</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="company">Empresa</Label>
-                <Input
-                  id="company"
-                  value={profile.company}
-                  onChange={(e) => handleInputChange("company", e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Separator />
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/">Cancelar</Link>
-            </Button>
-            <Button onClick={handleSave} disabled={loading}>
-              {loading ? (
-                <div className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
-              ) : (
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" asChild>
+                <Link href={backHref}>Cancelar</Link>
+              </Button>
+              <Button type="submit">
                 <Save className="mr-2 size-4" />
-              )}
-              Salvar Alterações
-            </Button>
+                Salvar Alterações
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   )
 }

@@ -15,11 +15,11 @@ import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments
 import { getOrganization } from '@/http/organizations/get-organization'
 import { ArrowLeft, Bell, Building, Settings, Shield, Thermometer, Users } from "lucide-react"
 
-import { ChamberSettings } from "@/app/(home)/settings/components/chamber-settings"
-import { NotificationSettings } from "@/app/(home)/settings/components/notification-settings"
-import { SecuritySettings } from "@/app/(home)/settings/components/security-settings"
-import { UserManagement } from "@/app/(home)/settings/components/user-management"
 import { OrganizationForm } from '../../organization-form'
+import { ChamberSettings } from "./components/chamber-settings"
+import { NotificationSettings } from "./components/notification-settings"
+import { SecuritySettings } from "./components/security-settings"
+import { UserManagement } from "./components/user-management"
 import { ShutdownOrganizationButton } from './shutdown-organization-button'
 
 export default async function SettingsPage() {

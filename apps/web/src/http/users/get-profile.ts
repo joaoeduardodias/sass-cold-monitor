@@ -7,6 +7,20 @@ interface GetProfileResponse {
     name: string | null
     email: string
     avatarUrl: string | null
+    createdAt: string
+    updatedAt: string
+    memberships: {
+      id: string
+      role: "ADMIN" | "EDITOR" | "OPERATOR" | "VIEWER"
+      isActive: boolean
+      joinedAt: string
+      organization: {
+        id: string
+        name: string
+        slug: string
+      }
+    }[]
+    permissions: string[]
   }
 }
 
