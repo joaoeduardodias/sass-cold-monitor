@@ -17,19 +17,13 @@ export const permissions: Record<Role, PermissionsByRole> = {
       ownerId: { $eq: user.id },
     })
   },
-  OPERATOR: (user, { can }) => {
-    can('update', 'InstrumentData', {
-      organization_id: { $eq: user.organization_id },
-    })
+  OPERATOR: (_user, { can }) => {
+    can('update', 'InstrumentData')
   },
-  VIEWER: (user, { can }) => {
-    can('read', 'InstrumentData', {
-      organization_id: { $eq: user.organization_id },
-    })
+  VIEWER: (_user, { can }) => {
+    can('read', 'InstrumentData')
   },
-  EDITOR: (user, { can }) => {
-    can(['create', 'update'], 'InstrumentData', {
-      organization_id: { $eq: user.organization_id },
-    })
+  EDITOR: (_user, { can }) => {
+    can(['create', 'update'], 'InstrumentData')
   },
 }

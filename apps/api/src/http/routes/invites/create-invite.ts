@@ -7,6 +7,9 @@ import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
+import { sendEmailWithValidation } from '@/lib/email'
+import InviteEmail from '@/mail/templates/invite-email'
+import { env } from '@cold-monitor/env'
 import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
@@ -97,6 +100,24 @@ export async function createInvite(app: FastifyInstance) {
             authorId: userId,
           },
         })
+
+        // mail send invite 
+        const sendResult = await sendEmailWithValidation({
+          from: `${env.EMAIL_FROM_NAME} <${env.EMAIL_FROM_EMAIL}>`,
+          to: [invite.email],
+          subject: "Convite para ingressar na organização",
+          react: InviteEmail({
+            recipientName: invite.email.split('@')[0],
+            invitedByName: organization.name,
+            invitedByEmail: env.EMAIL_FROM_EMAIL,
+            inviteLink: `${env.NEXT_PUBLIC_API_URL}/invite/${invite.id}`,
+          }),
+        }, 'createInvite');
+
+        if (!sendResult.success) {
+          throw new BadRequestError(sendResult.message)
+        }
+
         return reply.status(201).send({
           inviteId: invite.id,
         })

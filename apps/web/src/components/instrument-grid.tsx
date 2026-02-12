@@ -3,6 +3,8 @@
 import { AlertTriangle, Clock, Fan, Power, GaugeIcon as PressureGauge, Snowflake, Thermometer } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { getNotificationSettings } from "@/http/notifications/get-notification-settings"
+import { toast } from "sonner"
 import { Gauge } from "./gauge"
 import { Badge } from "./ui/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card"
@@ -21,9 +23,37 @@ type Instrument = {
   lastUpdated: string
 }
 
-export function InstrumentGrid() {
+type InstrumentGridProps = {
+  organizationId: string
+  organizationSlug: string
+}
+
+type DashboardWsMessage =
+  | {
+    type: "INSTRUMENT_UPDATE"
+    payload: {
+      instrumentId: string
+      value: number
+      editValue: number
+      updatedAt: string
+    }
+  }
+  | {
+    type: "ALERT_NOTIFICATION"
+    payload: {
+      instrumentId: string
+      chamberName: string
+      alertType: "warning" | "critical"
+      currentValue: string
+      limitValue: string
+      timestamp: string
+    }
+  }
+
+export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentGridProps) {
   const [instruments, setInstruments] = useState<Instrument[]>([])
   const [loading, setLoading] = useState(true)
+  const [pushEnabled, setPushEnabled] = useState(true)
 
   useEffect(() => {
 
@@ -123,6 +153,86 @@ export function InstrumentGrid() {
 
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    let ws: WebSocket | null = null
+
+    const requestBrowserPermission = async () => {
+      if (!("Notification" in window)) return
+      if (Notification.permission === "default") {
+        await Notification.requestPermission()
+      }
+    }
+
+    const setupNotifications = async () => {
+      try {
+        const { settings } = await getNotificationSettings(organizationSlug)
+        setPushEnabled(settings.pushEnabled)
+      } catch {
+        setPushEnabled(true)
+      }
+
+      await requestBrowserPermission()
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL
+      if (!apiUrl) return
+
+      const wsUrl = apiUrl
+        .replace("http://", "ws://")
+        .replace("https://", "wss://") + "/ws/dashboard"
+
+      ws = new WebSocket(wsUrl)
+      ws.onopen = () => {
+        ws?.send(
+          JSON.stringify({
+            type: "AUTH",
+            payload: {
+              organizationId,
+            },
+          }),
+        )
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data) as DashboardWsMessage
+
+          if (message.type === "INSTRUMENT_UPDATE") {
+            setInstruments((prev) =>
+              prev.map((instrument) =>
+                instrument.id === message.payload.instrumentId
+                  ? {
+                    ...instrument,
+                    temperature: message.payload.editValue,
+                    lastUpdated: message.payload.updatedAt,
+                  }
+                  : instrument,
+              ),
+            )
+          }
+
+          if (message.type === "ALERT_NOTIFICATION") {
+            const title = `Alerta ${message.payload.alertType === "critical" ? "Crítico" : "de Atenção"}`
+            const body = `${message.payload.chamberName}: valor ${message.payload.currentValue} (limite ${message.payload.limitValue})`
+
+            if (pushEnabled && "Notification" in window && Notification.permission === "granted") {
+              new Notification(title, { body, tag: `alert-${message.payload.instrumentId}` })
+            }
+
+            toast.warning(body)
+          }
+        } catch {
+          // ignore invalid ws payload
+        }
+      }
+    }
+
+    void setupNotifications()
+
+    return () => {
+      ws?.close()
+    }
+  }, [organizationId, organizationSlug, pushEnabled])
 
   // const getStatusColor = (status: string) => {
   //   switch (status) {

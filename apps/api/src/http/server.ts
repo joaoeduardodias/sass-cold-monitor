@@ -43,6 +43,10 @@ import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
 import { toggleStatusMember } from './routes/members/toggle-status-member'
 import { updateMember } from './routes/members/update-member'
+import { getNotificationSettings } from './routes/notifications/get-notification-settings'
+import { sendEmailAlert } from './routes/notifications/send-email-alert'
+import { testEmailNotification } from './routes/notifications/test-email-notification'
+import { updateNotificationSettings } from './routes/notifications/update-notification-settings'
 import { createOrganization } from './routes/orgs/create-organization'
 import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
@@ -113,6 +117,11 @@ app.register(acceptInvite)
 app.register(rejectInvite)
 app.register(revokeInvite)
 app.register(getPendingInvites)
+
+app.register(getNotificationSettings)
+app.register(updateNotificationSettings)
+app.register(testEmailNotification)
+app.register(sendEmailAlert)
 
 app.register(createInstrument)
 app.register(updateInstrument)

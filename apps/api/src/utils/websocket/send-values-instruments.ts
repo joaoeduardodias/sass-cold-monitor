@@ -56,7 +56,14 @@ export async function handleValuesInstruments(payload: DataReadingPayload) {
 
   const instruments = await prisma.instrument.findMany({
     where: { id: { in: instrumentIds } },
-    select: { id: true, model: true },
+    select: {
+      id: true,
+      model: true,
+      name: true,
+      minValue: true,
+      maxValue: true,
+      organizationId: true,
+    },
   })
 
   const map = new Map(instruments.map((i) => [i.id, i]))
@@ -66,6 +73,10 @@ export async function handleValuesInstruments(payload: DataReadingPayload) {
     const primary = extractPrimaryValue(r.data, inst?.model)
     return {
       instrumentId: r.instrumentId,
+      instrumentName: inst?.name ?? r.instrumentId,
+      organizationId: inst?.organizationId ?? '',
+      minValue: Number(inst?.minValue ?? 0),
+      maxValue: Number(inst?.maxValue ?? 0),
       data: primary,
       editData: primary,
     }

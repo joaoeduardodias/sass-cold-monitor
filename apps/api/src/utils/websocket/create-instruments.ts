@@ -1,7 +1,7 @@
-import type { InstrumentType } from '@prisma/client'
 
 import { prisma } from '@/lib/prisma'
 
+import type { InstrumentType } from '@/prisma/generated/enums'
 import { createSlug } from '../create-slug'
 
 interface CreateInstrumentPayload {

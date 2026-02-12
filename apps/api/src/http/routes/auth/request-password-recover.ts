@@ -2,7 +2,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
 
+import { env } from '@cold-monitor/env'
+import { BadRequestError } from '@/http/routes/_errors/bad-request-error'
+import { sendEmailWithValidation } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
+import PasswordRecoveryEmail from '@/mail/templates/password-recovery-email'
 
 export async function requestPasswordRecover(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -29,7 +33,6 @@ export async function requestPasswordRecover(app: FastifyInstance) {
       })
 
       if (!userFromEmail) {
-        // We don't want people to know if user really exists
         return reply.status(201).send()
       }
 
@@ -40,8 +43,16 @@ export async function requestPasswordRecover(app: FastifyInstance) {
         },
       })
 
-      // Send e-mail with password recover link
-      console.log('Recover password token: ', code)
+      const sendResult = await sendEmailWithValidation({
+        from: `${env.EMAIL_FROM_NAME} <${env.EMAIL_FROM_EMAIL}>`,
+        to: [userFromEmail.email],
+        subject: "Recuperação de senha",
+        react: PasswordRecoveryEmail({ code, recipientName: userFromEmail.name }),
+      }, 'requestPasswordRecover')
+
+      if (!sendResult.success) {
+        throw new BadRequestError(sendResult.message)
+      }
 
       return reply.status(201).send()
     },

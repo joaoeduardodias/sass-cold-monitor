@@ -56,6 +56,7 @@ export const ModelName = {
   Account: 'Account',
   Member: 'Member',
   Organization: 'Organization',
+  NotificationSettings: 'NotificationSettings',
   Instrument: 'Instrument',
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
@@ -138,6 +139,24 @@ export const OrganizationScalarFieldEnum = {
 } as const
 
 export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+export const NotificationSettingsScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailEnabled: 'emailEnabled',
+  emailRecipients: 'emailRecipients',
+  pushEnabled: 'pushEnabled',
+  criticalAlerts: 'criticalAlerts',
+  warningAlerts: 'warningAlerts',
+  infoAlerts: 'infoAlerts',
+  alertCooldown: 'alertCooldown',
+  emailTemplate: 'emailTemplate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationSettingsScalarFieldEnum = (typeof NotificationSettingsScalarFieldEnum)[keyof typeof NotificationSettingsScalarFieldEnum]
 
 
 export const InstrumentScalarFieldEnum = {

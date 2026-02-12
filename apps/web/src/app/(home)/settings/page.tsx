@@ -109,7 +109,7 @@ export default async function Page() {
                 <CardDescription>Configure alertas globais e métodos de notificação</CardDescription>
               </CardHeader>
               <CardContent>
-                <NotificationSettings />
+                <NotificationSettings organizationSlug={currentOrg ?? undefined} />
               </CardContent>
             </Card>
           </TabsContent>

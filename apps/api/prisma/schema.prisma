@@ -76,8 +76,27 @@ model Organization {
   instruments               Instrument[]
   members                   Member[]
   invites                   Invite[]
+  notificationSettings      NotificationSettings?
 
   @@map("organizations")
+}
+
+model NotificationSettings {
+  id             String       @id @default(uuid())
+  organizationId String       @unique @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  emailEnabled   Boolean      @default(true) @map("email_enabled")
+  emailRecipients String[]    @default([]) @map("email_recipients")
+  pushEnabled    Boolean      @default(true) @map("push_enabled")
+  criticalAlerts Boolean      @default(true) @map("critical_alerts")
+  warningAlerts  Boolean      @default(true) @map("warning_alerts")
+  infoAlerts     Boolean      @default(false) @map("info_alerts")
+  alertCooldown  Int          @default(300) @map("alert_cooldown")
+  emailTemplate  String       @map("email_template")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("notification_settings")
 }
 
 model Instrument {

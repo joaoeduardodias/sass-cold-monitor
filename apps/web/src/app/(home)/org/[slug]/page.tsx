@@ -1,8 +1,16 @@
 import { AlertsPanel } from "@/components/alerts-panel";
 import { Header } from "@/components/header";
 import { InstrumentGrid } from "@/components/instrument-grid";
+import { getOrganization } from "@/http/organizations/get-organization";
 
-export default function HomeOrg() {
+export default async function HomeOrg({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const { organization } = await getOrganization(slug)
+
   return (
     <>
       <Header />
@@ -13,7 +21,7 @@ export default function HomeOrg() {
         </div>
         <div className="flex gap-6">
           <div className="flex-1">
-            <InstrumentGrid />
+            <InstrumentGrid organizationId={organization.id} organizationSlug={slug} />
           </div>
           <AlertsPanel />
         </div>

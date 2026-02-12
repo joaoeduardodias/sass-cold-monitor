@@ -5,6 +5,7 @@ import { ThemeProvider } from 'next-themes'
 import { ReactNode } from 'react'
 
 import { queryClient } from '@/lib/react-query'
+import { Toaster } from '@/components/ui/sonner'
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export function Providers({ children }: { children: ReactNode }) {
         disableTransitionOnChange
       >
         {children}
+        <Toaster richColors position="top-right" />
       </ThemeProvider>
     </QueryClientProvider>
   )

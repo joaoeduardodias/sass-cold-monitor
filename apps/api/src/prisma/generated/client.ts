@@ -65,6 +65,11 @@ export type Member = Prisma.MemberModel
  */
 export type Organization = Prisma.OrganizationModel
 /**
+ * Model NotificationSettings
+ * 
+ */
+export type NotificationSettings = Prisma.NotificationSettingsModel
+/**
  * Model Instrument
  * 
  */

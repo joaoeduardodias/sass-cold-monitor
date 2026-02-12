@@ -1,4 +1,5 @@
 import { useState, useTransition, type FormEvent } from "react";
+import { toast } from "sonner";
 
 interface FormState {
   success: boolean
@@ -30,6 +31,10 @@ export function useFormState(
 
       if (state.success && onSuccess) {
         await onSuccess()
+      }
+
+      if (state.success) {
+        toast.success(state.message ?? "Operação realizada com sucesso.")
       }
 
       setFormState(state)

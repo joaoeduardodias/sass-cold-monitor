@@ -389,6 +389,7 @@ export const ModelName = {
   Account: 'Account',
   Member: 'Member',
   Organization: 'Organization',
+  NotificationSettings: 'NotificationSettings',
   Instrument: 'Instrument',
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "token" | "account" | "member" | "organization" | "instrument" | "instrumentData" | "joinInstrument" | "invite"
+    modelProps: "user" | "token" | "account" | "member" | "organization" | "notificationSettings" | "instrument" | "instrumentData" | "joinInstrument" | "invite"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -779,6 +780,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.OrganizationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.OrganizationCountAggregateOutputType> | number
+        }
+      }
+    }
+    NotificationSettings: {
+      payload: Prisma.$NotificationSettingsPayload<ExtArgs>
+      fields: Prisma.NotificationSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        update: {
+          args: Prisma.NotificationSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotificationSettings>
+        }
+        groupBy: {
+          args: Prisma.NotificationSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationSettingsCountAggregateOutputType> | number
         }
       }
     }
@@ -1179,6 +1254,24 @@ export const OrganizationScalarFieldEnum = {
 export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
 
 
+export const NotificationSettingsScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailEnabled: 'emailEnabled',
+  emailRecipients: 'emailRecipients',
+  pushEnabled: 'pushEnabled',
+  criticalAlerts: 'criticalAlerts',
+  warningAlerts: 'warningAlerts',
+  infoAlerts: 'infoAlerts',
+  alertCooldown: 'alertCooldown',
+  emailTemplate: 'emailTemplate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationSettingsScalarFieldEnum = (typeof NotificationSettingsScalarFieldEnum)[keyof typeof NotificationSettingsScalarFieldEnum]
+
+
 export const InstrumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1345,20 +1438,6 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'InstrumentType'
- */
-export type EnumInstrumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InstrumentType'>
-    
-
-
-/**
- * Reference to a field of type 'InstrumentType[]'
- */
-export type ListEnumInstrumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InstrumentType[]'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1369,6 +1448,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'InstrumentType'
+ */
+export type EnumInstrumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InstrumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'InstrumentType[]'
+ */
+export type ListEnumInstrumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InstrumentType[]'>
     
 
 
@@ -1485,6 +1578,7 @@ export type GlobalOmitConfig = {
   account?: Prisma.AccountOmit
   member?: Prisma.MemberOmit
   organization?: Prisma.OrganizationOmit
+  notificationSettings?: Prisma.NotificationSettingsOmit
   instrument?: Prisma.InstrumentOmit
   instrumentData?: Prisma.InstrumentDataOmit
   joinInstrument?: Prisma.JoinInstrumentOmit
