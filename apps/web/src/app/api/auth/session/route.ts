@@ -1,4 +1,4 @@
-import { getProfile } from "@/http/get-profile"
+import { getProfile } from "@/http/users/get-profile"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 

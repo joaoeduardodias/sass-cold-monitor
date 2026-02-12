@@ -133,7 +133,7 @@ export default async function Page() {
                 <CardDescription>Configure autenticação, logs e políticas de segurança</CardDescription>
               </CardHeader>
               <CardContent>
-                <SecuritySettings />
+                <SecuritySettings organizationSlug={currentOrg ?? undefined} />
               </CardContent>
             </Card>
           </TabsContent>

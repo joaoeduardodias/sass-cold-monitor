@@ -1,4 +1,4 @@
-import { signInWithGoogle } from "@/http/sign-in-with-google";
+import { signInWithGoogle } from "@/http/users/sign-in-with-google";
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from "next/server";
 

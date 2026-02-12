@@ -22,10 +22,16 @@ export async function dashboardWs(app: FastifyInstance) {
       let orgId: string | null = null
 
       conn.on('message', async (msg: Buffer) => {
-        const raw = JSON.parse(msg.toString())
+        try {
+          const raw = JSON.parse(msg.toString())
 
-        if (raw.type === 'AUTH') {
-          orgId = raw.payload.organizationId
+          if (raw.type !== 'AUTH') {
+            return
+          }
+
+          orgId = raw.payload?.organizationId
+          const token = raw.payload?.token
+
           if (!orgId) {
             conn.send(
               JSON.stringify({
@@ -36,6 +42,20 @@ export async function dashboardWs(app: FastifyInstance) {
             conn.close()
             return
           }
+
+          if (!token) {
+            conn.send(
+              JSON.stringify({
+                type: 'AUTH_ERROR',
+                message: 'token is required',
+              }),
+            )
+            conn.close()
+            return
+          }
+
+          const decoded = await app.jwt.verify<{ sub: string }>(token)
+          const userId = decoded.sub
 
           const org = await prisma.organization.findUnique({
             where: { id: orgId },
@@ -51,19 +71,14 @@ export async function dashboardWs(app: FastifyInstance) {
             return
           }
 
-          const userId = await request.getCurrentUserId()
-          const { membership } = await request.getUserMembership(org.slug)
+          const membership = await prisma.member.findFirst({
+            where: {
+              userId,
+              organizationId: org.id,
+            },
+          })
+
           if (!membership) {
-            conn.send(
-              JSON.stringify({
-                type: 'AUTH_ERROR',
-                message: 'User is not a member of this organization',
-              }),
-            )
-            conn.close()
-            return
-          }
-          if (membership.organizationId !== org.id) {
             conn.send(
               JSON.stringify({
                 type: 'AUTH_ERROR',
@@ -93,6 +108,14 @@ export async function dashboardWs(app: FastifyInstance) {
 
           dashboardConnectionsByOrg.get(orgId)!.add(conn)
           conn.send(JSON.stringify({ type: 'AUTH_OK' }))
+        } catch {
+          conn.send(
+            JSON.stringify({
+              type: 'AUTH_ERROR',
+              message: 'Invalid auth token.',
+            }),
+          )
+          conn.close()
         }
       })
 

@@ -1,6 +1,6 @@
 "use server"
 
-import { signUp } from "@/http/sign-up"
+import { signUp } from "@/http/users/sign-up"
 import { HTTPError } from "ky"
 import { cookies } from "next/headers"
 import z from "zod/v4"

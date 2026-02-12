@@ -4,6 +4,7 @@ import { AlertTriangle, Clock, Fan, Power, GaugeIcon as PressureGauge, Snowflake
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getNotificationSettings } from "@/http/notifications/get-notification-settings"
+import { getCookie } from "cookies-next"
 import { toast } from "sonner"
 import { Gauge } from "./gauge"
 import { Badge } from "./ui/badge"
@@ -183,11 +184,14 @@ export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentG
 
       ws = new WebSocket(wsUrl)
       ws.onopen = () => {
+        const token = getCookie("token")
+
         ws?.send(
           JSON.stringify({
             type: "AUTH",
             payload: {
               organizationId,
+              token: typeof token === "string" ? token : undefined,
             },
           }),
         )

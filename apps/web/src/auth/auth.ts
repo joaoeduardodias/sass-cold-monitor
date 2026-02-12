@@ -2,8 +2,8 @@ import { defineAbilityFor } from '@cold-monitor/auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { getMembership } from '@/http/get-membership';
-import { getProfile } from '@/http/get-profile';
+import { getMembership } from '@/http/members/get-membership';
+import { getProfile } from '@/http/users/get-profile';
 
 
 export async function getToken(): Promise<string | undefined> {

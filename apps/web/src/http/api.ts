@@ -1,6 +1,4 @@
-
 import { env } from "@cold-monitor/env";
-import type { CookiesFn } from 'cookies-next';
 import { getCookie } from 'cookies-next';
 import ky from 'ky';
 const API_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
@@ -15,14 +13,14 @@ export const api = ky.create({
           return
         }
 
-        let cookieStore: CookiesFn | undefined
-
+        let token: string | undefined
         if (typeof window === 'undefined') {
-          const { cookies: serverCookies } = require("next/headers");
-
-          cookieStore = serverCookies
+          const { cookies } = await import("next/headers")
+          const cookieStore = await cookies()
+          token = cookieStore.get("token")?.value
+        } else {
+          token = await getCookie("token")
         }
-        const token = await getCookie('token', { cookies: cookieStore })
 
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`)

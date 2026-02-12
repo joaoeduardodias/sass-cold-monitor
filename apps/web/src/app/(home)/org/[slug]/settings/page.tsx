@@ -13,10 +13,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments-by-organization"
 import { getOrganization } from '@/http/organizations/get-organization'
-import { ArrowLeft, Bell, Building, Database, Palette, Settings, Shield, Thermometer, Users } from "lucide-react"
+import { ArrowLeft, Bell, Building, Settings, Shield, Thermometer, Users } from "lucide-react"
 
 import { ChamberSettings } from "@/app/(home)/settings/components/chamber-settings"
 import { NotificationSettings } from "@/app/(home)/settings/components/notification-settings"
+import { SecuritySettings } from "@/app/(home)/settings/components/security-settings"
 import { UserManagement } from "@/app/(home)/settings/components/user-management"
 import { OrganizationForm } from '../../organization-form'
 import { ShutdownOrganizationButton } from './shutdown-organization-button'
@@ -37,7 +38,7 @@ export default async function SettingsPage() {
       <div className="container mx-auto py-6 min-[1200px]:px-4">
         <div className="mb-6 flex items-center gap-4">
           <Button variant="outline" size="icon" asChild>
-            <Link href="/">
+            <Link href={`/org/${currentOrg}`}>
               <ArrowLeft className="size-4" />
             </Link>
           </Button>
@@ -48,7 +49,7 @@ export default async function SettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 transition-all duration-300 ease-in-out">
+          <TabsList className="grid w-full grid-cols-5 transition-all duration-300 ease-in-out px-2">
             <TabsTrigger value="general" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
               <Settings className="size-4" />
               <span className="hidden sm:inline">Geral</span>
@@ -65,18 +66,12 @@ export default async function SettingsPage() {
               <Bell className="size-4" />
               <span className="hidden sm:inline">Notificações</span>
             </TabsTrigger>
-            <TabsTrigger value="database" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
-              <Database className="size-4" />
-              <span className="hidden sm:inline">Dados</span>
-            </TabsTrigger>
+
             <TabsTrigger value="security" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
               <Shield className="size-4" />
               <span className="hidden sm:inline">Segurança</span>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="cursor-pointer flex items-center gap-2 transition-all duration-200 ease-in-out data-[state=active]:scale-105">
-              <Palette className="size-4" />
-              <span className="hidden sm:inline">Aparência</span>
-            </TabsTrigger>
+
           </TabsList>
 
           <TabsContent value="general" className="animate-in fade-in-50 duration-400 space-y-4">
@@ -155,6 +150,17 @@ export default async function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <NotificationSettings organizationSlug={currentOrg ?? undefined} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="security" className="animate-in fade-in-50 duration-400" >
+            <Card>
+              <CardHeader>
+                <CardTitle>Configurações de Segurança</CardTitle>
+                <CardDescription>Configure autenticação, logs e políticas de segurança</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SecuritySettings organizationSlug={currentOrg ?? undefined} />
               </CardContent>
             </Card>
           </TabsContent>
