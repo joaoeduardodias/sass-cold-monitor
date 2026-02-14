@@ -21,6 +21,7 @@ import { getProfile } from './routes/auth/get-profile'
 import { requestPasswordRecover } from './routes/auth/request-password-recover'
 import { resetPassword } from './routes/auth/reset-password'
 import { updateProfile } from './routes/auth/update-profile'
+import { devicesAuthLoginRoute } from './routes/devices/auth-login'
 import { generateData } from './routes/data/generate-data'
 import { getData } from './routes/data/get-data'
 import { updateData } from './routes/data/update-data'
@@ -101,6 +102,7 @@ app.register(getProfile)
 app.register(updateProfile)
 app.register(requestPasswordRecover)
 app.register(resetPassword)
+app.register(devicesAuthLoginRoute)
 
 app.register(getOrganization)
 app.register(getOrganizations)

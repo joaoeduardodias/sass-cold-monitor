@@ -1,5 +1,6 @@
 import { env } from '@cold-monitor/env'
 import type { FastifyInstance } from 'fastify'
+import type WebSocket from 'ws'
 
 import { sendEmailWithValidation } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
@@ -10,7 +11,10 @@ import {
   getNearestLimit,
 } from '@/utils/notifications/evaluate-alert-level'
 import { handleCreateInstrument } from '@/utils/websocket/create-instruments'
-import { agentEventSchema } from '@/utils/websocket/schemas/agent'
+import {
+  agentEventSchema,
+  authAgentPayloadSchema,
+} from '@/utils/websocket/schemas/agent'
 import { handleValuesInstruments } from '@/utils/websocket/send-values-instruments'
 
 function broadcastToOrg(orgId: string, data: unknown) {
@@ -25,6 +29,7 @@ function broadcastToOrg(orgId: string, data: unknown) {
 }
 
 const latestAlertLevelByInstrument = new Map<string, 'normal' | 'warning' | 'critical'>()
+const agentConnectionByOrg = new Map<string, WebSocket>()
 
 export async function agentWs(app: FastifyInstance) {
   app.get(
@@ -38,9 +43,150 @@ export async function agentWs(app: FastifyInstance) {
       websocket: true,
     },
     (conn) => {
+      let authenticatedOrgId: string | null = null
+
       conn.on('message', async (message: Buffer) => {
         try {
           const raw = JSON.parse(message.toString())
+
+          if (raw.type === 'AUTH') {
+            const parsedAuth = authAgentPayloadSchema.safeParse(raw.payload)
+
+            if (!parsedAuth.success) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'Invalid AUTH payload',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            const { organizationId, token } = parsedAuth.data
+            try {
+              const decoded = app.jwt.verify<{ sub: string; organizationId?: string }>(token)
+              const userId = decoded.sub
+              const tokenOrganizationId = decoded.organizationId
+              const resolvedOrganizationId = organizationId ?? tokenOrganizationId
+
+              if (!resolvedOrganizationId) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'organizationId is required',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              if (
+                tokenOrganizationId &&
+                organizationId &&
+                tokenOrganizationId !== organizationId
+              ) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'Invalid organization for this token',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              const organization = await prisma.organization.findUnique({
+                where: { id: resolvedOrganizationId },
+                select: { id: true },
+              })
+
+              if (!organization) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'organization not found',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              const membership = await prisma.member.findFirst({
+                where: {
+                  userId,
+                  organizationId: organization.id,
+                  isActive: true,
+                },
+                select: { id: true },
+              })
+
+              if (!membership) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'User cannot access this organization',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              if (authenticatedOrgId && authenticatedOrgId !== organization.id) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'Agent already authenticated for another organization',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              const existingConnection = agentConnectionByOrg.get(organization.id)
+
+              if (
+                existingConnection &&
+                existingConnection !== (conn as unknown as WebSocket) &&
+                existingConnection.readyState === existingConnection.OPEN
+              ) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'There is already an active agent for this organization',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
+              authenticatedOrgId = organization.id
+              agentConnectionByOrg.set(organization.id, conn as unknown as WebSocket)
+              conn.send(JSON.stringify({ type: 'AUTH_OK' }))
+              return
+            } catch {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'Invalid auth token.',
+                }),
+              )
+              conn.close()
+              return
+            }
+          }
+
+          if (!authenticatedOrgId) {
+            conn.send(
+              JSON.stringify({
+                type: 'AUTH_ERROR',
+                message: 'Authentication required',
+              }),
+            )
+            conn.close()
+            return
+          }
+
           const parsed = agentEventSchema.safeParse(raw)
 
           if (!parsed.success) {
@@ -51,7 +197,22 @@ export async function agentWs(app: FastifyInstance) {
           const { type, payload } = parsed.data
 
           switch (type) {
+            case 'AUTH': {
+              break
+            }
+
             case 'INSTRUMENT_CREATE': {
+              if (payload.organizationId !== authenticatedOrgId) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'User cannot access this organization',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
               const instrument = await handleCreateInstrument(payload)
 
               conn.send(
@@ -86,19 +247,13 @@ export async function agentWs(app: FastifyInstance) {
             case 'TEMPERATURE_READING': {
               const reading = await handleValuesInstruments({
                 readings: payload.readings,
+              }, {
+                organizationId: authenticatedOrgId,
               })
 
-              dashboardConnectionsByOrg.forEach((set) => {
-                set.forEach((ws) => {
-                  if (ws.readyState === ws.OPEN) {
-                    ws.send(
-                      JSON.stringify({
-                        type: 'TEMPERATURE_UPDATE',
-                        payload: reading,
-                      }),
-                    )
-                  }
-                })
+              broadcastToOrg(authenticatedOrgId, {
+                type: 'TEMPERATURE_UPDATE',
+                payload: reading,
               })
 
               const orgIds = Array.from(
@@ -133,6 +288,10 @@ export async function agentWs(app: FastifyInstance) {
                     instrumentId: r.instrumentId,
                     value: r.data,
                     editValue: r.editData,
+                    temperature: r.temperature,
+                    pressure: r.pressure,
+                    setpoint: r.setpoint,
+                    differential: r.differential,
                     updatedAt: new Date().toISOString(),
                   },
                 })
@@ -232,6 +391,13 @@ Verifique o sistema imediatamente.`
       })
 
       conn.on('close', () => {
+        if (
+          authenticatedOrgId &&
+          agentConnectionByOrg.get(authenticatedOrgId) === (conn as unknown as WebSocket)
+        ) {
+          agentConnectionByOrg.delete(authenticatedOrgId)
+        }
+
         console.log('Agent desconectado')
       })
     },

@@ -2,6 +2,7 @@ import { AlertsPanel } from "@/components/alerts-panel";
 import { Header } from "@/components/header";
 import { InstrumentGrid } from "@/components/instrument-grid";
 import { getOrganization } from "@/http/organizations/get-organization";
+import Link from "next/link";
 
 export default async function HomeOrg({
   params,
@@ -18,6 +19,12 @@ export default async function HomeOrg({
         <div className="mb-8">
           <h2 className="text-3xl font-bold tracking-tight">Monitoramento de Câmaras Frias</h2>
           <p className="text-muted-foreground">Monitore os dados em tempo real.</p>
+          <Link
+            href={`/org/${slug}/download`}
+            className="mt-3 inline-flex h-9 items-center justify-center rounded-md border border-border px-3 text-sm font-medium hover:bg-muted"
+          >
+            Download app coletor
+          </Link>
         </div>
         <div className="flex gap-6">
           <div className="flex-1">

@@ -54,7 +54,7 @@ export async function dashboardWs(app: FastifyInstance) {
             return
           }
 
-          const decoded = await app.jwt.verify<{ sub: string }>(token)
+          const decoded = app.jwt.verify<{ sub: string }>(token)
           const userId = decoded.sub
 
           const org = await prisma.organization.findUnique({
