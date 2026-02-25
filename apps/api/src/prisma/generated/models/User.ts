@@ -203,6 +203,7 @@ export type UserWhereInput = {
   organizations?: Prisma.OrganizationListRelationFilter
   tokens?: Prisma.TokenListRelationFilter
   invites?: Prisma.InviteListRelationFilter
+  collectorDevices?: Prisma.CollectorDeviceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -218,6 +219,7 @@ export type UserOrderByWithRelationInput = {
   organizations?: Prisma.OrganizationOrderByRelationAggregateInput
   tokens?: Prisma.TokenOrderByRelationAggregateInput
   invites?: Prisma.InviteOrderByRelationAggregateInput
+  collectorDevices?: Prisma.CollectorDeviceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -236,6 +238,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   organizations?: Prisma.OrganizationListRelationFilter
   tokens?: Prisma.TokenListRelationFilter
   invites?: Prisma.InviteListRelationFilter
+  collectorDevices?: Prisma.CollectorDeviceListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -277,6 +280,7 @@ export type UserCreateInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -292,6 +296,7 @@ export type UserUncheckedCreateInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -307,6 +312,7 @@ export type UserUpdateInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -322,6 +328,7 @@ export type UserUncheckedUpdateInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -478,6 +485,20 @@ export type UserUpdateOneWithoutInvitesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutInvitesInput, Prisma.UserUpdateWithoutInvitesInput>, Prisma.UserUncheckedUpdateWithoutInvitesInput>
 }
 
+export type UserCreateNestedOneWithoutCollectorDevicesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCollectorDevicesInput, Prisma.UserUncheckedCreateWithoutCollectorDevicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCollectorDevicesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCollectorDevicesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCollectorDevicesInput, Prisma.UserUncheckedCreateWithoutCollectorDevicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCollectorDevicesInput
+  upsert?: Prisma.UserUpsertWithoutCollectorDevicesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCollectorDevicesInput, Prisma.UserUpdateWithoutCollectorDevicesInput>, Prisma.UserUncheckedUpdateWithoutCollectorDevicesInput>
+}
+
 export type UserCreateWithoutTokensInput = {
   id?: string
   name: string
@@ -490,6 +511,7 @@ export type UserCreateWithoutTokensInput = {
   member_on?: Prisma.MemberCreateNestedManyWithoutUserInput
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTokensInput = {
@@ -504,6 +526,7 @@ export type UserUncheckedCreateWithoutTokensInput = {
   member_on?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTokensInput = {
@@ -534,6 +557,7 @@ export type UserUpdateWithoutTokensInput = {
   member_on?: Prisma.MemberUpdateManyWithoutUserNestedInput
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTokensInput = {
@@ -548,6 +572,7 @@ export type UserUncheckedUpdateWithoutTokensInput = {
   member_on?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -562,6 +587,7 @@ export type UserCreateWithoutAccountsInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -576,6 +602,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -606,6 +633,7 @@ export type UserUpdateWithoutAccountsInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -620,6 +648,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMember_onInput = {
@@ -634,6 +663,7 @@ export type UserCreateWithoutMember_onInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMember_onInput = {
@@ -648,6 +678,7 @@ export type UserUncheckedCreateWithoutMember_onInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMember_onInput = {
@@ -678,6 +709,7 @@ export type UserUpdateWithoutMember_onInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMember_onInput = {
@@ -692,6 +724,7 @@ export type UserUncheckedUpdateWithoutMember_onInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrganizationsInput = {
@@ -706,6 +739,7 @@ export type UserCreateWithoutOrganizationsInput = {
   member_on?: Prisma.MemberCreateNestedManyWithoutUserInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrganizationsInput = {
@@ -720,6 +754,7 @@ export type UserUncheckedCreateWithoutOrganizationsInput = {
   member_on?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrganizationsInput = {
@@ -750,6 +785,7 @@ export type UserUpdateWithoutOrganizationsInput = {
   member_on?: Prisma.MemberUpdateManyWithoutUserNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrganizationsInput = {
@@ -764,6 +800,7 @@ export type UserUncheckedUpdateWithoutOrganizationsInput = {
   member_on?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutInvitesInput = {
@@ -778,6 +815,7 @@ export type UserCreateWithoutInvitesInput = {
   member_on?: Prisma.MemberCreateNestedManyWithoutUserInput
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInvitesInput = {
@@ -792,6 +830,7 @@ export type UserUncheckedCreateWithoutInvitesInput = {
   member_on?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInvitesInput = {
@@ -822,6 +861,7 @@ export type UserUpdateWithoutInvitesInput = {
   member_on?: Prisma.MemberUpdateManyWithoutUserNestedInput
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitesInput = {
@@ -836,6 +876,83 @@ export type UserUncheckedUpdateWithoutInvitesInput = {
   member_on?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCollectorDevicesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  member_on?: Prisma.MemberCreateNestedManyWithoutUserInput
+  organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
+  tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
+  invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+}
+
+export type UserUncheckedCreateWithoutCollectorDevicesInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  member_on?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
+  organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
+  tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
+  invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+}
+
+export type UserCreateOrConnectWithoutCollectorDevicesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCollectorDevicesInput, Prisma.UserUncheckedCreateWithoutCollectorDevicesInput>
+}
+
+export type UserUpsertWithoutCollectorDevicesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCollectorDevicesInput, Prisma.UserUncheckedUpdateWithoutCollectorDevicesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCollectorDevicesInput, Prisma.UserUncheckedCreateWithoutCollectorDevicesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCollectorDevicesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCollectorDevicesInput, Prisma.UserUncheckedUpdateWithoutCollectorDevicesInput>
+}
+
+export type UserUpdateWithoutCollectorDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  member_on?: Prisma.MemberUpdateManyWithoutUserNestedInput
+  organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
+  tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
+  invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCollectorDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  member_on?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
+  organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
+  tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
+  invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 
@@ -849,6 +966,7 @@ export type UserCountOutputType = {
   organizations: number
   tokens: number
   invites: number
+  collectorDevices: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -857,6 +975,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   organizations?: boolean | UserCountOutputTypeCountOrganizationsArgs
   tokens?: boolean | UserCountOutputTypeCountTokensArgs
   invites?: boolean | UserCountOutputTypeCountInvitesArgs
+  collectorDevices?: boolean | UserCountOutputTypeCountCollectorDevicesArgs
 }
 
 /**
@@ -904,6 +1023,13 @@ export type UserCountOutputTypeCountInvitesArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.InviteWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCollectorDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CollectorDeviceWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -918,6 +1044,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   organizations?: boolean | Prisma.User$organizationsArgs<ExtArgs>
   tokens?: boolean | Prisma.User$tokensArgs<ExtArgs>
   invites?: boolean | Prisma.User$invitesArgs<ExtArgs>
+  collectorDevices?: boolean | Prisma.User$collectorDevicesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -958,6 +1085,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   organizations?: boolean | Prisma.User$organizationsArgs<ExtArgs>
   tokens?: boolean | Prisma.User$tokensArgs<ExtArgs>
   invites?: boolean | Prisma.User$invitesArgs<ExtArgs>
+  collectorDevices?: boolean | Prisma.User$collectorDevicesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -971,6 +1099,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     organizations: Prisma.$OrganizationPayload<ExtArgs>[]
     tokens: Prisma.$TokenPayload<ExtArgs>[]
     invites: Prisma.$InvitePayload<ExtArgs>[]
+    collectorDevices: Prisma.$CollectorDevicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1379,6 +1508,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   organizations<T extends Prisma.User$organizationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$organizationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tokens<T extends Prisma.User$tokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invites<T extends Prisma.User$invitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  collectorDevices<T extends Prisma.User$collectorDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$collectorDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectorDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1920,6 +2050,30 @@ export type User$invitesArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.InviteScalarFieldEnum | Prisma.InviteScalarFieldEnum[]
+}
+
+/**
+ * User.collectorDevices
+ */
+export type User$collectorDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CollectorDevice
+   */
+  select?: Prisma.CollectorDeviceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CollectorDevice
+   */
+  omit?: Prisma.CollectorDeviceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CollectorDeviceInclude<ExtArgs> | null
+  where?: Prisma.CollectorDeviceWhereInput
+  orderBy?: Prisma.CollectorDeviceOrderByWithRelationInput | Prisma.CollectorDeviceOrderByWithRelationInput[]
+  cursor?: Prisma.CollectorDeviceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CollectorDeviceScalarFieldEnum | Prisma.CollectorDeviceScalarFieldEnum[]
 }
 
 /**

@@ -393,7 +393,8 @@ export const ModelName = {
   Instrument: 'Instrument',
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
-  Invite: 'Invite'
+  Invite: 'Invite',
+  CollectorDevice: 'CollectorDevice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "token" | "account" | "member" | "organization" | "notificationSettings" | "instrument" | "instrumentData" | "joinInstrument" | "invite"
+    modelProps: "user" | "token" | "account" | "member" | "organization" | "notificationSettings" | "instrument" | "instrumentData" | "joinInstrument" | "invite" | "collectorDevice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CollectorDevice: {
+      payload: Prisma.$CollectorDevicePayload<ExtArgs>
+      fields: Prisma.CollectorDeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CollectorDeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CollectorDeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        findFirst: {
+          args: Prisma.CollectorDeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CollectorDeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        findMany: {
+          args: Prisma.CollectorDeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>[]
+        }
+        create: {
+          args: Prisma.CollectorDeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        createMany: {
+          args: Prisma.CollectorDeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CollectorDeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>[]
+        }
+        delete: {
+          args: Prisma.CollectorDeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        update: {
+          args: Prisma.CollectorDeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.CollectorDeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CollectorDeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CollectorDeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.CollectorDeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CollectorDevicePayload>
+        }
+        aggregate: {
+          args: Prisma.CollectorDeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCollectorDevice>
+        }
+        groupBy: {
+          args: Prisma.CollectorDeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectorDeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CollectorDeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CollectorDeviceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1328,6 +1403,19 @@ export const InviteScalarFieldEnum = {
 } as const
 
 export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof InviteScalarFieldEnum]
+
+
+export const CollectorDeviceScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CollectorDeviceScalarFieldEnum = (typeof CollectorDeviceScalarFieldEnum)[keyof typeof CollectorDeviceScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1583,6 +1671,7 @@ export type GlobalOmitConfig = {
   instrumentData?: Prisma.InstrumentDataOmit
   joinInstrument?: Prisma.JoinInstrumentOmit
   invite?: Prisma.InviteOmit
+  collectorDevice?: Prisma.CollectorDeviceOmit
 }
 
 /* Types for Logging */

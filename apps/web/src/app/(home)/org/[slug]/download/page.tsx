@@ -38,20 +38,13 @@ export default async function DownloadCollectorPage({
           <DownloadCollectorCard organizationId={organization.id} />
 
           <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-xl font-semibold">Como publicar o .exe</h2>
+            <h2 className="text-xl font-semibold">Como ativar a API do Sitrad PRO</h2>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
-              <li>
-                Coloque o arquivo do instalador em:
-                <span className="ml-1 font-mono text-foreground">apps/web/public/downloads/coldmonitor-collector-setup.exe</span>
-              </li>
-              <li>
-                Depois do deploy, o link padrão será:
-                <span className="ml-1 font-mono text-foreground">https://SEU-DOMINIO/downloads/coldmonitor-collector-setup.exe</span>
-              </li>
-              <li>
-                Se preferir hospedar em outro lugar (S3, Cloudflare R2, etc), defina:
-                <span className="ml-1 font-mono text-foreground">NEXT_PUBLIC_COLLECTOR_DOWNLOAD_URL</span>
-              </li>
+              <li>Acesse o Sitrad PRO e abra as configurações do servidor.</li>
+              <li>No menu do servidor, entre na seção de API.</li>
+              <li>Informe e ative a licença da API.</li>
+              <li>Crie um usuário e senha para acesso da API.</li>
+              <li>Crie um grupo para a API e conceda permissões de leitura e escrita.</li>
             </ol>
           </section>
         </div>

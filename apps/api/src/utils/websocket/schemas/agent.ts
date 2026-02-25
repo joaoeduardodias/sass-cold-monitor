@@ -7,36 +7,34 @@ export const authAgentPayloadSchema = z.object({
   token: z.string().min(1),
 })
 
-export const createInstrumentPayloadSchema = z.object({
+export const createInstrumentSchema = z.array(z.object({
+  idSitrad: z.number(),
   name: z.string().min(1),
-  idSitrad: z.number().int().optional(),
-  organizationId: z.uuid(),
-  processStatusText: z.string().optional(),
+  slug: z.string().min(1),
+  model: z.number(),
   type: z.enum(InstrumentType),
-  model: z.number().int(),
-})
+  organizationId: z.uuid(),
+}))
+export type CreateInstrumentType = z.infer<typeof createInstrumentSchema>
 
-const normalizedReadingSchema = z.object({
-  id: z.string().min(1),
+
+export const instrumentWebSocketSchema = z.array(z.object({
   idSitrad: z.number().int(),
   name: z.string().min(1),
+  slug: z.string().min(1),
   model: z.number().int(),
-  orderDisplay: z.number().int(),
-  type: z.string().min(1),
-  process: z.string(),
+  type: z.enum(InstrumentType),
+  value: z.number(),
   status: z.string(),
-  isSensorError: z.boolean(),
-  maxValue: z.number(),
-  minValue: z.number(),
-  setPoint: z.number(),
-  temperature: z.number(),
-  createdAt: z.null(),
-  differential: z.number(),
-})
+  setPoint: z.preprocess((value) => value ?? 0, z.number()),
+  differential: z.preprocess((value) => value ?? 0, z.number()),
+  error: z.boolean(),
+  isSensorError: z.boolean().default(false),
+  organizationId: z.string().min(1),
+}))
 
-const temperatureReadingPayloadSchema = z.object({
-  readings: z.array(normalizedReadingSchema),
-})
+export type InstrumentWebSocket = z.infer<typeof instrumentWebSocketSchema>
+
 
 export const agentEventSchema = z.discriminatedUnion('type', [
   z.object({
@@ -46,11 +44,11 @@ export const agentEventSchema = z.discriminatedUnion('type', [
 
   z.object({
     type: z.literal('INSTRUMENT_CREATE'),
-    payload: createInstrumentPayloadSchema,
+    payload: createInstrumentSchema,
   }),
 
   z.object({
-    type: z.literal('TEMPERATURE_READING'),
-    payload: temperatureReadingPayloadSchema,
+    type: z.literal('INSTRUMENT_READING'),
+    payload: instrumentWebSocketSchema,
   }),
 ])

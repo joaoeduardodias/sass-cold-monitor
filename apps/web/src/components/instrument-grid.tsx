@@ -14,7 +14,6 @@ export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentG
     organizationSlug,
   })
 
-
   if (loading) {
     return <div className="flex justify-center p-12">Carregando dados...</div>
   }
@@ -23,7 +22,7 @@ export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentG
     <div className="space-y-4">
       {hasCommunicationFailures && (
         <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Falha de comunicação com o websocket. Alguns instrumentos estão sem leitura em tempo real.
+          Falha de comunicação com o Coletor. Os instrumentos estão sem leitura em tempo real.
         </div>
       )}
 

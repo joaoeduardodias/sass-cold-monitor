@@ -50,7 +50,6 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
     await navigator.clipboard.writeText(setupToken)
     setCopied(true)
   }
-  console.log(collectorDownloadUrl);
 
   return (
     <section className="rounded-xl border border-border bg-card p-6">

@@ -5,12 +5,11 @@ import type WebSocket from 'ws'
 import { sendEmailWithValidation } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
 import { dashboardConnectionsByOrg } from '@/realtime/dashboard-connections'
-import { createSlug } from '@/utils/create-slug'
 import {
   evaluateAlertLevel,
   getNearestLimit,
 } from '@/utils/notifications/evaluate-alert-level'
-import { handleCreateInstrument } from '@/utils/websocket/create-instruments'
+import { handleCreateInstruments } from '@/utils/websocket/create-instruments'
 import {
   agentEventSchema,
   authAgentPayloadSchema,
@@ -32,8 +31,7 @@ const latestAlertLevelByInstrument = new Map<string, 'normal' | 'warning' | 'cri
 const agentConnectionByOrg = new Map<string, WebSocket>()
 
 export async function agentWs(app: FastifyInstance) {
-  app.get(
-    '/ws/agent',
+  app.get('/ws/agent',
     {
       schema: {
         tags: ['WebSocket'],
@@ -202,57 +200,41 @@ export async function agentWs(app: FastifyInstance) {
             }
 
             case 'INSTRUMENT_CREATE': {
-              if (payload.organizationId !== authenticatedOrgId) {
+              const instrumentsWithoutOrg = payload.filter((inst) => inst.organizationId !== authenticatedOrgId)
+              if (instrumentsWithoutOrg.length > 0) {
                 conn.send(
                   JSON.stringify({
                     type: 'AUTH_ERROR',
-                    message: 'User cannot access this organization',
+                    message: 'This instrument cannot access this organization',
                   }),
                 )
                 conn.close()
                 return
               }
 
-              const instrument = await handleCreateInstrument(payload)
+              const instruments = await handleCreateInstruments(payload)
 
+              const insturmentsMapping = instruments.map((instrument) => {
+                return {
+                  id: instrument.id,
+                  slug: instrument.slug,
+                }
+              })
               conn.send(
                 JSON.stringify({
                   type: 'INSTRUMENT_CREATED',
-                  payload: {
-                    slug: createSlug(instrument.name),
-                    instrumentId: instrument.id,
-                  },
+                  payload: insturmentsMapping,
                 }),
               )
-
-              if (instrument?.organizationId) {
-                const vm = {
-                  instrumentId: instrument.id,
-                  name: instrument.name,
-                  orderDisplay: instrument.orderDisplay ?? 0,
-                  isActive: instrument.isActive ?? true,
-                  processStatusText:
-                    payload.processStatusText ?? 'Aguardando dados...',
-                }
-
-                broadcastToOrg(instrument.organizationId, {
-                  type: 'INSTRUMENT_VIEW_MODEL',
-                  payload: vm,
-                })
-              }
 
               break
             }
 
-            case 'TEMPERATURE_READING': {
-              const reading = await handleValuesInstruments({
-                readings: payload.readings,
-              }, {
-                organizationId: authenticatedOrgId,
-              })
+            case 'INSTRUMENT_READING': {
+              const reading = await handleValuesInstruments(payload)
 
               broadcastToOrg(authenticatedOrgId, {
-                type: 'TEMPERATURE_UPDATE',
+                type: 'INSTRUMENT_VALUES',
                 payload: reading,
               })
 
@@ -286,18 +268,25 @@ export async function agentWs(app: FastifyInstance) {
                   type: 'INSTRUMENT_UPDATE',
                   payload: {
                     instrumentId: r.instrumentId,
-                    value: r.data,
-                    editValue: r.editData,
-                    temperature: r.temperature,
-                    pressure: r.pressure,
-                    setpoint: r.setpoint,
+                    idSitrad: r.idSitrad,
+                    name: r.name,
+                    slug: r.slug,
+                    model: r.model,
+                    type: r.type,
+                    status: r.status,
+                    isSensorError: r.isSensorError,
+                    value: r.value,
+                    editValue: r.value,
+                    minValue: r.minValue,
+                    maxValue: r.maxValue,
+                    setpoint: r.setPoint,
                     differential: r.differential,
                     updatedAt: new Date().toISOString(),
                   },
                 })
 
                 const alertLevel = evaluateAlertLevel({
-                  value: r.editData,
+                  value: r.value,
                   minValue: r.minValue,
                   maxValue: r.maxValue,
                 })
@@ -326,7 +315,7 @@ export async function agentWs(app: FastifyInstance) {
 
                 const alertType = alertLevel === 'critical' ? 'critical' : 'warning'
                 const nearestLimit = getNearestLimit({
-                  value: r.editData,
+                  value: r.value,
                   minValue: r.minValue,
                   maxValue: r.maxValue,
                 })
@@ -337,21 +326,22 @@ export async function agentWs(app: FastifyInstance) {
                     type: 'ALERT_NOTIFICATION',
                     payload: {
                       instrumentId: r.instrumentId,
-                      chamberName: r.instrumentName,
+                      instrumentName: r.name,
                       alertType,
-                      currentValue: String(r.editData),
-                      limitValue: String(nearestLimit),
+                      currentValue: r.value,
+                      limitValue: nearestLimit,
                       timestamp,
                     },
                   })
                 }
 
-                if ((settings?.emailEnabled ?? true) && (settings?.emailRecipients?.length ?? 0) > 0) {
+                if ((settings?.emailEnabled ?? true)
+                  && (settings?.emailRecipients?.length ?? 0) > 0) {
                   const emailTemplate =
                     settings?.emailTemplate ??
                     `Alerta ColdMonitor
 
-Câmara: {chamber_name}
+Instrumento: {instrument_name}
 Tipo: {alert_type}
 Valor: {current_value}
 Limite: {limit_value}
@@ -360,9 +350,9 @@ Data/Hora: {timestamp}
 Verifique o sistema imediatamente.`
 
                   const text = emailTemplate
-                    .replaceAll('{chamber_name}', r.instrumentName)
+                    .replaceAll('{instrument_name}', r.name)
                     .replaceAll('{alert_type}', alertType)
-                    .replaceAll('{current_value}', String(r.editData))
+                    .replaceAll('{current_value}', String(r.value))
                     .replaceAll('{limit_value}', String(nearestLimit))
                     .replaceAll('{timestamp}', timestamp)
 
@@ -370,10 +360,10 @@ Verifique o sistema imediatamente.`
                     {
                       from: `${env.EMAIL_FROM_NAME} <${env.EMAIL_FROM_EMAIL}>`,
                       to: settings!.emailRecipients,
-                      subject: `Alerta ${alertType.toUpperCase()} - ${r.instrumentName}`,
+                      subject: `Alerta ${alertType.toUpperCase()} - ${r.name}`,
                       text,
                     },
-                    'agentWs:TEMPERATURE_READING',
+                    'agentWs:instrument_Reading',
                   )
 
                   if (!sendResult.success) {

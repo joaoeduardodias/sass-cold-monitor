@@ -17,7 +17,6 @@ export async function dashboardWs(app: FastifyInstance) {
       websocket: true,
     },
     (conn, request) => {
-      console.log('Dashboard conectado, aguardando AUTH')
 
       let orgId: string | null = null
 

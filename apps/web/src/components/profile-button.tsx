@@ -15,8 +15,6 @@ import {
 } from './ui/dropdown-menu'
 
 
-
-
 export async function ProfileButton() {
   const { user } = await auth()
   const currentOrg = await getCurrentOrg()

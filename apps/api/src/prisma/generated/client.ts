@@ -89,3 +89,8 @@ export type JoinInstrument = Prisma.JoinInstrumentModel
  * 
  */
 export type Invite = Prisma.InviteModel
+/**
+ * Model CollectorDevice
+ * 
+ */
+export type CollectorDevice = Prisma.CollectorDeviceModel

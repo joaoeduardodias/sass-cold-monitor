@@ -1,126 +1,48 @@
 import { prisma } from '@/lib/prisma'
+import type { InstrumentWebSocket } from './schemas/agent'
 
-type NormalizedReading = {
-  id: string
-  idSitrad: number
-  name: string
-  model: number
-  orderDisplay: number
-  type: string
-  process: string
-  status: string
-  isSensorError: boolean
-  maxValue: number
-  minValue: number
-  setPoint: number
-  temperature: number
-  createdAt: null
-  differential: number
-}
 
-type DataReadingPayload = {
-  readings: NormalizedReading[]
-}
-
-type HandleValuesOptions = {
-  organizationId?: string
-}
-
-type InstrumentRealtimeState = {
-  temperature: number | null
-  pressure: number | null
-  setpoint: number | null
-  differential: number | null
-}
-
-const latestRealtimeStateByInstrument = new Map<string, InstrumentRealtimeState>()
-
-function toFiniteNumber(value: unknown): number | null {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return null
-  }
-
-  return Number(value.toFixed(1))
-}
-
-function isPressureInstrument(model?: number, type?: string) {
-  if (model === 67) {
-    return true
-  }
-
-  return String(type ?? '').toUpperCase().includes('PRESS')
-}
 
 export async function handleValuesInstruments(
-  payload: DataReadingPayload,
-  options?: HandleValuesOptions,
+  payload: InstrumentWebSocket,
 ) {
-  const instrumentIds = payload.readings.map((r) => r.id)
+  const instrumentsSlug = payload.map((reading) => reading.slug)
 
   const instruments = await prisma.instrument.findMany({
     where: {
-      id: { in: instrumentIds },
-      ...(options?.organizationId
-        ? { organizationId: options.organizationId }
-        : {}),
+      slug: { in: instrumentsSlug },
     },
     select: {
       id: true,
-      model: true,
-      name: true,
+      slug: true,
       minValue: true,
       maxValue: true,
-      organizationId: true,
     },
   })
 
-  const map = new Map(instruments.map((instrument) => [instrument.id, instrument]))
+  const map = new Map(instruments.map((instrument) => [instrument.slug, instrument]))
 
-  const toSave = payload.readings.flatMap((reading) => {
-    const inst = map.get(reading.id)
+  const toSave = payload.flatMap((reading) => {
+    const inst = map.get(reading.slug)
     if (!inst) {
       return []
     }
-
-    const previousState = latestRealtimeStateByInstrument.get(reading.id)
-
-    const normalizedValue = toFiniteNumber(reading.temperature)
-    const pressureInstrument = isPressureInstrument(inst.model ?? reading.model, reading.type)
-
-    const temperatureValue = pressureInstrument
-      ? null
-      : (normalizedValue ?? previousState?.temperature ?? null)
-    const pressureValue = pressureInstrument
-      ? (normalizedValue ?? previousState?.pressure ?? null)
-      : null
-    const setpoint =
-      toFiniteNumber(reading.setPoint) ?? previousState?.setpoint ?? null
-    const differential =
-      toFiniteNumber(reading.differential) ?? previousState?.differential ?? null
-
-    const primary = pressureInstrument
-      ? (pressureValue ?? 0)
-      : (temperatureValue ?? 0)
-
-    latestRealtimeStateByInstrument.set(reading.id, {
-      temperature: temperatureValue,
-      pressure: pressureValue,
-      setpoint,
-      differential,
-    })
-
     return [{
-      instrumentId: reading.id,
-      instrumentName: inst.name ?? reading.name,
-      organizationId: inst.organizationId,
-      minValue: Number(inst.minValue ?? reading.minValue ?? 0),
-      maxValue: Number(inst.maxValue ?? reading.maxValue ?? 0),
-      data: primary,
-      editData: primary,
-      temperature: temperatureValue,
-      pressure: pressureValue,
-      setpoint,
-      differential,
+      instrumentId: inst.id,
+      idSitrad: reading.idSitrad,
+      name: reading.name,
+      slug: reading.slug,
+      model: reading.model,
+      type: reading.type,
+      organizationId: reading.organizationId,
+      minValue: inst.minValue,
+      maxValue: inst.maxValue,
+      value: reading.value,
+      status: reading.status,
+      error: reading.error,
+      isSensorError: reading.isSensorError,
+      setPoint: reading.setPoint,
+      differential: reading.differential,
     }]
   })
 
@@ -128,8 +50,8 @@ export async function handleValuesInstruments(
     await prisma.instrumentData.createMany({
       data: toSave.map((entry) => ({
         instrumentId: entry.instrumentId,
-        data: entry.data,
-        editData: entry.editData,
+        data: entry.value,
+        editData: entry.value,
       })),
     })
   }

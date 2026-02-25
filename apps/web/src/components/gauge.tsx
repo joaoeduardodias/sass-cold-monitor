@@ -7,10 +7,11 @@ interface GaugeProps {
   min: number
   max: number
   status: "normal" | "warning" | "critical"
+  type: "TEMPERATURE" | "PRESSURE"
   size?: number
 }
 
-export function Gauge({ value, min, max, status, size = 120 }: GaugeProps) {
+export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps) {
   const [animatedValue, setAnimatedValue] = useState(min)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -114,7 +115,7 @@ export function Gauge({ value, min, max, status, size = 120 }: GaugeProps) {
           >
             {animatedValue.toFixed(1)}
           </div>
-          <div className="text-xs text-muted-foreground font-medium">°C</div>
+          <div className="text-xs text-muted-foreground font-medium">{type === "TEMPERATURE" ? "°C" : " Bar"}</div>
         </div>
       </div>
     </div>

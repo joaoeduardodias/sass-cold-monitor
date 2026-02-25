@@ -8,26 +8,96 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 const COMMUNICATION_TIMEOUT_MS = 10_000
-const REFRESH_INTERVAL_MS = 5_000
+const WARNING_THRESHOLD = 0.3
+const CRITICAL_THRESHOLD = 0.1
+
+function toNumberOrNull(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null
+  }
+
+  return value
+}
 
 function getStatusByValue(value: number, minValue: number, maxValue: number): InstrumentStatus {
-  if (value <= minValue || value >= maxValue) {
+  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue) || minValue === maxValue) {
+    return "normal"
+  }
+
+  const lowerBound = Math.min(minValue, maxValue)
+  const upperBound = Math.max(minValue, maxValue)
+
+  if (value <= lowerBound || value >= upperBound) {
     return "critical"
   }
 
-  const range = Math.max(0, maxValue - minValue)
-  const warningMargin = range * 0.1
+  const range = upperBound - lowerBound
+  const distanceToLower = value - lowerBound
+  const distanceToUpper = upperBound - value
+  const nearestBoundaryDistance = Math.min(distanceToLower, distanceToUpper)
+  const boundaryDistanceRatio = nearestBoundaryDistance / range
 
-  if (value <= minValue + warningMargin || value >= maxValue - warningMargin) {
+  if (boundaryDistanceRatio <= CRITICAL_THRESHOLD) {
+    return "critical"
+  }
+
+  if (boundaryDistanceRatio <= WARNING_THRESHOLD) {
     return "warning"
   }
 
   return "normal"
 }
 
+function mapOperationalStatus(status?: string): Instrument["operationalStatus"] | null {
+  if (!status) return null
+
+  const normalized = status.toLowerCase()
+
+  if (normalized.includes("refrig")) return "refrigerating"
+  if (normalized.includes("onlin")) return "on-line"
+  if (normalized.includes("degel") || normalized.includes("defrost")) return "defrosting"
+  if (normalized.includes("fan")) return "fan-only"
+  if (normalized.includes("alarm") || normalized.includes("alarme")) return "alarm"
+  if (normalized.includes("off") || normalized.includes("deslig")) return "off"
+  if (normalized.includes("idle") || normalized.includes("aguard")) return "idle"
+
+  return null
+}
+
 type UseInstrumentGridParams = {
   organizationId: string
   organizationSlug: string
+}
+
+function createInitialInstrument(organizationId: string, instrument: {
+  id: string
+  idSitrad: number | null
+  name: string
+  slug: string
+  model: number
+  type: "TEMPERATURE" | "PRESSURE"
+  minValue: number
+  maxValue: number
+}): Instrument {
+  return {
+    id: instrument.id,
+    idSitrad: instrument.idSitrad,
+    name: instrument.name,
+    slug: instrument.slug,
+    model: instrument.model,
+    type: instrument.type,
+    organizationId,
+    min: instrument.minValue,
+    max: instrument.maxValue,
+    value: null,
+    status: "normal",
+    operationalStatus: "idle",
+    error: false,
+    isSensorError: false,
+    setpoint: null,
+    differential: null,
+    lastUpdated: null,
+  }
 }
 
 export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstrumentGridParams) {
@@ -38,6 +108,25 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
 
   const pushEnabledRef = useRef(true)
   const hasShownLoadErrorRef = useRef(false)
+  const alertStatusByInstrumentRef = useRef<Map<string, InstrumentStatus>>(new Map())
+
+  const notifyStatusAlert = useCallback((instrument: Instrument) => {
+    if (instrument.value === null || instrument.status === "normal") return
+
+    const title = `Alerta ${instrument.status === "critical" ? "Crítico" : "de Atenção"}`
+    const body = `${instrument.name}: valor ${instrument.value.toFixed(1)} (mín ${instrument.min.toFixed(1)} / máx ${instrument.max.toFixed(1)})`
+
+    if (pushEnabledRef.current && "Notification" in window && Notification.permission === "granted") {
+      new Notification(title, { body, tag: `alert-${instrument.id}` })
+    }
+
+    if (instrument.status === "critical") {
+      toast.error(body)
+      return
+    }
+
+    toast.warning(body)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -48,29 +137,7 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
         if (!isMounted) return
 
         hasShownLoadErrorRef.current = false
-
-        setInstruments((previousInstruments) => {
-          const previousById = new Map(previousInstruments.map((instrument) => [instrument.id, instrument]))
-
-          return responseInstruments.map((instrument) => {
-            const previous = previousById.get(instrument.id)
-
-            return {
-              id: instrument.id,
-              name: instrument.name,
-              type: instrument.type,
-              temperature: previous?.temperature ?? null,
-              pressure: previous?.pressure ?? null,
-              setpoint: previous?.setpoint ?? null,
-              differential: previous?.differential ?? null,
-              min: instrument.minValue,
-              max: instrument.maxValue,
-              status: previous?.status ?? "normal",
-              operationalStatus: previous?.operationalStatus ?? "idle",
-              lastUpdated: previous?.lastUpdated ?? null,
-            }
-          })
-        })
+        setInstruments(responseInstruments.map((instrument) => createInitialInstrument(organizationId, instrument)))
       } catch {
         if (!hasShownLoadErrorRef.current) {
           toast.error("Não foi possível carregar os instrumentos.")
@@ -84,15 +151,34 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
     }
 
     void loadInstruments()
-    const interval = window.setInterval(() => {
-      void loadInstruments()
-    }, REFRESH_INTERVAL_MS)
-
     return () => {
       isMounted = false
-      window.clearInterval(interval)
     }
-  }, [organizationSlug])
+  }, [organizationId, organizationSlug])
+
+  useEffect(() => {
+    const nextKnownIds = new Set(instruments.map((instrument) => instrument.id))
+    const previousStatuses = alertStatusByInstrumentRef.current
+
+    for (const [instrumentId] of previousStatuses) {
+      if (!nextKnownIds.has(instrumentId)) {
+        previousStatuses.delete(instrumentId)
+      }
+    }
+
+    for (const instrument of instruments) {
+      const previousStatus = previousStatuses.get(instrument.id) ?? "normal"
+      previousStatuses.set(instrument.id, instrument.status)
+
+      if (instrument.error || instrument.isSensorError || instrument.status === "normal") {
+        continue
+      }
+
+      if (instrument.status !== previousStatus) {
+        notifyStatusAlert(instrument)
+      }
+    }
+  }, [instruments, notifyStatusAlert])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -149,45 +235,85 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
         try {
           const message = JSON.parse(event.data) as DashboardWsMessage
 
+          if (message.type === "INSTRUMENT_VALUES") {
+            setWsConnectedAt(Date.now())
+            setInstruments((prev) => {
+              const prevById = new Map(prev.map((instrument) => [instrument.id, instrument]))
+              const nextById = new Map(prevById)
+              const updatedAt = new Date().toISOString()
+
+              for (const reading of message.payload) {
+                const previous = prevById.get(reading.instrumentId)
+                const nextValue = toNumberOrNull(reading.value)
+                const min = previous?.min ?? 0
+                const max = previous?.max ?? 0
+                const status = nextValue !== null
+                  ? getStatusByValue(nextValue, min, max)
+                  : previous?.status ?? "normal"
+
+                nextById.set(reading.instrumentId, {
+                  id: reading.instrumentId,
+                  idSitrad: reading.idSitrad,
+                  name: reading.name,
+                  slug: reading.slug,
+                  model: reading.model,
+                  type: reading.type,
+                  organizationId: reading.organizationId,
+                  min,
+                  max,
+                  value: nextValue,
+                  status,
+                  operationalStatus: mapOperationalStatus(reading.status) ?? previous?.operationalStatus ?? "idle",
+                  error: reading.error,
+                  isSensorError: reading.isSensorError,
+                  setpoint: toNumberOrNull(reading.setPoint) ?? previous?.setpoint ?? 0,
+                  differential: toNumberOrNull(reading.differential) ?? previous?.differential ?? 0,
+                  lastUpdated: updatedAt,
+                })
+              }
+
+              const ordered = prev.map((instrument) => nextById.get(instrument.id) ?? instrument)
+              const existingIds = new Set(prev.map((instrument) => instrument.id))
+              const appended = message.payload
+                .map((reading) => nextById.get(reading.instrumentId))
+                .filter((instrument): instrument is Instrument =>
+                  instrument !== undefined && !existingIds.has(instrument.id),
+                )
+
+              return [...ordered, ...appended]
+            })
+            return
+          }
+
           if (message.type === "INSTRUMENT_UPDATE") {
-            setInstruments((prev) =>
-              prev.map((instrument) => {
-                if (instrument.id !== message.payload.instrumentId) {
-                  return instrument
-                }
+            setWsConnectedAt(Date.now())
+            setInstruments((prev) => prev.map((instrument) => {
+              if (instrument.id !== message.payload.instrumentId) {
+                return instrument
+              }
 
-                const isTemperature = instrument.type === "TEMPERATURE"
-                const nextTemperature =
-                  message.payload.temperature ?? (isTemperature ? message.payload.editValue : instrument.temperature)
-                const nextPressure =
-                  message.payload.pressure ?? (!isTemperature ? message.payload.editValue : instrument.pressure)
-                const nextReferenceValue = isTemperature ? nextTemperature : nextPressure
+              const nextValue = toNumberOrNull(message.payload.value) ?? instrument.value
+              const nextMin = message.payload.minValue
+              const nextMax = message.payload.maxValue
 
-                return {
-                  ...instrument,
-                  temperature: nextTemperature,
-                  pressure: nextPressure,
-                  setpoint: message.payload.setpoint ?? instrument.setpoint,
-                  differential: message.payload.differential ?? instrument.differential,
-                  status:
-                    nextReferenceValue !== null
-                      ? getStatusByValue(nextReferenceValue, instrument.min, instrument.max)
-                      : instrument.status,
-                  lastUpdated: message.payload.updatedAt,
-                }
-              }),
-            )
+              return {
+                ...instrument,
+                min: nextMin,
+                max: nextMax,
+                value: nextValue,
+                setpoint: toNumberOrNull(message.payload.setpoint) ?? instrument.setpoint,
+                differential: toNumberOrNull(message.payload.differential) ?? instrument.differential,
+                operationalStatus: mapOperationalStatus(message.payload.status) ?? instrument.operationalStatus,
+                status: nextValue !== null ? getStatusByValue(nextValue, nextMin, nextMax) : instrument.status,
+                isSensorError: message.payload.isSensorError,
+                lastUpdated: message.payload.updatedAt,
+              }
+            }))
+            return
           }
 
           if (message.type === "ALERT_NOTIFICATION") {
-            const title = `Alerta ${message.payload.alertType === "critical" ? "Crítico" : "de Atenção"}`
-            const body = `${message.payload.chamberName}: valor ${message.payload.currentValue} (limite ${message.payload.limitValue})`
-
-            if (pushEnabledRef.current && "Notification" in window && Notification.permission === "granted") {
-              new Notification(title, { body, tag: `alert-${message.payload.instrumentId}` })
-            }
-
-            toast.warning(body)
+            return
           }
         } catch {
           // ignore invalid ws payload

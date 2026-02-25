@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock, Fan, Power, GaugeIcon as PressureGauge, Snowflake, Thermometer } from "lucide-react"
+import { AlertTriangle, Clock, Fan, Power, Snowflake } from "lucide-react"
 import Link from "next/link"
 import { Gauge } from "./gauge"
 import type { Instrument, InstrumentStatus, OperationalStatus } from "./instrument-grid.types"
@@ -23,8 +23,15 @@ function getOperationalStatusBadge(status: OperationalStatus) {
     case "refrigerating":
       return (
         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
-          <Snowflake className="size-3" />
+          <Snowflake className="size-3 animate-spin" style={{ animationDuration: "2s" }} />
           <span>Refrigeração</span>
+        </Badge>
+      )
+    case "on-line":
+      return (
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+          <Power className="size-3" />
+          <span>Em Operação</span>
         </Badge>
       )
     case "defrosting":
@@ -75,11 +82,20 @@ type InstrumentCardProps = {
 export function InstrumentCard({ instrument, communicationFailure }: InstrumentCardProps) {
   const isTemperature = instrument.type === "TEMPERATURE"
   const unit = isTemperature ? "°C" : " Bar"
-  const mainValue = isTemperature ? instrument.temperature : instrument.pressure
+  const hasInstrumentError = instrument.error || instrument.isSensorError
+  const isFailureState = communicationFailure || hasInstrumentError
+  const failureMessage = instrument.isSensorError
+    ? "Erro de Sensor"
+    : hasInstrumentError
+      ? "Erro de comunicação"
+      : "Falha de comunicação"
+
+
+
   return (
     <Link href={`/instrument/${instrument.id}`} className="block">
       <Card
-        className={`h-full transition-all hover:shadow-lg hover:scale-[1.02] shadow-md border-t ${communicationFailure ? "border border-red-300 bg-red-50/50" : "border-0"
+        className={`h-full transition-all hover:shadow-lg hover:scale-[1.02] shadow-md border-t ${isFailureState ? "border border-red-300 bg-red-50/50" : "border-0"
           }`}
       >
         <CardHeader>
@@ -90,81 +106,69 @@ export function InstrumentCard({ instrument, communicationFailure }: InstrumentC
               </CardTitle>
             </div>
             <div className="w-full flex items-center justify-between gap-2">
-              {communicationFailure ? (
-                <Badge className="bg-red-500 hover:bg-red-500">Falha de comunicação</Badge>
+              {isFailureState ? (
+                <Badge className="bg-red-500 hover:bg-red-500">{failureMessage}</Badge>
               ) : (
                 getOperationalStatusBadge(instrument.operationalStatus)
               )}
-              {instrument.status !== "normal" && !communicationFailure && <div>{getStatusBadge(instrument.status)}</div>}
+              {instrument.status !== "normal" && !isFailureState && <div>{getStatusBadge(instrument.status)}</div>}
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="pb-4">
-          {communicationFailure ? (
+          {isFailureState ? (
             <div className="rounded-md border border-red-200 bg-red-100/60 p-3 text-red-700 space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <AlertTriangle className="size-4" />
-                Sem dados em tempo real
+                {failureMessage}
               </div>
-              <p className="text-xs text-red-600">O instrumento não recebeu leituras do websocket.</p>
+              {instrument.isSensorError ? (
+                <p className="text-xs text-red-600">O sensor reportou erro na leitura.</p>
+              ) : hasInstrumentError ? (
+                <p className="text-xs text-red-600">O instrumento reportou erro de comunicação.</p>
+              ) : (
+                <p className="text-xs text-red-600">O instrumento não recebeu leituras do websocket.</p>
+              )}
             </div>
           ) : (
-            <>
-              <div className="mb-4 space-y-3">
-                {isTemperature && instrument.temperature !== null && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Thermometer className="size-5 text-blue-600" />
-                      <span className="text-base text-muted-foreground">Temperatura</span>
-                    </div>
-                    <span className="text-lg font-medium">{instrument.temperature.toFixed(1)}°C</span>
-                  </div>
-                )}
-
-                {!isTemperature && instrument.pressure !== null && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <PressureGauge className="size-5 text-blue-600" />
-                      <span className="text-base text-muted-foreground">Pressão</span>
-                    </div>
-                    <span className="text-lg font-medium">{instrument.pressure.toFixed(1)} Bar</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-center">
-                {mainValue !== null && (
-                  <Gauge value={mainValue} min={instrument.min} max={instrument.max} status={instrument.status} size={100} />
-                )}
-              </div>
-            </>
+            <div className="flex justify-center">
+              {instrument.value !== null && (
+                <Gauge
+                  value={instrument.value}
+                  type={instrument.type}
+                  min={instrument.min}
+                  max={instrument.max}
+                  status={instrument.status}
+                  size={100} />
+              )}
+            </div>
           )}
         </CardContent>
 
-        <CardFooter className="border-t pt-4 grid grid-cols-4 gap-2 w-full text-xs">
+        <CardFooter className="border-t pt-4 grid grid-cols-4 gap-2 w-full text-xs mt-auto">
           <div className="text-center">
             <div className="text-muted-foreground">Mín</div>
-            <div className={`font-medium ${communicationFailure ? "text-red-700" : "text-blue-600"}`}>
+            <div className={`font-medium ${isFailureState ? "text-red-700" : "text-blue-600"}`}>
               {instrument.min}
               {unit}
             </div>
           </div>
           <div className="text-center">
             <div className="text-muted-foreground">Setpoint</div>
-            <div className={`font-medium ${communicationFailure ? "text-red-700" : "text-green-600"}`}>
+            <div className={`font-medium ${isFailureState ? "text-red-700" : "text-green-600"}`}>
               {instrument.setpoint !== null ? `${instrument.setpoint.toFixed(1)}${unit}` : "--"}
             </div>
           </div>
           <div className="text-center">
             <div className="text-muted-foreground">Dif</div>
-            <div className={`font-medium ${communicationFailure ? "text-red-700" : "text-purple-600"}`}>
+            <div className={`font-medium ${isFailureState ? "text-red-700" : "text-purple-600"}`}>
               {instrument.differential !== null ? `${instrument.differential.toFixed(1)}${unit}` : "--"}
             </div>
           </div>
           <div className="text-center">
-            <div className={`text-muted-foreground ${communicationFailure ? "text-red-700" : ""}`}>Máx</div>
-            <div className={`font-medium ${communicationFailure ? "text-red-700" : "text-red-600"}`}>
+            <div className={`text-muted-foreground ${isFailureState ? "text-red-700" : ""}`}>Máx</div>
+            <div className={`font-medium ${isFailureState ? "text-red-700" : "text-red-600"}`}>
               {instrument.max}
               {unit}
             </div>

@@ -60,7 +60,8 @@ export const ModelName = {
   Instrument: 'Instrument',
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
-  Invite: 'Invite'
+  Invite: 'Invite',
+  CollectorDevice: 'CollectorDevice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,6 +216,19 @@ export const InviteScalarFieldEnum = {
 } as const
 
 export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof InviteScalarFieldEnum]
+
+
+export const CollectorDeviceScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CollectorDeviceScalarFieldEnum = (typeof CollectorDeviceScalarFieldEnum)[keyof typeof CollectorDeviceScalarFieldEnum]
 
 
 export const SortOrder = {

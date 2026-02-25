@@ -36,6 +36,7 @@
     "fastify-plugin": "^5.0.1",
     "fastify-type-provider-zod": "^5.0.1",
     "googleapis": "^152.0.0",
+    "p-limit": "^7.3.0",
     "react": "19.2.0",
     "resend": "^6.9.2",
     "uuid": "^13.0.0",
