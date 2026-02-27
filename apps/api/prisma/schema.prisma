@@ -22,6 +22,7 @@ model User {
   tokens        Token[]
   invites       Invite[]
   collectorDevices CollectorDevice[]
+  alertReadLogs AlertReadLog[]
 
   @@map("users")
 }
@@ -79,6 +80,7 @@ model Organization {
   invites                   Invite[]
   notificationSettings      NotificationSettings?
   collectorDevices          CollectorDevice[]
+  alertReadLogs             AlertReadLog[]
 
   @@map("organizations")
 }
@@ -117,6 +119,7 @@ model Instrument {
   organizationId         String           @map("organization_id")
   organization           Organization     @relation(fields: [organizationId], references: [id])
   data                   InstrumentData[]
+  alertReadLogs          AlertReadLog[]
   joinAsFirstInstrument  JoinInstrument[] @relation("FirstInstrument")
   joinAsSecondInstrument JoinInstrument[] @relation("SecondInstrument")
 
@@ -172,6 +175,7 @@ model Invite {
 model CollectorDevice {
   id             String       @id @default(uuid())
   token          String       @unique
+  stopPassword   String?      @map("stop_password")
   organizationId String       @map("organization_id")
   userId         String       @map("user_id")
   isActive       Boolean      @default(true) @map("is_active")
@@ -183,6 +187,28 @@ model CollectorDevice {
   @@index([organizationId, isActive])
   @@index([userId, isActive])
   @@map("collector_devices")
+}
+
+model AlertReadLog {
+  id             String       @id @default(uuid())
+  organizationId String       @map("organization_id")
+  instrumentId   String       @map("instrument_id")
+  userId         String       @map("user_id")
+  alertSignature String       @map("alert_signature")
+  severity       String
+  value          Float
+  minThreshold   Float        @map("min_threshold")
+  maxThreshold   Float        @map("max_threshold")
+  thresholdType  String       @map("threshold_type")
+  alertTimestamp DateTime     @map("alert_timestamp")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  instrument     Instrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId, instrumentId, alertSignature], map: "alert_read_logs_org_user_instrument_signature_key")
+  @@index([organizationId, userId, createdAt], map: "alert_read_logs_org_user_created_idx")
+  @@map("alert_read_logs")
 }
 
 enum TokenType {

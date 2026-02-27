@@ -33,6 +33,7 @@ import { getInstrumentBySlug } from './routes/instruments/get-instrument-by-slug
 import { getInstrumentsWithJoinInstruments } from './routes/instruments/get-instrument-with-join-instruments'
 import { getInstruments } from './routes/instruments/get-instruments'
 import { getJoinInstruments } from './routes/instruments/get-join-instruments'
+import { sendInstrumentCommand } from './routes/instruments/send-instrument-command'
 import { updateInstrument } from './routes/instruments/update-instrument'
 import { acceptInvite } from './routes/invites/accept-invite'
 import { createInvite } from './routes/invites/create-invite'
@@ -46,6 +47,8 @@ import { removeMember } from './routes/members/remove-member'
 import { toggleStatusMember } from './routes/members/toggle-status-member'
 import { updateMember } from './routes/members/update-member'
 import { getNotificationSettings } from './routes/notifications/get-notification-settings'
+import { getAlertReadSignatures } from './routes/notifications/get-alert-read-signatures'
+import { markAlertAsRead } from './routes/notifications/mark-alert-as-read'
 import { sendEmailAlert } from './routes/notifications/send-email-alert'
 import { testEmailNotification } from './routes/notifications/test-email-notification'
 import { updateNotificationSettings } from './routes/notifications/update-notification-settings'
@@ -127,6 +130,8 @@ app.register(getNotificationSettings)
 app.register(updateNotificationSettings)
 app.register(testEmailNotification)
 app.register(sendEmailAlert)
+app.register(getAlertReadSignatures)
+app.register(markAlertAsRead)
 app.register(getAuditLogs)
 
 app.register(createInstrument)
@@ -138,6 +143,7 @@ app.register(createJoinInstrument)
 app.register(deleteJoinInstrument)
 app.register(getInstrumentsWithJoinInstruments)
 app.register(getJoinInstruments)
+app.register(sendInstrumentCommand)
 
 app.register(getData)
 app.register(generateData)

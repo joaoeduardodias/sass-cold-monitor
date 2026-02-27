@@ -61,7 +61,8 @@ export const ModelName = {
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
   Invite: 'Invite',
-  CollectorDevice: 'CollectorDevice'
+  CollectorDevice: 'CollectorDevice',
+  AlertReadLog: 'AlertReadLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -221,6 +222,7 @@ export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof 
 export const CollectorDeviceScalarFieldEnum = {
   id: 'id',
   token: 'token',
+  stopPassword: 'stopPassword',
   organizationId: 'organizationId',
   userId: 'userId',
   isActive: 'isActive',
@@ -229,6 +231,24 @@ export const CollectorDeviceScalarFieldEnum = {
 } as const
 
 export type CollectorDeviceScalarFieldEnum = (typeof CollectorDeviceScalarFieldEnum)[keyof typeof CollectorDeviceScalarFieldEnum]
+
+
+export const AlertReadLogScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  instrumentId: 'instrumentId',
+  userId: 'userId',
+  alertSignature: 'alertSignature',
+  severity: 'severity',
+  value: 'value',
+  minThreshold: 'minThreshold',
+  maxThreshold: 'maxThreshold',
+  thresholdType: 'thresholdType',
+  alertTimestamp: 'alertTimestamp',
+  createdAt: 'createdAt'
+} as const
+
+export type AlertReadLogScalarFieldEnum = (typeof AlertReadLogScalarFieldEnum)[keyof typeof AlertReadLogScalarFieldEnum]
 
 
 export const SortOrder = {

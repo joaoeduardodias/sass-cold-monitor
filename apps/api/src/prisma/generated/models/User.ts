@@ -204,6 +204,7 @@ export type UserWhereInput = {
   tokens?: Prisma.TokenListRelationFilter
   invites?: Prisma.InviteListRelationFilter
   collectorDevices?: Prisma.CollectorDeviceListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -220,6 +221,7 @@ export type UserOrderByWithRelationInput = {
   tokens?: Prisma.TokenOrderByRelationAggregateInput
   invites?: Prisma.InviteOrderByRelationAggregateInput
   collectorDevices?: Prisma.CollectorDeviceOrderByRelationAggregateInput
+  alertReadLogs?: Prisma.AlertReadLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,6 +241,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   tokens?: Prisma.TokenListRelationFilter
   invites?: Prisma.InviteListRelationFilter
   collectorDevices?: Prisma.CollectorDeviceListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -281,6 +284,7 @@ export type UserCreateInput = {
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -297,6 +301,7 @@ export type UserUncheckedCreateInput = {
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -313,6 +318,7 @@ export type UserUpdateInput = {
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -329,6 +335,7 @@ export type UserUncheckedUpdateInput = {
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -499,6 +506,20 @@ export type UserUpdateOneRequiredWithoutCollectorDevicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCollectorDevicesInput, Prisma.UserUpdateWithoutCollectorDevicesInput>, Prisma.UserUncheckedUpdateWithoutCollectorDevicesInput>
 }
 
+export type UserCreateNestedOneWithoutAlertReadLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAlertReadLogsInput, Prisma.UserUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAlertReadLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAlertReadLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAlertReadLogsInput, Prisma.UserUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAlertReadLogsInput
+  upsert?: Prisma.UserUpsertWithoutAlertReadLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAlertReadLogsInput, Prisma.UserUpdateWithoutAlertReadLogsInput>, Prisma.UserUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
 export type UserCreateWithoutTokensInput = {
   id?: string
   name: string
@@ -512,6 +533,7 @@ export type UserCreateWithoutTokensInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTokensInput = {
@@ -527,6 +549,7 @@ export type UserUncheckedCreateWithoutTokensInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTokensInput = {
@@ -558,6 +581,7 @@ export type UserUpdateWithoutTokensInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTokensInput = {
@@ -573,6 +597,7 @@ export type UserUncheckedUpdateWithoutTokensInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -588,6 +613,7 @@ export type UserCreateWithoutAccountsInput = {
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -603,6 +629,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -634,6 +661,7 @@ export type UserUpdateWithoutAccountsInput = {
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -649,6 +677,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMember_onInput = {
@@ -664,6 +693,7 @@ export type UserCreateWithoutMember_onInput = {
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMember_onInput = {
@@ -679,6 +709,7 @@ export type UserUncheckedCreateWithoutMember_onInput = {
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMember_onInput = {
@@ -710,6 +741,7 @@ export type UserUpdateWithoutMember_onInput = {
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMember_onInput = {
@@ -725,6 +757,7 @@ export type UserUncheckedUpdateWithoutMember_onInput = {
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrganizationsInput = {
@@ -740,6 +773,7 @@ export type UserCreateWithoutOrganizationsInput = {
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrganizationsInput = {
@@ -755,6 +789,7 @@ export type UserUncheckedCreateWithoutOrganizationsInput = {
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrganizationsInput = {
@@ -786,6 +821,7 @@ export type UserUpdateWithoutOrganizationsInput = {
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrganizationsInput = {
@@ -801,6 +837,7 @@ export type UserUncheckedUpdateWithoutOrganizationsInput = {
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutInvitesInput = {
@@ -816,6 +853,7 @@ export type UserCreateWithoutInvitesInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInvitesInput = {
@@ -831,6 +869,7 @@ export type UserUncheckedCreateWithoutInvitesInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInvitesInput = {
@@ -862,6 +901,7 @@ export type UserUpdateWithoutInvitesInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitesInput = {
@@ -877,6 +917,7 @@ export type UserUncheckedUpdateWithoutInvitesInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCollectorDevicesInput = {
@@ -892,6 +933,7 @@ export type UserCreateWithoutCollectorDevicesInput = {
   organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCollectorDevicesInput = {
@@ -907,6 +949,7 @@ export type UserUncheckedCreateWithoutCollectorDevicesInput = {
   organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
   tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCollectorDevicesInput = {
@@ -938,6 +981,7 @@ export type UserUpdateWithoutCollectorDevicesInput = {
   organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCollectorDevicesInput = {
@@ -953,6 +997,87 @@ export type UserUncheckedUpdateWithoutCollectorDevicesInput = {
   organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
   tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  member_on?: Prisma.MemberCreateNestedManyWithoutUserInput
+  organizations?: Prisma.OrganizationCreateNestedManyWithoutOwnersInput
+  tokens?: Prisma.TokenCreateNestedManyWithoutUserInput
+  invites?: Prisma.InviteCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash?: string | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  member_on?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
+  organizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutOwnersInput
+  tokens?: Prisma.TokenUncheckedCreateNestedManyWithoutUserInput
+  invites?: Prisma.InviteUncheckedCreateNestedManyWithoutAuthorInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAlertReadLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAlertReadLogsInput, Prisma.UserUncheckedCreateWithoutAlertReadLogsInput>
+}
+
+export type UserUpsertWithoutAlertReadLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAlertReadLogsInput, Prisma.UserUncheckedUpdateWithoutAlertReadLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAlertReadLogsInput, Prisma.UserUncheckedCreateWithoutAlertReadLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAlertReadLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAlertReadLogsInput, Prisma.UserUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
+export type UserUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  member_on?: Prisma.MemberUpdateManyWithoutUserNestedInput
+  organizations?: Prisma.OrganizationUpdateManyWithoutOwnersNestedInput
+  tokens?: Prisma.TokenUpdateManyWithoutUserNestedInput
+  invites?: Prisma.InviteUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  member_on?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
+  organizations?: Prisma.OrganizationUncheckedUpdateManyWithoutOwnersNestedInput
+  tokens?: Prisma.TokenUncheckedUpdateManyWithoutUserNestedInput
+  invites?: Prisma.InviteUncheckedUpdateManyWithoutAuthorNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -967,6 +1092,7 @@ export type UserCountOutputType = {
   tokens: number
   invites: number
   collectorDevices: number
+  alertReadLogs: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -976,6 +1102,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   tokens?: boolean | UserCountOutputTypeCountTokensArgs
   invites?: boolean | UserCountOutputTypeCountInvitesArgs
   collectorDevices?: boolean | UserCountOutputTypeCountCollectorDevicesArgs
+  alertReadLogs?: boolean | UserCountOutputTypeCountAlertReadLogsArgs
 }
 
 /**
@@ -1030,6 +1157,13 @@ export type UserCountOutputTypeCountCollectorDevicesArgs<ExtArgs extends runtime
   where?: Prisma.CollectorDeviceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAlertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AlertReadLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1045,6 +1179,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   tokens?: boolean | Prisma.User$tokensArgs<ExtArgs>
   invites?: boolean | Prisma.User$invitesArgs<ExtArgs>
   collectorDevices?: boolean | Prisma.User$collectorDevicesArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.User$alertReadLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1086,6 +1221,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tokens?: boolean | Prisma.User$tokensArgs<ExtArgs>
   invites?: boolean | Prisma.User$invitesArgs<ExtArgs>
   collectorDevices?: boolean | Prisma.User$collectorDevicesArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.User$alertReadLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1100,6 +1236,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     tokens: Prisma.$TokenPayload<ExtArgs>[]
     invites: Prisma.$InvitePayload<ExtArgs>[]
     collectorDevices: Prisma.$CollectorDevicePayload<ExtArgs>[]
+    alertReadLogs: Prisma.$AlertReadLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1509,6 +1646,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   tokens<T extends Prisma.User$tokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invites<T extends Prisma.User$invitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   collectorDevices<T extends Prisma.User$collectorDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$collectorDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectorDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  alertReadLogs<T extends Prisma.User$alertReadLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$alertReadLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlertReadLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2074,6 +2212,30 @@ export type User$collectorDevicesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.CollectorDeviceScalarFieldEnum | Prisma.CollectorDeviceScalarFieldEnum[]
+}
+
+/**
+ * User.alertReadLogs
+ */
+export type User$alertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AlertReadLog
+   */
+  select?: Prisma.AlertReadLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AlertReadLog
+   */
+  omit?: Prisma.AlertReadLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AlertReadLogInclude<ExtArgs> | null
+  where?: Prisma.AlertReadLogWhereInput
+  orderBy?: Prisma.AlertReadLogOrderByWithRelationInput | Prisma.AlertReadLogOrderByWithRelationInput[]
+  cursor?: Prisma.AlertReadLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AlertReadLogScalarFieldEnum | Prisma.AlertReadLogScalarFieldEnum[]
 }
 
 /**

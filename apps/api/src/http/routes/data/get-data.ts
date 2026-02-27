@@ -55,7 +55,7 @@ export async function getData(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organizations/:orgSlug/instruments/:instrumentId/data',
+      '/organizations/:orgSlug/instruments/:instrumentSlug/data',
       {
         schema: {
           tags: ['Instruments'],
@@ -64,7 +64,7 @@ export async function getData(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
           params: z.object({
             orgSlug: z.string(),
-            instrumentId: z.uuid(),
+            instrumentSlug: z.string(),
           }),
           querystring: z.object({
             startDate: z.coerce.date(),
@@ -90,12 +90,12 @@ export async function getData(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
-        const { orgSlug, instrumentId } = request.params
+        const { orgSlug, instrumentSlug } = request.params
         const { startDate, endDate, chartVariation, tableVariation } =
           request.query
 
         const userId = await request.getCurrentUserId()
-        const { membership } = await request.getUserMembership(orgSlug)
+        const { membership, organization } = await request.getUserMembership(orgSlug)
         const { cannot } = getUserPermissions(userId, membership.role)
 
         if (cannot('get', 'InstrumentData')) {
@@ -111,8 +111,11 @@ export async function getData(app: FastifyInstance) {
           },
         }
 
-        const instrument = await prisma.instrument.findUnique({
-          where: { id: instrumentId },
+        const instrumentBySlug = await prisma.instrument.findFirst({
+          where: {
+            organizationId: organization.id,
+            slug: instrumentSlug,
+          },
           select: {
             id: true,
             name: true,
@@ -120,6 +123,17 @@ export async function getData(app: FastifyInstance) {
             data: { where: baseWhere },
           },
         })
+
+        const instrument = instrumentBySlug ??
+          await prisma.instrument.findUnique({
+            where: { id: instrumentSlug },
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              data: { where: baseWhere },
+            },
+          })
 
         if (instrument) {
           const chartData = await getFilteredData({
@@ -159,7 +173,7 @@ export async function getData(app: FastifyInstance) {
         }
 
         const joinInstrument = await prisma.joinInstrument.findUnique({
-          where: { id: instrumentId },
+          where: { id: instrumentSlug },
           select: {
             id: true,
             name: true,

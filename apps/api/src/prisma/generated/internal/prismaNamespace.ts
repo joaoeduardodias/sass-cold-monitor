@@ -394,7 +394,8 @@ export const ModelName = {
   InstrumentData: 'InstrumentData',
   JoinInstrument: 'JoinInstrument',
   Invite: 'Invite',
-  CollectorDevice: 'CollectorDevice'
+  CollectorDevice: 'CollectorDevice',
+  AlertReadLog: 'AlertReadLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "token" | "account" | "member" | "organization" | "notificationSettings" | "instrument" | "instrumentData" | "joinInstrument" | "invite" | "collectorDevice"
+    modelProps: "user" | "token" | "account" | "member" | "organization" | "notificationSettings" | "instrument" | "instrumentData" | "joinInstrument" | "invite" | "collectorDevice" | "alertReadLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1228,6 +1229,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AlertReadLog: {
+      payload: Prisma.$AlertReadLogPayload<ExtArgs>
+      fields: Prisma.AlertReadLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AlertReadLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AlertReadLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AlertReadLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AlertReadLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        findMany: {
+          args: Prisma.AlertReadLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>[]
+        }
+        create: {
+          args: Prisma.AlertReadLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        createMany: {
+          args: Prisma.AlertReadLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AlertReadLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AlertReadLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        update: {
+          args: Prisma.AlertReadLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AlertReadLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AlertReadLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AlertReadLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AlertReadLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlertReadLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AlertReadLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAlertReadLog>
+        }
+        groupBy: {
+          args: Prisma.AlertReadLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlertReadLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AlertReadLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlertReadLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1408,6 +1483,7 @@ export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof 
 export const CollectorDeviceScalarFieldEnum = {
   id: 'id',
   token: 'token',
+  stopPassword: 'stopPassword',
   organizationId: 'organizationId',
   userId: 'userId',
   isActive: 'isActive',
@@ -1416,6 +1492,24 @@ export const CollectorDeviceScalarFieldEnum = {
 } as const
 
 export type CollectorDeviceScalarFieldEnum = (typeof CollectorDeviceScalarFieldEnum)[keyof typeof CollectorDeviceScalarFieldEnum]
+
+
+export const AlertReadLogScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  instrumentId: 'instrumentId',
+  userId: 'userId',
+  alertSignature: 'alertSignature',
+  severity: 'severity',
+  value: 'value',
+  minThreshold: 'minThreshold',
+  maxThreshold: 'maxThreshold',
+  thresholdType: 'thresholdType',
+  alertTimestamp: 'alertTimestamp',
+  createdAt: 'createdAt'
+} as const
+
+export type AlertReadLogScalarFieldEnum = (typeof AlertReadLogScalarFieldEnum)[keyof typeof AlertReadLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1672,6 +1766,7 @@ export type GlobalOmitConfig = {
   joinInstrument?: Prisma.JoinInstrumentOmit
   invite?: Prisma.InviteOmit
   collectorDevice?: Prisma.CollectorDeviceOmit
+  alertReadLog?: Prisma.AlertReadLogOmit
 }
 
 /* Types for Logging */

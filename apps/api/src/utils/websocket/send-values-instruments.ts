@@ -39,6 +39,7 @@ export async function handleValuesInstruments(
       maxValue: inst.maxValue,
       value: reading.value,
       status: reading.status,
+      isFan: reading.isFan,
       error: reading.error,
       isSensorError: reading.isSensorError,
       setPoint: reading.setPoint,

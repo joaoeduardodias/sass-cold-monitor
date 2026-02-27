@@ -3,7 +3,8 @@
 import type { DashboardWsMessage, Instrument, InstrumentStatus } from "@/components/instrument-grid.types"
 import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments-by-organization"
 import { getNotificationSettings } from "@/http/notifications/get-notification-settings"
-import { getCookie } from "cookies-next"
+import { useDashboardWs } from "@/hooks/use-dashboard-ws"
+import { mapOperationalStatus } from "@/utils/get-operational-status-badge"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -48,22 +49,6 @@ function getStatusByValue(value: number, minValue: number, maxValue: number): In
   return "normal"
 }
 
-function mapOperationalStatus(status?: string): Instrument["operationalStatus"] | null {
-  if (!status) return null
-
-  const normalized = status.toLowerCase()
-
-  if (normalized.includes("refrig")) return "refrigerating"
-  if (normalized.includes("onlin")) return "on-line"
-  if (normalized.includes("degel") || normalized.includes("defrost")) return "defrosting"
-  if (normalized.includes("fan")) return "fan-only"
-  if (normalized.includes("alarm") || normalized.includes("alarme")) return "alarm"
-  if (normalized.includes("off") || normalized.includes("deslig")) return "off"
-  if (normalized.includes("idle") || normalized.includes("aguard")) return "idle"
-
-  return null
-}
-
 type UseInstrumentGridParams = {
   organizationId: string
   organizationSlug: string
@@ -94,6 +79,7 @@ function createInitialInstrument(organizationId: string, instrument: {
     operationalStatus: "idle",
     error: false,
     isSensorError: false,
+    isFan: false,
     setpoint: null,
     differential: null,
     lastUpdated: null,
@@ -191,8 +177,6 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
   }, [])
 
   useEffect(() => {
-    let ws: WebSocket | null = null
-
     const requestBrowserPermission = async () => {
       if (!("Notification" in window)) return
       if (Notification.permission === "default") {
@@ -209,124 +193,101 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
       }
 
       await requestBrowserPermission()
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL
-      if (!apiUrl) return
-
-      const wsUrl = apiUrl.replace("http://", "ws://").replace("https://", "wss://") + "/ws/dashboard"
-
-      ws = new WebSocket(wsUrl)
-      ws.onopen = () => {
-        setWsConnectedAt(Date.now())
-
-        const token = getCookie("token")
-        ws?.send(
-          JSON.stringify({
-            type: "AUTH",
-            payload: {
-              organizationId,
-              token: typeof token === "string" ? token : undefined,
-            },
-          }),
-        )
-      }
-
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data) as DashboardWsMessage
-
-          if (message.type === "INSTRUMENT_VALUES") {
-            setWsConnectedAt(Date.now())
-            setInstruments((prev) => {
-              const prevById = new Map(prev.map((instrument) => [instrument.id, instrument]))
-              const nextById = new Map(prevById)
-              const updatedAt = new Date().toISOString()
-
-              for (const reading of message.payload) {
-                const previous = prevById.get(reading.instrumentId)
-                const nextValue = toNumberOrNull(reading.value)
-                const min = previous?.min ?? 0
-                const max = previous?.max ?? 0
-                const status = nextValue !== null
-                  ? getStatusByValue(nextValue, min, max)
-                  : previous?.status ?? "normal"
-
-                nextById.set(reading.instrumentId, {
-                  id: reading.instrumentId,
-                  idSitrad: reading.idSitrad,
-                  name: reading.name,
-                  slug: reading.slug,
-                  model: reading.model,
-                  type: reading.type,
-                  organizationId: reading.organizationId,
-                  min,
-                  max,
-                  value: nextValue,
-                  status,
-                  operationalStatus: mapOperationalStatus(reading.status) ?? previous?.operationalStatus ?? "idle",
-                  error: reading.error,
-                  isSensorError: reading.isSensorError,
-                  setpoint: toNumberOrNull(reading.setPoint) ?? previous?.setpoint ?? 0,
-                  differential: toNumberOrNull(reading.differential) ?? previous?.differential ?? 0,
-                  lastUpdated: updatedAt,
-                })
-              }
-
-              const ordered = prev.map((instrument) => nextById.get(instrument.id) ?? instrument)
-              const existingIds = new Set(prev.map((instrument) => instrument.id))
-              const appended = message.payload
-                .map((reading) => nextById.get(reading.instrumentId))
-                .filter((instrument): instrument is Instrument =>
-                  instrument !== undefined && !existingIds.has(instrument.id),
-                )
-
-              return [...ordered, ...appended]
-            })
-            return
-          }
-
-          if (message.type === "INSTRUMENT_UPDATE") {
-            setWsConnectedAt(Date.now())
-            setInstruments((prev) => prev.map((instrument) => {
-              if (instrument.id !== message.payload.instrumentId) {
-                return instrument
-              }
-
-              const nextValue = toNumberOrNull(message.payload.value) ?? instrument.value
-              const nextMin = message.payload.minValue
-              const nextMax = message.payload.maxValue
-
-              return {
-                ...instrument,
-                min: nextMin,
-                max: nextMax,
-                value: nextValue,
-                setpoint: toNumberOrNull(message.payload.setpoint) ?? instrument.setpoint,
-                differential: toNumberOrNull(message.payload.differential) ?? instrument.differential,
-                operationalStatus: mapOperationalStatus(message.payload.status) ?? instrument.operationalStatus,
-                status: nextValue !== null ? getStatusByValue(nextValue, nextMin, nextMax) : instrument.status,
-                isSensorError: message.payload.isSensorError,
-                lastUpdated: message.payload.updatedAt,
-              }
-            }))
-            return
-          }
-
-          if (message.type === "ALERT_NOTIFICATION") {
-            return
-          }
-        } catch {
-          // ignore invalid ws payload
-        }
-      }
     }
 
     void setupNotifications()
+  }, [organizationSlug])
 
-    return () => {
-      ws?.close()
+  const handleDashboardMessage = useCallback((message: DashboardWsMessage) => {
+    if (message.type === "INSTRUMENT_VALUES") {
+      setWsConnectedAt(Date.now())
+      setInstruments((prev) => {
+        const prevById = new Map(prev.map((instrument) => [instrument.id, instrument]))
+        const nextById = new Map(prevById)
+        const updatedAt = new Date().toISOString()
+
+        for (const reading of message.payload) {
+          const previous = prevById.get(reading.instrumentId)
+          const nextValue = toNumberOrNull(reading.value)
+          const min = previous?.min ?? 0
+          const max = previous?.max ?? 0
+          const status = nextValue !== null
+            ? getStatusByValue(nextValue, min, max)
+            : previous?.status ?? "normal"
+
+          nextById.set(reading.instrumentId, {
+            id: reading.instrumentId,
+            idSitrad: reading.idSitrad,
+            name: reading.name,
+            slug: reading.slug,
+            model: reading.model,
+            type: reading.type,
+            organizationId: reading.organizationId,
+            min,
+            max,
+            value: nextValue,
+            status,
+            operationalStatus: mapOperationalStatus(reading.status),
+            error: reading.error,
+            isSensorError: reading.isSensorError,
+            isFan: reading.isFan,
+            setpoint: toNumberOrNull(reading.setPoint) ?? previous?.setpoint ?? 0,
+            differential: toNumberOrNull(reading.differential) ?? previous?.differential ?? 0,
+            lastUpdated: updatedAt,
+          })
+        }
+
+        const ordered = prev.map((instrument) => nextById.get(instrument.id) ?? instrument)
+        const existingIds = new Set(prev.map((instrument) => instrument.id))
+        const appended = message.payload
+          .map((reading) => nextById.get(reading.instrumentId))
+          .filter((instrument): instrument is Instrument =>
+            instrument !== undefined && !existingIds.has(instrument.id),
+          )
+
+        return [...ordered, ...appended]
+      })
+      return
     }
-  }, [organizationId, organizationSlug])
+
+    if (message.type === "INSTRUMENT_UPDATE") {
+      setWsConnectedAt(Date.now())
+      setInstruments((prev) => prev.map((instrument) => {
+        if (instrument.id !== message.payload.instrumentId) {
+          return instrument
+        }
+
+        const nextValue = toNumberOrNull(message.payload.value) ?? instrument.value
+        const nextMin = message.payload.minValue
+        const nextMax = message.payload.maxValue
+
+        return {
+          ...instrument,
+          min: nextMin,
+          max: nextMax,
+          value: nextValue,
+          setpoint: toNumberOrNull(message.payload.setpoint) ?? instrument.setpoint,
+          differential: toNumberOrNull(message.payload.differential) ?? instrument.differential,
+          operationalStatus: mapOperationalStatus(message.payload.status),
+          status: nextValue !== null ? getStatusByValue(nextValue, nextMin, nextMax) : instrument.status,
+          isSensorError: message.payload.isSensorError,
+          isFan: message.payload.isFan,
+          lastUpdated: message.payload.updatedAt,
+        }
+      }))
+    }
+  }, [])
+
+  const { connected } = useDashboardWs({
+    organizationId,
+    onMessage: handleDashboardMessage,
+  })
+
+  useEffect(() => {
+    if (connected) {
+      setWsConnectedAt(Date.now())
+    }
+  }, [connected])
 
   const isCommunicationFailure = useCallback(
     (instrument: Instrument) => {

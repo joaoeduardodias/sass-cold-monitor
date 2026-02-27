@@ -1,6 +1,5 @@
-import { AlertsPanel } from "@/components/alerts-panel";
 import { Header } from "@/components/header";
-import { InstrumentGrid } from "@/components/instrument-grid";
+import { OrganizationMonitoring } from "@/components/organization-monitoring";
 import { getOrganization } from "@/http/organizations/get-organization";
 import Link from "next/link";
 
@@ -26,12 +25,7 @@ export default async function HomeOrg({
             Download app coletor
           </Link>
         </div>
-        <div className="flex gap-6">
-          <div className="flex-1">
-            <InstrumentGrid organizationId={organization.id} organizationSlug={slug} />
-          </div>
-          <AlertsPanel />
-        </div>
+        <OrganizationMonitoring organizationId={organization.id} organizationSlug={slug} />
       </main>
     </>
   );

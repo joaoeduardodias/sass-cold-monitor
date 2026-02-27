@@ -1,128 +1,214 @@
 "use client"
 
+import type { Instrument, InstrumentStatus } from "@/components/instrument-grid.types"
+import { getAlertReadSignatures } from "@/http/alerts/get-alert-read-signatures"
+import { markAlertAsRead } from "@/http/alerts/mark-alert-as-read"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { AlertTriangle, ArrowDown, ArrowUp, CheckCheck, ChevronLeft, ChevronRight, Clock, Filter, Gauge, ThermometerSnowflake, TrendingUp, X } from 'lucide-react'
-import { useEffect, useState } from "react"
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  CheckCheck,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Filter,
+  Gauge,
+  ThermometerSnowflake,
+  TrendingUp,
+  X,
+} from "lucide-react"
+import { useEffect, useMemo, useState, type MouseEvent } from "react"
+import { toast } from "sonner"
 import { Badge } from "./ui/badge"
 
-type Alert = {
-  id: number
-  storageId: number
-  storageName: string
-  type: "temperature" | "pressure"
-  severity: "warning" | "critical"
+type AlertsPanelProps = {
+  organizationSlug: string
+  instruments: Instrument[]
+  loading: boolean
+}
+
+type AlertFilter = "all" | "unread" | "critical"
+type AlertSeverity = Exclude<InstrumentStatus, "normal">
+
+type InstrumentAlert = {
+  id: string
+  instrumentId: string
+  instrumentName: string
+  type: Instrument["type"]
+  severity: AlertSeverity
   value: number
-  threshold: number
-  minThreshold?: number
-  maxThreshold?: number
+  minThreshold: number
+  maxThreshold: number
   thresholdType: "min" | "max"
   timestamp: string
+  signature: string
   read: boolean
 }
 
-export function AlertsPanel() {
-  const [alerts, setAlerts] = useState<Alert[]>([])
+function toAlertSeverity(status: InstrumentStatus): AlertSeverity | null {
+  if (status === "warning" || status === "critical") {
+    return status
+  }
+
+  return null
+}
+
+function getThresholdTypeByValue(value: number, min: number, max: number): "min" | "max" {
+  if (value <= min) return "min"
+  if (value >= max) return "max"
+
+  const distanceToMin = Math.abs(value - min)
+  const distanceToMax = Math.abs(max - value)
+
+  return distanceToMin <= distanceToMax ? "min" : "max"
+}
+
+function buildAlertSignature(params: {
+  severity: AlertSeverity
+  thresholdType: "min" | "max"
+  minThreshold: number
+  maxThreshold: number
+}): string {
+  const { severity, thresholdType, minThreshold, maxThreshold } = params
+  return `${severity}:${thresholdType}:${minThreshold.toFixed(3)}:${maxThreshold.toFixed(3)}`
+}
+
+export function AlertsPanel({ organizationSlug, instruments, loading }: AlertsPanelProps) {
   const [isOpen, setIsOpen] = useState(true)
-  const [filter, setFilter] = useState<"all" | "unread" | "critical">("all")
+  const [filter, setFilter] = useState<AlertFilter>("all")
+  const [isPersisting, setIsPersisting] = useState(false)
+  const [readSignatureByInstrument, setReadSignatureByInstrument] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    const mockAlerts: Alert[] = [
-      {
-        id: 1,
-        storageId: 2,
-        storageName: "Câmara 02",
-        type: "temperature",
-        severity: "critical",
-        value: -15.2,
-        threshold: -18,
-        minThreshold: -20,
-        maxThreshold: -15,
-        thresholdType: "max",
-        timestamp: new Date(Date.now() - 15 * 60000).toISOString(),
-        read: false,
-      },
-      {
-        id: 2,
-        storageId: 4,
-        storageName: "Câmara 04",
-        type: "temperature",
-        severity: "warning",
-        value: -17.3,
-        threshold: -18,
-        minThreshold: -20,
-        maxThreshold: -15,
-        thresholdType: "max",
-        timestamp: new Date(Date.now() - 25 * 60000).toISOString(),
-        read: false,
-      },
-      {
-        id: 3,
-        storageId: 4,
-        storageName: "Câmara 04",
-        type: "pressure",
-        severity: "critical",
-        value: 99.7,
-        threshold: 100,
-        minThreshold: 98,
-        maxThreshold: 102,
-        thresholdType: "min",
-        timestamp: new Date(Date.now() - 35 * 60000).toISOString(),
-        read: true,
-      },
-    ]
+    let cancelled = false
 
-    setAlerts(mockAlerts)
+    const loadReadSignatures = async () => {
+      try {
+        const { readSignatures } = await getAlertReadSignatures(organizationSlug)
+        if (cancelled) return
 
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        const storageId = Math.floor(Math.random() * 6) + 1
-        const isCritical = Math.random() > 0.6
-        const isTemp = Math.random() > 0.5
-        const exceedsMax = Math.random() > 0.5
-
-        const newAlert: Alert = {
-          id: Date.now(),
-          storageId,
-          storageName: `Câmara 0${storageId}`,
-          type: isTemp ? "temperature" : "pressure",
-          severity: isCritical ? "critical" : "warning",
-          value: isTemp
-            ? (exceedsMax ? -10 - Math.random() * 5 : -22 - Math.random() * 3)
-            : (exceedsMax ? 103 + Math.random() * 3 : 96 - Math.random() * 2),
-          threshold: isTemp ? -18 : 100,
-          minThreshold: isTemp ? -20 : 98,
-          maxThreshold: isTemp ? -15 : 102,
-          thresholdType: exceedsMax ? "max" : "min",
-          timestamp: new Date().toISOString(),
-          read: false,
+        setReadSignatureByInstrument(
+          Object.fromEntries(readSignatures.map((entry) => [entry.instrumentId, entry.signature])),
+        )
+      } catch {
+        if (!cancelled) {
+          toast.error("Não foi possível carregar os alertas lidos.")
         }
-        setAlerts((prev) => [newAlert, ...prev].slice(0, 20))
       }
-    }, 60000)
+    }
 
-    return () => clearInterval(interval)
-  }, [])
+    void loadReadSignatures()
 
-  const markAsRead = (id: number) => {
-    setAlerts((prev) => prev.map((alert) => (alert.id === id ? { ...alert, read: true } : alert)))
+    return () => {
+      cancelled = true
+    }
+  }, [organizationSlug])
+
+  useEffect(() => {
+    const activeIds = new Set(instruments.map((instrument) => instrument.id))
+
+    setReadSignatureByInstrument((prev) => {
+      const nextEntries = Object.entries(prev).filter(([instrumentId]) => activeIds.has(instrumentId))
+      return Object.fromEntries(nextEntries)
+    })
+  }, [instruments])
+
+  const alerts = useMemo<InstrumentAlert[]>(() => {
+    return instruments
+      .filter((instrument) => instrument.value !== null)
+      .filter((instrument) => !instrument.error && !instrument.isSensorError)
+      .map((instrument) => {
+        const value = instrument.value as number
+        const severity = toAlertSeverity(instrument.status)
+
+        if (!severity) return null
+
+        const thresholdType = getThresholdTypeByValue(value, instrument.min, instrument.max)
+        const signature = buildAlertSignature({
+          severity,
+          thresholdType,
+          minThreshold: instrument.min,
+          maxThreshold: instrument.max,
+        })
+
+        return {
+          id: `${instrument.id}:${signature}`,
+          instrumentId: instrument.id,
+          instrumentName: instrument.name,
+          type: instrument.type,
+          severity,
+          value,
+          minThreshold: instrument.min,
+          maxThreshold: instrument.max,
+          thresholdType,
+          timestamp: instrument.lastUpdated ?? new Date().toISOString(),
+          signature,
+          read: readSignatureByInstrument[instrument.id] === signature,
+        }
+      })
+      .filter((alert): alert is InstrumentAlert => alert !== null)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  }, [instruments, readSignatureByInstrument])
+
+  const persistReadAlert = async (alert: InstrumentAlert) => {
+    await markAlertAsRead({
+      org: organizationSlug,
+      instrumentId: alert.instrumentId,
+      signature: alert.signature,
+      severity: alert.severity,
+      value: alert.value,
+      minThreshold: alert.minThreshold,
+      maxThreshold: alert.maxThreshold,
+      thresholdType: alert.thresholdType,
+      alertTimestamp: alert.timestamp,
+    })
+
+    setReadSignatureByInstrument((prev) => ({
+      ...prev,
+      [alert.instrumentId]: alert.signature,
+    }))
   }
 
-  const markAllAsRead = () => {
-    setAlerts((prev) => prev.map((alert) => ({ ...alert, read: true })))
+  const markAsRead = async (alert: InstrumentAlert) => {
+    if (alert.read || isPersisting) return
+
+    setIsPersisting(true)
+    try {
+      await persistReadAlert(alert)
+    } catch {
+      toast.error("Não foi possível marcar o alerta como lido.")
+    } finally {
+      setIsPersisting(false)
+    }
   }
 
-  const deleteAlert = (id: number, e?: React.MouseEvent) => {
+  const markAllAsRead = async () => {
+    const unreadAlerts = alerts.filter((alert) => !alert.read)
+    if (unreadAlerts.length === 0 || isPersisting) return
+
+    setIsPersisting(true)
+    try {
+      await Promise.all(unreadAlerts.map((alert) => persistReadAlert(alert)))
+    } catch {
+      toast.error("Não foi possível marcar todos os alertas como lidos.")
+    } finally {
+      setIsPersisting(false)
+    }
+  }
+
+  const dismissAlert = async (alert: InstrumentAlert, e?: MouseEvent) => {
     e?.stopPropagation()
-    setAlerts((prev) => prev.filter((alert) => alert.id !== id))
+    await markAsRead(alert)
   }
 
   const formatTime = (timestamp: string) => {
@@ -132,26 +218,19 @@ export function AlertsPanel() {
 
     if (diff < 1) return "Agora"
     if (diff < 60) return `${diff}m atrás`
-    return date.toLocaleDateString()
+    return date.toLocaleDateString("pt-BR")
   }
 
-  const visibleAlerts = alerts.filter(alert => {
-    const date = new Date(alert.timestamp)
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - date.getTime()) / 60000)
-    return diff < 4
-  })
-
-  const filteredAlerts = visibleAlerts.filter((alert) => {
+  const filteredAlerts = alerts.filter((alert) => {
     if (filter === "unread") return !alert.read
     if (filter === "critical") return alert.severity === "critical"
     return true
   })
 
-  const unreadCount = visibleAlerts.filter((a) => !a.read).length
-  const criticalCount = visibleAlerts.filter((a) => a.severity === "critical" && !a.read).length
+  const unreadCount = alerts.filter((a) => !a.read).length
+  const criticalCount = alerts.filter((a) => a.severity === "critical" && !a.read).length
 
-  const getAlertColors = (alert: Alert) => {
+  const getAlertColors = (alert: InstrumentAlert) => {
     if (alert.read) {
       return {
         border: "border-border",
@@ -171,6 +250,7 @@ export function AlertsPanel() {
         badge: "bg-red-100 text-red-700 border-red-200",
       }
     }
+
     return {
       border: "border-amber-200",
       bg: "bg-amber-50",
@@ -180,44 +260,38 @@ export function AlertsPanel() {
     }
   }
 
-  const getThresholdDescription = (alert: Alert) => {
-    const unit = alert.type === "temperature" ? "°C" : "kPa"
+  const getThresholdDescription = (alert: InstrumentAlert) => {
+    const unit = alert.type === "TEMPERATURE" ? "°C" : "kPa"
     const isAbove = alert.thresholdType === "max"
-
-    if (alert.minThreshold !== undefined && alert.maxThreshold !== undefined) {
-      return {
-        text: isAbove
-          ? `Acima do limite máximo de ${alert.maxThreshold.toFixed(1)}${unit}`
-          : `Abaixo do limite mínimo de ${alert.minThreshold.toFixed(1)}${unit}`,
-        icon: isAbove ? ArrowUp : ArrowDown,
-        range: `Faixa ideal: ${alert.minThreshold.toFixed(1)}${unit} a ${alert.maxThreshold.toFixed(1)}${unit}`,
-      }
-    }
 
     return {
       text: isAbove
-        ? `Acima do limite de ${alert.threshold.toFixed(1)}${unit}`
-        : `Abaixo do limite de ${alert.threshold.toFixed(1)}${unit}`,
+        ? `Próximo/Acima do limite máximo de ${alert.maxThreshold.toFixed(1)}${unit}`
+        : `Próximo/Abaixo do limite mínimo de ${alert.minThreshold.toFixed(1)}${unit}`,
       icon: isAbove ? ArrowUp : ArrowDown,
-      range: null,
+      range: `Faixa: ${alert.minThreshold.toFixed(1)}${unit} a ${alert.maxThreshold.toFixed(1)}${unit}`,
     }
   }
 
   return (
-    <div className={cn(
-      "transition-all duration-300 ease-in-out",
-      isOpen ? "w-96" : "w-16"
-    )}>
+    <div
+      className={cn(
+        "transition-all duration-300 ease-in-out",
+        isOpen ? "w-96" : "w-16",
+      )}
+    >
       {isOpen ? (
         <Card className="h-full shadow-lg border-border/40">
           <CardHeader className="pb-4 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <AlertTriangle className={cn(
-                    "size-5",
-                    criticalCount > 0 ? "text-red-500 animate-pulse" : "text-amber-500"
-                  )} />
+                  <AlertTriangle
+                    className={cn(
+                      "size-5",
+                      criticalCount > 0 ? "text-red-500 animate-pulse" : "text-amber-500",
+                    )}
+                  />
                   {criticalCount > 0 && (
                     <span className="absolute -top-1 -right-1 size-2 bg-red-500 rounded-full animate-ping" />
                   )}
@@ -225,7 +299,11 @@ export function AlertsPanel() {
                 <div>
                   <h3 className="text-lg font-semibold">Alertas</h3>
                   <p className="text-xs text-muted-foreground">
-                    {unreadCount > 0 ? `${unreadCount} não ${unreadCount === 1 ? 'lido' : 'lidos'}` : 'Tudo em dia'}
+                    {loading
+                      ? "Carregando alertas..."
+                      : unreadCount > 0
+                        ? `${unreadCount} não ${unreadCount === 1 ? "lido" : "lidos"}`
+                        : "Tudo em dia"}
                   </p>
                 </div>
               </div>
@@ -264,8 +342,11 @@ export function AlertsPanel() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={markAllAsRead}
+                  onClick={() => {
+                    void markAllAsRead()
+                  }}
                   className="gap-2"
+                  disabled={isPersisting}
                 >
                   <CheckCheck className="size-3.5" />
                   Marcar todos
@@ -284,9 +365,8 @@ export function AlertsPanel() {
                   <p className="text-sm font-medium mb-1">Nenhum alerta</p>
                   <p className="text-xs text-muted-foreground">
                     {filter === "all"
-                      ? "Todas as câmaras estão operando normalmente"
-                      : `Nenhum alerta ${filter === "unread" ? "não lido" : "crítico"}`
-                    }
+                      ? "Todos os instrumentos estão operando normalmente"
+                      : `Nenhum alerta ${filter === "unread" ? "não lido" : "crítico"}`}
                   </p>
                 </div>
               ) : (
@@ -304,9 +384,11 @@ export function AlertsPanel() {
                           colors.border,
                           colors.bg,
                           colors.hover,
-                          !alert.read && "shadow-sm"
+                          !alert.read && "shadow-sm",
                         )}
-                        onClick={() => markAsRead(alert.id)}
+                        onClick={() => {
+                          void markAsRead(alert)
+                        }}
                       >
                         <div className="absolute top-2 right-2 flex items-center gap-2">
                           {alert.severity === "critical" && !alert.read && (
@@ -315,19 +397,22 @@ export function AlertsPanel() {
                             </Badge>
                           )}
                           {alert.read && (
-                            <Badge variant="outline" className="text-xs font-medium bg-muted/50 text-muted-foreground border-border">
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-medium bg-muted/50 text-muted-foreground border-border"
+                            >
                               Lido
                             </Badge>
                           )}
-                          {!alert.read && (
-                            <div className="size-2 rounded-full bg-blue-500" />
-                          )}
+                          {!alert.read && <div className="size-2 rounded-full bg-blue-500" />}
                         </div>
 
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => deleteAlert(alert.id, e)}
+                          onClick={(e) => {
+                            void dismissAlert(alert, e)
+                          }}
                           className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background/80"
                         >
                           <X className="size-3.5" />
@@ -335,20 +420,29 @@ export function AlertsPanel() {
 
                         <div className="space-y-3">
                           <div className="flex items-start gap-3 pr-16">
-                            <div className={cn(
-                              "rounded-lg p-2 mt-0.5",
-                              alert.read
-                                ? "bg-muted"
-                                : alert.severity === "critical" ? "bg-red-100" : "bg-amber-100"
-                            )}>
-                              {alert.type === "temperature" ? (
+                            <div
+                              className={cn(
+                                "rounded-lg p-2 mt-0.5",
+                                alert.read
+                                  ? "bg-muted"
+                                  : alert.severity === "critical"
+                                    ? "bg-red-100"
+                                    : "bg-amber-100",
+                              )}
+                            >
+                              {alert.type === "TEMPERATURE" ? (
                                 <ThermometerSnowflake className={cn("size-4", colors.icon)} />
                               ) : (
                                 <Gauge className={cn("size-4", colors.icon)} />
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm mb-0.5">{alert.storageName}</p>
+                              <p
+                                className="mb-0.5 truncate text-sm font-semibold"
+                                title={alert.instrumentName}
+                              >
+                                {alert.instrumentName}
+                              </p>
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <Clock className="size-3" />
                                 {formatTime(alert.timestamp)}
@@ -358,32 +452,30 @@ export function AlertsPanel() {
 
                           <div className="pl-12 space-y-2">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold tabular-nums">
-                                {alert.value.toFixed(1)}
-                              </span>
+                              <span className="text-2xl font-bold tabular-nums">{alert.value.toFixed(1)}</span>
                               <span className="text-sm text-muted-foreground">
-                                {alert.type === "temperature" ? "°C" : "kPa"}
+                                {alert.type === "TEMPERATURE" ? "°C" : "kPa"}
                               </span>
                             </div>
 
-                            <div className={cn(
-                              "flex items-center gap-1.5 text-xs font-medium rounded-md px-2 py-1 w-fit",
-                              alert.read
-                                ? "bg-muted text-muted-foreground"
-                                : alert.thresholdType === "max"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-blue-100 text-blue-700"
-                            )}>
+                            <div
+                              className={cn(
+                                "flex items-center gap-1.5 text-xs font-medium rounded-md px-2 py-1 w-fit",
+                                alert.read
+                                  ? "bg-muted text-muted-foreground"
+                                  : alert.thresholdType === "max"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-blue-100 text-blue-700",
+                              )}
+                            >
                               <ThresholdIcon className="size-3.5" />
                               <span>{thresholdInfo.text}</span>
                             </div>
 
-                            {thresholdInfo.range && (
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <TrendingUp className="size-3" />
-                                <span>{thresholdInfo.range}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <TrendingUp className="size-3" />
+                              <span>{thresholdInfo.range}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -405,13 +497,12 @@ export function AlertsPanel() {
             <ChevronLeft className="size-4" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 size-5 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center animate-pulse">
-                {unreadCount > 9 ? '9+' : unreadCount}
+                {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
           </Button>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import type WebSocket from 'ws'
 
 import { sendEmailWithValidation } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
+import { agentConnectionByOrg } from '@/realtime/agent-connections'
 import { dashboardConnectionsByOrg } from '@/realtime/dashboard-connections'
 import {
   evaluateAlertLevel,
@@ -28,7 +29,6 @@ function broadcastToOrg(orgId: string, data: unknown) {
 }
 
 const latestAlertLevelByInstrument = new Map<string, 'normal' | 'warning' | 'critical'>()
-const agentConnectionByOrg = new Map<string, WebSocket>()
 
 export async function agentWs(app: FastifyInstance) {
   app.get('/ws/agent',
@@ -130,6 +130,30 @@ export async function agentWs(app: FastifyInstance) {
                 return
               }
 
+              const collectorDevice = await prisma.collectorDevice.findFirst({
+                where: {
+                  token,
+                  organizationId: organization.id,
+                  userId,
+                  isActive: true,
+                },
+                select: {
+                  id: true,
+                  stopPassword: true,
+                },
+              })
+
+              if (!collectorDevice?.stopPassword) {
+                conn.send(
+                  JSON.stringify({
+                    type: 'AUTH_ERROR',
+                    message: 'Invalid token',
+                  }),
+                )
+                conn.close()
+                return
+              }
+
               if (authenticatedOrgId && authenticatedOrgId !== organization.id) {
                 conn.send(
                   JSON.stringify({
@@ -145,22 +169,24 @@ export async function agentWs(app: FastifyInstance) {
 
               if (
                 existingConnection &&
-                existingConnection !== (conn as unknown as WebSocket) &&
-                existingConnection.readyState === existingConnection.OPEN
+                existingConnection !== (conn as unknown as WebSocket)
               ) {
-                conn.send(
-                  JSON.stringify({
-                    type: 'AUTH_ERROR',
-                    message: 'There is already an active agent for this organization',
-                  }),
-                )
-                conn.close()
-                return
+                if (existingConnection.readyState === existingConnection.OPEN) {
+                  existingConnection.close(1000, 'Replaced by a new agent connection')
+                }
+                agentConnectionByOrg.delete(organization.id)
               }
 
               authenticatedOrgId = organization.id
               agentConnectionByOrg.set(organization.id, conn as unknown as WebSocket)
-              conn.send(JSON.stringify({ type: 'AUTH_OK' }))
+              conn.send(JSON.stringify({
+                type: 'AUTH_OK',
+                payload: {
+                  token,
+                  organizationId: organization.id,
+                  stopPassword: collectorDevice.stopPassword,
+                },
+              }))
               return
             } catch {
               conn.send(
@@ -274,6 +300,7 @@ export async function agentWs(app: FastifyInstance) {
                     model: r.model,
                     type: r.type,
                     status: r.status,
+                    isFan: r.isFan,
                     isSensorError: r.isSensorError,
                     value: r.value,
                     editValue: r.value,

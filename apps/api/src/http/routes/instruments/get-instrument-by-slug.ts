@@ -73,8 +73,10 @@ export async function getInstrumentBySlug(app: FastifyInstance) {
             orderDisplay: true,
           },
           where: {
-            organizationId: organization.id,
-            id: instrumentSlug,
+            organizationId_slug: {
+              organizationId: organization.id,
+              slug: instrumentSlug,
+            },
           },
         })
 

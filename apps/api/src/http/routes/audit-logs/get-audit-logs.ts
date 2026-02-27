@@ -5,7 +5,7 @@ import { z } from 'zod/v4'
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
 
-const auditEventTypes = ['SYSTEM', 'MEMBER', 'INVITE', 'INSTRUMENT', 'DATA', 'NOTIFICATION'] as const
+const auditEventTypes = ['SYSTEM', 'MEMBER', 'INVITE', 'INSTRUMENT', 'DATA', 'NOTIFICATION', 'ALERT'] as const
 
 type AuditEventType = (typeof auditEventTypes)[number]
 
@@ -19,6 +19,19 @@ type AuditLogItem = {
   details: string
   actor: string | null
   status: 'success' | 'failed'
+}
+
+type AlertReadLogRow = {
+  id: string
+  createdAt: Date
+  severity: string
+  value: number
+  minThreshold: number
+  maxThreshold: number
+  thresholdType: string
+  actorName: string | null
+  actorEmail: string
+  instrumentName: string
 }
 
 const parseDateRange = (startDate?: Date, endDate?: Date) => {
@@ -98,7 +111,7 @@ export async function getAuditLogs(app: FastifyInstance) {
           lte: end,
         }
 
-        const [members, invites, instruments, dataEdits, notificationSettings, organizationSnapshot] =
+        const [members, invites, instruments, dataEdits, notificationSettings, organizationSnapshot, alertReads] =
           await Promise.all([
             prisma.member.findMany({
               where: {
@@ -209,6 +222,26 @@ export async function getAuditLogs(app: FastifyInstance) {
                 updatedAt: true,
               },
             }),
+            prisma.$queryRaw<AlertReadLogRow[]>`
+              SELECT
+                arl.id,
+                arl.created_at AS "createdAt",
+                arl.severity,
+                arl.value,
+                arl.min_threshold AS "minThreshold",
+                arl.max_threshold AS "maxThreshold",
+                arl.threshold_type AS "thresholdType",
+                u.name AS "actorName",
+                u.email AS "actorEmail",
+                i.name AS "instrumentName"
+              FROM alert_read_logs arl
+              INNER JOIN users u ON u.id = arl.user_id
+              INNER JOIN instruments i ON i.id = arl.instrument_id
+              WHERE arl.organization_id = ${organization.id}
+                AND arl.created_at >= ${start}
+                AND arl.created_at <= ${end}
+              ORDER BY arl.created_at DESC
+            `,
           ])
 
         const logs: AuditLogItem[] = []
@@ -355,6 +388,26 @@ export async function getAuditLogs(app: FastifyInstance) {
               status: 'success',
             })
           }
+        }
+
+        for (const alertRead of alertReads) {
+          const severityLabel = alertRead.severity === 'critical' ? 'crítico' : 'atenção'
+          const thresholdLabel =
+            alertRead.thresholdType === 'max'
+              ? `máximo ${alertRead.maxThreshold.toFixed(2)}`
+              : `mínimo ${alertRead.minThreshold.toFixed(2)}`
+
+          logs.push({
+            id: `alert:read:${alertRead.id}`,
+            timestamp: alertRead.createdAt,
+            organizationSlug: organization.slug,
+            organizationName: organization.name,
+            type: 'ALERT',
+            action: 'Alerta marcado como lido',
+            details: `${alertRead.instrumentName}: alerta ${severityLabel} marcado como lido (valor ${alertRead.value.toFixed(2)}, limite ${thresholdLabel})`,
+            actor: alertRead.actorName ?? alertRead.actorEmail,
+            status: 'success',
+          })
         }
 
         const filtered = logs

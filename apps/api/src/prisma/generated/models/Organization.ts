@@ -220,6 +220,7 @@ export type OrganizationWhereInput = {
   invites?: Prisma.InviteListRelationFilter
   notificationSettings?: Prisma.XOR<Prisma.NotificationSettingsNullableScalarRelationFilter, Prisma.NotificationSettingsWhereInput> | null
   collectorDevices?: Prisma.CollectorDeviceListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -238,6 +239,7 @@ export type OrganizationOrderByWithRelationInput = {
   invites?: Prisma.InviteOrderByRelationAggregateInput
   notificationSettings?: Prisma.NotificationSettingsOrderByWithRelationInput
   collectorDevices?: Prisma.CollectorDeviceOrderByRelationAggregateInput
+  alertReadLogs?: Prisma.AlertReadLogOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -259,6 +261,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   invites?: Prisma.InviteListRelationFilter
   notificationSettings?: Prisma.XOR<Prisma.NotificationSettingsNullableScalarRelationFilter, Prisma.NotificationSettingsWhereInput> | null
   collectorDevices?: Prisma.CollectorDeviceListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
 }, "id" | "slug" | "domain">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -306,6 +309,7 @@ export type OrganizationCreateInput = {
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -323,6 +327,7 @@ export type OrganizationUncheckedCreateInput = {
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
@@ -340,6 +345,7 @@ export type OrganizationUpdateInput = {
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -357,6 +363,7 @@ export type OrganizationUncheckedUpdateInput = {
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -557,6 +564,20 @@ export type OrganizationUpdateOneRequiredWithoutCollectorDevicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutCollectorDevicesInput, Prisma.OrganizationUpdateWithoutCollectorDevicesInput>, Prisma.OrganizationUncheckedUpdateWithoutCollectorDevicesInput>
 }
 
+export type OrganizationCreateNestedOneWithoutAlertReadLogsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutAlertReadLogsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutAlertReadLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutAlertReadLogsInput
+  upsert?: Prisma.OrganizationUpsertWithoutAlertReadLogsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutAlertReadLogsInput, Prisma.OrganizationUpdateWithoutAlertReadLogsInput>, Prisma.OrganizationUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
 export type OrganizationCreateWithoutOwnersInput = {
   id?: string
   name: string
@@ -571,6 +592,7 @@ export type OrganizationCreateWithoutOwnersInput = {
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutOwnersInput = {
@@ -587,6 +609,7 @@ export type OrganizationUncheckedCreateWithoutOwnersInput = {
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutOwnersInput = {
@@ -644,6 +667,7 @@ export type OrganizationCreateWithoutMembersInput = {
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutMembersInput = {
@@ -660,6 +684,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutMembersInput = {
@@ -692,6 +717,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMembersInput = {
@@ -708,6 +734,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutNotificationSettingsInput = {
@@ -724,6 +751,7 @@ export type OrganizationCreateWithoutNotificationSettingsInput = {
   members?: Prisma.MemberCreateNestedManyWithoutOrganizationInput
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutNotificationSettingsInput = {
@@ -740,6 +768,7 @@ export type OrganizationUncheckedCreateWithoutNotificationSettingsInput = {
   members?: Prisma.MemberUncheckedCreateNestedManyWithoutOrganizationInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutNotificationSettingsInput = {
@@ -772,6 +801,7 @@ export type OrganizationUpdateWithoutNotificationSettingsInput = {
   members?: Prisma.MemberUpdateManyWithoutOrganizationNestedInput
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutNotificationSettingsInput = {
@@ -788,6 +818,7 @@ export type OrganizationUncheckedUpdateWithoutNotificationSettingsInput = {
   members?: Prisma.MemberUncheckedUpdateManyWithoutOrganizationNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutInstrumentsInput = {
@@ -804,6 +835,7 @@ export type OrganizationCreateWithoutInstrumentsInput = {
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutInstrumentsInput = {
@@ -820,6 +852,7 @@ export type OrganizationUncheckedCreateWithoutInstrumentsInput = {
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutInstrumentsInput = {
@@ -852,6 +885,7 @@ export type OrganizationUpdateWithoutInstrumentsInput = {
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutInstrumentsInput = {
@@ -868,6 +902,7 @@ export type OrganizationUncheckedUpdateWithoutInstrumentsInput = {
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutInvitesInput = {
@@ -884,6 +919,7 @@ export type OrganizationCreateWithoutInvitesInput = {
   members?: Prisma.MemberCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutInvitesInput = {
@@ -900,6 +936,7 @@ export type OrganizationUncheckedCreateWithoutInvitesInput = {
   members?: Prisma.MemberUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutInvitesInput = {
@@ -932,6 +969,7 @@ export type OrganizationUpdateWithoutInvitesInput = {
   members?: Prisma.MemberUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutInvitesInput = {
@@ -948,6 +986,7 @@ export type OrganizationUncheckedUpdateWithoutInvitesInput = {
   members?: Prisma.MemberUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutCollectorDevicesInput = {
@@ -964,6 +1003,7 @@ export type OrganizationCreateWithoutCollectorDevicesInput = {
   members?: Prisma.MemberCreateNestedManyWithoutOrganizationInput
   invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCollectorDevicesInput = {
@@ -980,6 +1020,7 @@ export type OrganizationUncheckedCreateWithoutCollectorDevicesInput = {
   members?: Prisma.MemberUncheckedCreateNestedManyWithoutOrganizationInput
   invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCollectorDevicesInput = {
@@ -1012,6 +1053,7 @@ export type OrganizationUpdateWithoutCollectorDevicesInput = {
   members?: Prisma.MemberUpdateManyWithoutOrganizationNestedInput
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCollectorDevicesInput = {
@@ -1028,6 +1070,91 @@ export type OrganizationUncheckedUpdateWithoutCollectorDevicesInput = {
   members?: Prisma.MemberUncheckedUpdateManyWithoutOrganizationNestedInput
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  domain?: string | null
+  shouldAttachUsersByDomain?: boolean
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owners: Prisma.UserCreateNestedOneWithoutOrganizationsInput
+  instruments?: Prisma.InstrumentCreateNestedManyWithoutOrganizationInput
+  members?: Prisma.MemberCreateNestedManyWithoutOrganizationInput
+  invites?: Prisma.InviteCreateNestedManyWithoutOrganizationInput
+  notificationSettings?: Prisma.NotificationSettingsCreateNestedOneWithoutOrganizationInput
+  collectorDevices?: Prisma.CollectorDeviceCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  domain?: string | null
+  shouldAttachUsersByDomain?: boolean
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownerId: string
+  instruments?: Prisma.InstrumentUncheckedCreateNestedManyWithoutOrganizationInput
+  members?: Prisma.MemberUncheckedCreateNestedManyWithoutOrganizationInput
+  invites?: Prisma.InviteUncheckedCreateNestedManyWithoutOrganizationInput
+  notificationSettings?: Prisma.NotificationSettingsUncheckedCreateNestedOneWithoutOrganizationInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutAlertReadLogsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedCreateWithoutAlertReadLogsInput>
+}
+
+export type OrganizationUpsertWithoutAlertReadLogsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedUpdateWithoutAlertReadLogsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedCreateWithoutAlertReadLogsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutAlertReadLogsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutAlertReadLogsInput, Prisma.OrganizationUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
+export type OrganizationUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shouldAttachUsersByDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owners?: Prisma.UserUpdateOneRequiredWithoutOrganizationsNestedInput
+  instruments?: Prisma.InstrumentUpdateManyWithoutOrganizationNestedInput
+  members?: Prisma.MemberUpdateManyWithoutOrganizationNestedInput
+  invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
+  notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shouldAttachUsersByDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  instruments?: Prisma.InstrumentUncheckedUpdateManyWithoutOrganizationNestedInput
+  members?: Prisma.MemberUncheckedUpdateManyWithoutOrganizationNestedInput
+  invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
+  notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
+  collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyOwnersInput = {
@@ -1055,6 +1182,7 @@ export type OrganizationUpdateWithoutOwnersInput = {
   invites?: Prisma.InviteUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutOwnersInput = {
@@ -1071,6 +1199,7 @@ export type OrganizationUncheckedUpdateWithoutOwnersInput = {
   invites?: Prisma.InviteUncheckedUpdateManyWithoutOrganizationNestedInput
   notificationSettings?: Prisma.NotificationSettingsUncheckedUpdateOneWithoutOrganizationNestedInput
   collectorDevices?: Prisma.CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutOwnersInput = {
@@ -1094,6 +1223,7 @@ export type OrganizationCountOutputType = {
   members: number
   invites: number
   collectorDevices: number
+  alertReadLogs: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1101,6 +1231,7 @@ export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   members?: boolean | OrganizationCountOutputTypeCountMembersArgs
   invites?: boolean | OrganizationCountOutputTypeCountInvitesArgs
   collectorDevices?: boolean | OrganizationCountOutputTypeCountCollectorDevicesArgs
+  alertReadLogs?: boolean | OrganizationCountOutputTypeCountAlertReadLogsArgs
 }
 
 /**
@@ -1141,6 +1272,13 @@ export type OrganizationCountOutputTypeCountCollectorDevicesArgs<ExtArgs extends
   where?: Prisma.CollectorDeviceWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountAlertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AlertReadLogWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1158,6 +1296,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   invites?: boolean | Prisma.Organization$invitesArgs<ExtArgs>
   notificationSettings?: boolean | Prisma.Organization$notificationSettingsArgs<ExtArgs>
   collectorDevices?: boolean | Prisma.Organization$collectorDevicesArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.Organization$alertReadLogsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -1207,6 +1346,7 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   invites?: boolean | Prisma.Organization$invitesArgs<ExtArgs>
   notificationSettings?: boolean | Prisma.Organization$notificationSettingsArgs<ExtArgs>
   collectorDevices?: boolean | Prisma.Organization$collectorDevicesArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.Organization$alertReadLogsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1225,6 +1365,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     invites: Prisma.$InvitePayload<ExtArgs>[]
     notificationSettings: Prisma.$NotificationSettingsPayload<ExtArgs> | null
     collectorDevices: Prisma.$CollectorDevicePayload<ExtArgs>[]
+    alertReadLogs: Prisma.$AlertReadLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1636,6 +1777,7 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   invites<T extends Prisma.Organization$invitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$invitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notificationSettings<T extends Prisma.Organization$notificationSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$notificationSettingsArgs<ExtArgs>>): Prisma.Prisma__NotificationSettingsClient<runtime.Types.Result.GetResult<Prisma.$NotificationSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   collectorDevices<T extends Prisma.Organization$collectorDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$collectorDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectorDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  alertReadLogs<T extends Prisma.Organization$alertReadLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$alertReadLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlertReadLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2182,6 +2324,30 @@ export type Organization$collectorDevicesArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.CollectorDeviceScalarFieldEnum | Prisma.CollectorDeviceScalarFieldEnum[]
+}
+
+/**
+ * Organization.alertReadLogs
+ */
+export type Organization$alertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AlertReadLog
+   */
+  select?: Prisma.AlertReadLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AlertReadLog
+   */
+  omit?: Prisma.AlertReadLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AlertReadLogInclude<ExtArgs> | null
+  where?: Prisma.AlertReadLogWhereInput
+  orderBy?: Prisma.AlertReadLogOrderByWithRelationInput | Prisma.AlertReadLogOrderByWithRelationInput[]
+  cursor?: Prisma.AlertReadLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AlertReadLogScalarFieldEnum | Prisma.AlertReadLogScalarFieldEnum[]
 }
 
 /**

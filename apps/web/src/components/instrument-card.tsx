@@ -1,7 +1,8 @@
-import { AlertTriangle, Clock, Fan, Power, Snowflake } from "lucide-react"
+import { getOperationalStatusBadge } from "@/utils/get-operational-status-badge"
+import { AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { Gauge } from "./gauge"
-import type { Instrument, InstrumentStatus, OperationalStatus } from "./instrument-grid.types"
+import type { Instrument, InstrumentStatus } from "./instrument-grid.types"
 import { Badge } from "./ui/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card"
 
@@ -18,68 +19,13 @@ function getStatusBadge(status: InstrumentStatus) {
   }
 }
 
-function getOperationalStatusBadge(status: OperationalStatus) {
-  switch (status) {
-    case "refrigerating":
-      return (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
-          <Snowflake className="size-3 animate-spin" style={{ animationDuration: "2s" }} />
-          <span>Refrigeração</span>
-        </Badge>
-      )
-    case "on-line":
-      return (
-        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-          <Power className="size-3" />
-          <span>Em Operação</span>
-        </Badge>
-      )
-    case "defrosting":
-      return (
-        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 flex items-center gap-1">
-          <Snowflake className="size-3" />
-          <span>Degelo</span>
-        </Badge>
-      )
-    case "fan-only":
-      return (
-        <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 flex items-center gap-1">
-          <Fan className="size-3 animate-spin" style={{ animationDuration: "3s" }} />
-          <span>Ventilação</span>
-        </Badge>
-      )
-    case "idle":
-      return (
-        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 flex items-center gap-1">
-          <Clock className="size-3" />
-          <span>Standby</span>
-        </Badge>
-      )
-    case "alarm":
-      return (
-        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 flex items-center gap-1 animate-pulse">
-          <AlertTriangle className="size-3" />
-          <span>Alarme</span>
-        </Badge>
-      )
-    case "off":
-      return (
-        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 flex items-center gap-1">
-          <Power className="size-3" />
-          <span>Desligado</span>
-        </Badge>
-      )
-    default:
-      return null
-  }
-}
-
 type InstrumentCardProps = {
   instrument: Instrument
   communicationFailure: boolean
+  orgSlug: string
 }
 
-export function InstrumentCard({ instrument, communicationFailure }: InstrumentCardProps) {
+export function InstrumentCard({ instrument, communicationFailure, orgSlug }: InstrumentCardProps) {
   const isTemperature = instrument.type === "TEMPERATURE"
   const unit = isTemperature ? "°C" : " Bar"
   const hasInstrumentError = instrument.error || instrument.isSensorError
@@ -93,15 +39,18 @@ export function InstrumentCard({ instrument, communicationFailure }: InstrumentC
 
 
   return (
-    <Link href={`/instrument/${instrument.id}`} className="block">
+    <Link href={`/org/${orgSlug}/instrument/${instrument.slug}`} className="block w-full min-w-0">
       <Card
-        className={`h-full transition-all hover:shadow-lg hover:scale-[1.02] shadow-md border-t ${isFailureState ? "border border-red-300 bg-red-50/50" : "border-0"
+        className={`h-full w-full min-w-0 overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] shadow-md border-t ${isFailureState ? "border border-red-300 bg-red-50/50" : "border-0"
           }`}
       >
         <CardHeader>
-          <div className="flex flex-col items-start gap-2">
-            <div className="flex items-center gap-2 w-full">
-              <CardTitle className="text-lg font-semibold truncate w-full" title={instrument.name}>
+          <div className="flex w-full min-w-0 flex-col items-start gap-2">
+            <div className="flex items-center gap-2 w-full min-w-0">
+              <CardTitle
+                className="block w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold"
+                title={instrument.name}
+              >
                 {instrument.name}
               </CardTitle>
             </div>

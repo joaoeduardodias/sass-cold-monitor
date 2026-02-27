@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
@@ -7,6 +8,9 @@ import { prisma } from '@/lib/prisma'
 import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
+function generateStopPassword() {
+  return randomBytes(12).toString('base64url')
+}
 
 export async function devicesAuthLoginRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().register(auth).post(
@@ -23,6 +27,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         response: {
           200: z.object({
             setupToken: z.string(),
+            stopPassword: z.string(),
           }),
         },
       },
@@ -56,6 +61,18 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         throw new UnauthorizedError("User cannot access this organization")
       }
 
+      const stopPassword = generateStopPassword()
+
+      await prisma.collectorDevice.updateMany({
+        where: {
+          organizationId,
+          isActive: true,
+        },
+        data: {
+          isActive: false,
+        },
+      })
+
       const setupToken = await reply.jwtSign(
         {
           sub: userId,
@@ -69,7 +86,90 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         },
       )
 
-      return reply.status(200).send({ setupToken })
+      await prisma.collectorDevice.create({
+        data: {
+          organizationId,
+          userId,
+          token: setupToken,
+          stopPassword,
+          isActive: true,
+        },
+      })
+
+      return reply.status(200).send({ setupToken, stopPassword })
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().register(auth).get(
+    '/devices/auth/latest',
+    {
+      schema: {
+        tags: ['Auth'],
+        summary: 'Get latest collector token and stop password.',
+        operationId: 'devicesAuthLatest',
+        security: [{ bearerAuth: [] }],
+        querystring: z.object({
+          organizationId: z.uuid(),
+        }),
+        response: {
+          200: z.object({
+            latest: z.object({
+              token: z.string(),
+              stopPassword: z.string(),
+              createdAt: z.date(),
+            }).nullable(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { organizationId } = request.query
+      const userId = await request.getCurrentUserId()
+
+      const membership = await prisma.member.findFirst({
+        where: {
+          userId,
+          organizationId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      if (!membership) {
+        throw new UnauthorizedError("User cannot access this organization")
+      }
+
+      const latest = await prisma.collectorDevice.findFirst({
+        where: {
+          organizationId,
+          isActive: true,
+          stopPassword: {
+            not: null,
+          },
+        },
+        select: {
+          token: true,
+          stopPassword: true,
+          createdAt: true,
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      })
+
+      if (!latest?.stopPassword) {
+        return reply.status(200).send({ latest: null })
+      }
+
+      return reply.status(200).send({
+        latest: {
+          token: latest.token,
+          stopPassword: latest.stopPassword,
+          createdAt: latest.createdAt,
+        },
+      })
     },
   )
 
@@ -87,6 +187,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
           200: z.object({
             token: z.string(),
             organizationId: z.uuid(),
+            stopPassword: z.string(),
           }),
           400: z.object({
             message: z.string(),
@@ -148,6 +249,23 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         throw new UnauthorizedError("User cannot access this organization")
       }
 
+      const collectorDevice = await prisma.collectorDevice.findFirst({
+        where: {
+          token: setupToken,
+          organizationId,
+          userId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+          stopPassword: true,
+        },
+      })
+
+      if (!collectorDevice?.stopPassword) {
+        return reply.status(401).send({ message: 'Invalid setup token' })
+      }
+
       const wsToken = await reply.jwtSign(
         {
           sub: userId,
@@ -160,9 +278,21 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         },
       )
 
+      await prisma.collectorDevice.update({
+        where: {
+          id: collectorDevice.id,
+        },
+        data: {
+          token: wsToken,
+          stopPassword: collectorDevice.stopPassword,
+          isActive: true,
+        },
+      })
+
       return reply.status(200).send({
         token: wsToken,
         organizationId,
+        stopPassword: collectorDevice.stopPassword,
       })
     },
   )

@@ -27,6 +27,7 @@ export type AggregateCollectorDevice = {
 export type CollectorDeviceMinAggregateOutputType = {
   id: string | null
   token: string | null
+  stopPassword: string | null
   organizationId: string | null
   userId: string | null
   isActive: boolean | null
@@ -37,6 +38,7 @@ export type CollectorDeviceMinAggregateOutputType = {
 export type CollectorDeviceMaxAggregateOutputType = {
   id: string | null
   token: string | null
+  stopPassword: string | null
   organizationId: string | null
   userId: string | null
   isActive: boolean | null
@@ -47,6 +49,7 @@ export type CollectorDeviceMaxAggregateOutputType = {
 export type CollectorDeviceCountAggregateOutputType = {
   id: number
   token: number
+  stopPassword: number
   organizationId: number
   userId: number
   isActive: number
@@ -59,6 +62,7 @@ export type CollectorDeviceCountAggregateOutputType = {
 export type CollectorDeviceMinAggregateInputType = {
   id?: true
   token?: true
+  stopPassword?: true
   organizationId?: true
   userId?: true
   isActive?: true
@@ -69,6 +73,7 @@ export type CollectorDeviceMinAggregateInputType = {
 export type CollectorDeviceMaxAggregateInputType = {
   id?: true
   token?: true
+  stopPassword?: true
   organizationId?: true
   userId?: true
   isActive?: true
@@ -79,6 +84,7 @@ export type CollectorDeviceMaxAggregateInputType = {
 export type CollectorDeviceCountAggregateInputType = {
   id?: true
   token?: true
+  stopPassword?: true
   organizationId?: true
   userId?: true
   isActive?: true
@@ -162,6 +168,7 @@ export type CollectorDeviceGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type CollectorDeviceGroupByOutputType = {
   id: string
   token: string
+  stopPassword: string | null
   organizationId: string
   userId: string
   isActive: boolean
@@ -193,6 +200,7 @@ export type CollectorDeviceWhereInput = {
   NOT?: Prisma.CollectorDeviceWhereInput | Prisma.CollectorDeviceWhereInput[]
   id?: Prisma.StringFilter<"CollectorDevice"> | string
   token?: Prisma.StringFilter<"CollectorDevice"> | string
+  stopPassword?: Prisma.StringNullableFilter<"CollectorDevice"> | string | null
   organizationId?: Prisma.StringFilter<"CollectorDevice"> | string
   userId?: Prisma.StringFilter<"CollectorDevice"> | string
   isActive?: Prisma.BoolFilter<"CollectorDevice"> | boolean
@@ -205,6 +213,7 @@ export type CollectorDeviceWhereInput = {
 export type CollectorDeviceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  stopPassword?: Prisma.SortOrderInput | Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -220,6 +229,7 @@ export type CollectorDeviceWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.CollectorDeviceWhereInput | Prisma.CollectorDeviceWhereInput[]
   OR?: Prisma.CollectorDeviceWhereInput[]
   NOT?: Prisma.CollectorDeviceWhereInput | Prisma.CollectorDeviceWhereInput[]
+  stopPassword?: Prisma.StringNullableFilter<"CollectorDevice"> | string | null
   organizationId?: Prisma.StringFilter<"CollectorDevice"> | string
   userId?: Prisma.StringFilter<"CollectorDevice"> | string
   isActive?: Prisma.BoolFilter<"CollectorDevice"> | boolean
@@ -232,6 +242,7 @@ export type CollectorDeviceWhereUniqueInput = Prisma.AtLeast<{
 export type CollectorDeviceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  stopPassword?: Prisma.SortOrderInput | Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -248,6 +259,7 @@ export type CollectorDeviceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CollectorDeviceScalarWhereWithAggregatesInput | Prisma.CollectorDeviceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"CollectorDevice"> | string
   token?: Prisma.StringWithAggregatesFilter<"CollectorDevice"> | string
+  stopPassword?: Prisma.StringNullableWithAggregatesFilter<"CollectorDevice"> | string | null
   organizationId?: Prisma.StringWithAggregatesFilter<"CollectorDevice"> | string
   userId?: Prisma.StringWithAggregatesFilter<"CollectorDevice"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"CollectorDevice"> | boolean
@@ -258,6 +270,7 @@ export type CollectorDeviceScalarWhereWithAggregatesInput = {
 export type CollectorDeviceCreateInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -268,6 +281,7 @@ export type CollectorDeviceCreateInput = {
 export type CollectorDeviceUncheckedCreateInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   organizationId: string
   userId: string
   isActive?: boolean
@@ -278,6 +292,7 @@ export type CollectorDeviceUncheckedCreateInput = {
 export type CollectorDeviceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -288,6 +303,7 @@ export type CollectorDeviceUpdateInput = {
 export type CollectorDeviceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -298,6 +314,7 @@ export type CollectorDeviceUncheckedUpdateInput = {
 export type CollectorDeviceCreateManyInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   organizationId: string
   userId: string
   isActive?: boolean
@@ -308,6 +325,7 @@ export type CollectorDeviceCreateManyInput = {
 export type CollectorDeviceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -316,6 +334,7 @@ export type CollectorDeviceUpdateManyMutationInput = {
 export type CollectorDeviceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -336,6 +355,7 @@ export type CollectorDeviceOrderByRelationAggregateInput = {
 export type CollectorDeviceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  stopPassword?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -346,6 +366,7 @@ export type CollectorDeviceCountOrderByAggregateInput = {
 export type CollectorDeviceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  stopPassword?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -356,6 +377,7 @@ export type CollectorDeviceMaxOrderByAggregateInput = {
 export type CollectorDeviceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  stopPassword?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -450,6 +472,7 @@ export type CollectorDeviceUncheckedUpdateManyWithoutOrganizationNestedInput = {
 export type CollectorDeviceCreateWithoutUserInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -459,6 +482,7 @@ export type CollectorDeviceCreateWithoutUserInput = {
 export type CollectorDeviceUncheckedCreateWithoutUserInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   organizationId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -497,6 +521,7 @@ export type CollectorDeviceScalarWhereInput = {
   NOT?: Prisma.CollectorDeviceScalarWhereInput | Prisma.CollectorDeviceScalarWhereInput[]
   id?: Prisma.StringFilter<"CollectorDevice"> | string
   token?: Prisma.StringFilter<"CollectorDevice"> | string
+  stopPassword?: Prisma.StringNullableFilter<"CollectorDevice"> | string | null
   organizationId?: Prisma.StringFilter<"CollectorDevice"> | string
   userId?: Prisma.StringFilter<"CollectorDevice"> | string
   isActive?: Prisma.BoolFilter<"CollectorDevice"> | boolean
@@ -507,6 +532,7 @@ export type CollectorDeviceScalarWhereInput = {
 export type CollectorDeviceCreateWithoutOrganizationInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -516,6 +542,7 @@ export type CollectorDeviceCreateWithoutOrganizationInput = {
 export type CollectorDeviceUncheckedCreateWithoutOrganizationInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   userId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -551,6 +578,7 @@ export type CollectorDeviceUpdateManyWithWhereWithoutOrganizationInput = {
 export type CollectorDeviceCreateManyUserInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   organizationId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -560,6 +588,7 @@ export type CollectorDeviceCreateManyUserInput = {
 export type CollectorDeviceUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -569,6 +598,7 @@ export type CollectorDeviceUpdateWithoutUserInput = {
 export type CollectorDeviceUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -578,6 +608,7 @@ export type CollectorDeviceUncheckedUpdateWithoutUserInput = {
 export type CollectorDeviceUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -587,6 +618,7 @@ export type CollectorDeviceUncheckedUpdateManyWithoutUserInput = {
 export type CollectorDeviceCreateManyOrganizationInput = {
   id?: string
   token: string
+  stopPassword?: string | null
   userId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -596,6 +628,7 @@ export type CollectorDeviceCreateManyOrganizationInput = {
 export type CollectorDeviceUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -605,6 +638,7 @@ export type CollectorDeviceUpdateWithoutOrganizationInput = {
 export type CollectorDeviceUncheckedUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -614,6 +648,7 @@ export type CollectorDeviceUncheckedUpdateWithoutOrganizationInput = {
 export type CollectorDeviceUncheckedUpdateManyWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  stopPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -625,6 +660,7 @@ export type CollectorDeviceUncheckedUpdateManyWithoutOrganizationInput = {
 export type CollectorDeviceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   token?: boolean
+  stopPassword?: boolean
   organizationId?: boolean
   userId?: boolean
   isActive?: boolean
@@ -637,6 +673,7 @@ export type CollectorDeviceSelect<ExtArgs extends runtime.Types.Extensions.Inter
 export type CollectorDeviceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   token?: boolean
+  stopPassword?: boolean
   organizationId?: boolean
   userId?: boolean
   isActive?: boolean
@@ -649,6 +686,7 @@ export type CollectorDeviceSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
 export type CollectorDeviceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   token?: boolean
+  stopPassword?: boolean
   organizationId?: boolean
   userId?: boolean
   isActive?: boolean
@@ -661,6 +699,7 @@ export type CollectorDeviceSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
 export type CollectorDeviceSelectScalar = {
   id?: boolean
   token?: boolean
+  stopPassword?: boolean
   organizationId?: boolean
   userId?: boolean
   isActive?: boolean
@@ -668,7 +707,7 @@ export type CollectorDeviceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CollectorDeviceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "token" | "organizationId" | "userId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["collectorDevice"]>
+export type CollectorDeviceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "token" | "stopPassword" | "organizationId" | "userId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["collectorDevice"]>
 export type CollectorDeviceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -691,6 +730,7 @@ export type $CollectorDevicePayload<ExtArgs extends runtime.Types.Extensions.Int
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     token: string
+    stopPassword: string | null
     organizationId: string
     userId: string
     isActive: boolean
@@ -1123,6 +1163,7 @@ export interface Prisma__CollectorDeviceClient<T, Null = never, ExtArgs extends 
 export interface CollectorDeviceFieldRefs {
   readonly id: Prisma.FieldRef<"CollectorDevice", 'String'>
   readonly token: Prisma.FieldRef<"CollectorDevice", 'String'>
+  readonly stopPassword: Prisma.FieldRef<"CollectorDevice", 'String'>
   readonly organizationId: Prisma.FieldRef<"CollectorDevice", 'String'>
   readonly userId: Prisma.FieldRef<"CollectorDevice", 'String'>
   readonly isActive: Prisma.FieldRef<"CollectorDevice", 'Boolean'>

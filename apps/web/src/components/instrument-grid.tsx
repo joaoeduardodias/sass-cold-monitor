@@ -1,5 +1,6 @@
 "use client"
 
+import type { Instrument } from "@/components/instrument-grid.types"
 import { useInstrumentGrid } from "@/hooks/use-instrument-grid"
 import { InstrumentCard } from "./instrument-card"
 
@@ -8,12 +9,21 @@ type InstrumentGridProps = {
   organizationSlug: string
 }
 
-export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentGridProps) {
-  const { instruments, loading, hasCommunicationFailures, isCommunicationFailure } = useInstrumentGrid({
-    organizationId,
-    organizationSlug,
-  })
+type InstrumentGridContentProps = {
+  instruments: Instrument[]
+  loading: boolean
+  hasCommunicationFailures: boolean
+  orgSlug: string
+  isCommunicationFailure: (instrument: Instrument) => boolean
+}
 
+export function InstrumentGridContent({
+  instruments,
+  loading,
+  hasCommunicationFailures,
+  isCommunicationFailure,
+  orgSlug,
+}: InstrumentGridContentProps) {
   if (loading) {
     return <div className="flex justify-center p-12">Carregando dados...</div>
   }
@@ -32,9 +42,27 @@ export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentG
             key={instrument.id}
             instrument={instrument}
             communicationFailure={isCommunicationFailure(instrument)}
+            orgSlug={orgSlug}
           />
         ))}
       </div>
     </div>
+  )
+}
+
+export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentGridProps) {
+  const { instruments, loading, hasCommunicationFailures, isCommunicationFailure } = useInstrumentGrid({
+    organizationId,
+    organizationSlug,
+  })
+
+  return (
+    <InstrumentGridContent
+      instruments={instruments}
+      loading={loading}
+      hasCommunicationFailures={hasCommunicationFailures}
+      isCommunicationFailure={isCommunicationFailure}
+      orgSlug={organizationSlug}
+    />
   )
 }

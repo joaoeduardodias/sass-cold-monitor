@@ -1,4 +1,4 @@
-export type OperationalStatus = "refrigerating" | "on-line" | "defrosting" | "idle" | "alarm" | "fan-only" | "off"
+export type OperationalStatus = "refrigerating" | "on-line" | "defrosting" | "draining" | "idle" | "alarm" | "fan-only" | "off"
 
 export type InstrumentStatus = "normal" | "warning" | "critical"
 export type InstrumentType = "TEMPERATURE" | "PRESSURE"
@@ -18,6 +18,7 @@ export type Instrument = {
   operationalStatus: OperationalStatus
   error: boolean
   isSensorError: boolean
+  isFan: boolean
   setpoint: number | null
   differential: number | null
   lastUpdated: string | null
@@ -31,8 +32,9 @@ type InstrumentValuesPayload = {
   model: number
   type: InstrumentType
   organizationId: string
-  value: any
+  value: number
   status: string
+  isFan: boolean
   error: boolean
   isSensorError: boolean
   setPoint: number
@@ -47,6 +49,7 @@ type InstrumentUpdatePayload = {
   model: number
   type: InstrumentType
   status: string
+  isFan: boolean
   isSensorError: boolean
   value: number
   editValue: number

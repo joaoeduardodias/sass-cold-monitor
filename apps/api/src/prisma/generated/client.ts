@@ -94,3 +94,8 @@ export type Invite = Prisma.InviteModel
  * 
  */
 export type CollectorDevice = Prisma.CollectorDeviceModel
+/**
+ * Model AlertReadLog
+ * 
+ */
+export type AlertReadLog = Prisma.AlertReadLogModel

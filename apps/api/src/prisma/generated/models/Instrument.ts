@@ -298,6 +298,7 @@ export type InstrumentWhereInput = {
   organizationId?: Prisma.StringFilter<"Instrument"> | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   data?: Prisma.InstrumentDataListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
   joinAsFirstInstrument?: Prisma.JoinInstrumentListRelationFilter
   joinAsSecondInstrument?: Prisma.JoinInstrumentListRelationFilter
 }
@@ -318,6 +319,7 @@ export type InstrumentOrderByWithRelationInput = {
   organizationId?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
   data?: Prisma.InstrumentDataOrderByRelationAggregateInput
+  alertReadLogs?: Prisma.AlertReadLogOrderByRelationAggregateInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentOrderByRelationAggregateInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentOrderByRelationAggregateInput
 }
@@ -342,6 +344,7 @@ export type InstrumentWhereUniqueInput = Prisma.AtLeast<{
   organizationId?: Prisma.StringFilter<"Instrument"> | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   data?: Prisma.InstrumentDataListRelationFilter
+  alertReadLogs?: Prisma.AlertReadLogListRelationFilter
   joinAsFirstInstrument?: Prisma.JoinInstrumentListRelationFilter
   joinAsSecondInstrument?: Prisma.JoinInstrumentListRelationFilter
 }, "id" | "slug" | "organizationId_slug">
@@ -401,6 +404,7 @@ export type InstrumentCreateInput = {
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutInstrumentsInput
   data?: Prisma.InstrumentDataCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -420,6 +424,7 @@ export type InstrumentUncheckedCreateInput = {
   updatedAt?: Date | string
   organizationId: string
   data?: Prisma.InstrumentDataUncheckedCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -439,6 +444,7 @@ export type InstrumentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutInstrumentsNestedInput
   data?: Prisma.InstrumentDataUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -458,6 +464,7 @@ export type InstrumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   data?: Prisma.InstrumentDataUncheckedUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -697,6 +704,20 @@ export type InstrumentUpdateOneRequiredWithoutJoinAsSecondInstrumentNestedInput 
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstrumentUpdateToOneWithWhereWithoutJoinAsSecondInstrumentInput, Prisma.InstrumentUpdateWithoutJoinAsSecondInstrumentInput>, Prisma.InstrumentUncheckedUpdateWithoutJoinAsSecondInstrumentInput>
 }
 
+export type InstrumentCreateNestedOneWithoutAlertReadLogsInput = {
+  create?: Prisma.XOR<Prisma.InstrumentCreateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.InstrumentCreateOrConnectWithoutAlertReadLogsInput
+  connect?: Prisma.InstrumentWhereUniqueInput
+}
+
+export type InstrumentUpdateOneRequiredWithoutAlertReadLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstrumentCreateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedCreateWithoutAlertReadLogsInput>
+  connectOrCreate?: Prisma.InstrumentCreateOrConnectWithoutAlertReadLogsInput
+  upsert?: Prisma.InstrumentUpsertWithoutAlertReadLogsInput
+  connect?: Prisma.InstrumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstrumentUpdateToOneWithWhereWithoutAlertReadLogsInput, Prisma.InstrumentUpdateWithoutAlertReadLogsInput>, Prisma.InstrumentUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
 export type InstrumentCreateWithoutOrganizationInput = {
   id?: string
   name: string
@@ -711,6 +732,7 @@ export type InstrumentCreateWithoutOrganizationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   data?: Prisma.InstrumentDataCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -729,6 +751,7 @@ export type InstrumentUncheckedCreateWithoutOrganizationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   data?: Prisma.InstrumentDataUncheckedCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -792,6 +815,7 @@ export type InstrumentCreateWithoutDataInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutInstrumentsInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -810,6 +834,7 @@ export type InstrumentUncheckedCreateWithoutDataInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   organizationId: string
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutFirstInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutSecondInstrumentInput
 }
@@ -844,6 +869,7 @@ export type InstrumentUpdateWithoutDataInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutInstrumentsNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -862,6 +888,7 @@ export type InstrumentUncheckedUpdateWithoutDataInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -881,6 +908,7 @@ export type InstrumentCreateWithoutJoinAsFirstInstrumentInput = {
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutInstrumentsInput
   data?: Prisma.InstrumentDataCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutSecondInstrumentInput
 }
 
@@ -899,6 +927,7 @@ export type InstrumentUncheckedCreateWithoutJoinAsFirstInstrumentInput = {
   updatedAt?: Date | string
   organizationId: string
   data?: Prisma.InstrumentDataUncheckedCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutInstrumentInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutSecondInstrumentInput
 }
 
@@ -922,6 +951,7 @@ export type InstrumentCreateWithoutJoinAsSecondInstrumentInput = {
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutInstrumentsInput
   data?: Prisma.InstrumentDataCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutFirstInstrumentInput
 }
 
@@ -940,6 +970,7 @@ export type InstrumentUncheckedCreateWithoutJoinAsSecondInstrumentInput = {
   updatedAt?: Date | string
   organizationId: string
   data?: Prisma.InstrumentDataUncheckedCreateNestedManyWithoutInstrumentInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedCreateNestedManyWithoutInstrumentInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutFirstInstrumentInput
 }
 
@@ -974,6 +1005,7 @@ export type InstrumentUpdateWithoutJoinAsFirstInstrumentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutInstrumentsNestedInput
   data?: Prisma.InstrumentDataUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUpdateManyWithoutSecondInstrumentNestedInput
 }
 
@@ -992,6 +1024,7 @@ export type InstrumentUncheckedUpdateWithoutJoinAsFirstInstrumentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   data?: Prisma.InstrumentDataUncheckedUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutSecondInstrumentNestedInput
 }
 
@@ -1021,6 +1054,7 @@ export type InstrumentUpdateWithoutJoinAsSecondInstrumentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutInstrumentsNestedInput
   data?: Prisma.InstrumentDataUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUpdateManyWithoutFirstInstrumentNestedInput
 }
 
@@ -1039,7 +1073,100 @@ export type InstrumentUncheckedUpdateWithoutJoinAsSecondInstrumentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   data?: Prisma.InstrumentDataUncheckedUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutFirstInstrumentNestedInput
+}
+
+export type InstrumentCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  type: $Enums.InstrumentType
+  model: number
+  orderDisplay?: number
+  maxValue?: number
+  minValue?: number
+  isActive?: boolean
+  idSitrad?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organization: Prisma.OrganizationCreateNestedOneWithoutInstrumentsInput
+  data?: Prisma.InstrumentDataCreateNestedManyWithoutInstrumentInput
+  joinAsFirstInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutFirstInstrumentInput
+  joinAsSecondInstrument?: Prisma.JoinInstrumentCreateNestedManyWithoutSecondInstrumentInput
+}
+
+export type InstrumentUncheckedCreateWithoutAlertReadLogsInput = {
+  id?: string
+  name: string
+  slug: string
+  type: $Enums.InstrumentType
+  model: number
+  orderDisplay?: number
+  maxValue?: number
+  minValue?: number
+  isActive?: boolean
+  idSitrad?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organizationId: string
+  data?: Prisma.InstrumentDataUncheckedCreateNestedManyWithoutInstrumentInput
+  joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutFirstInstrumentInput
+  joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedCreateNestedManyWithoutSecondInstrumentInput
+}
+
+export type InstrumentCreateOrConnectWithoutAlertReadLogsInput = {
+  where: Prisma.InstrumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstrumentCreateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedCreateWithoutAlertReadLogsInput>
+}
+
+export type InstrumentUpsertWithoutAlertReadLogsInput = {
+  update: Prisma.XOR<Prisma.InstrumentUpdateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedUpdateWithoutAlertReadLogsInput>
+  create: Prisma.XOR<Prisma.InstrumentCreateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedCreateWithoutAlertReadLogsInput>
+  where?: Prisma.InstrumentWhereInput
+}
+
+export type InstrumentUpdateToOneWithWhereWithoutAlertReadLogsInput = {
+  where?: Prisma.InstrumentWhereInput
+  data: Prisma.XOR<Prisma.InstrumentUpdateWithoutAlertReadLogsInput, Prisma.InstrumentUncheckedUpdateWithoutAlertReadLogsInput>
+}
+
+export type InstrumentUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInstrumentTypeFieldUpdateOperationsInput | $Enums.InstrumentType
+  model?: Prisma.IntFieldUpdateOperationsInput | number
+  orderDisplay?: Prisma.IntFieldUpdateOperationsInput | number
+  maxValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  minValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  idSitrad?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutInstrumentsNestedInput
+  data?: Prisma.InstrumentDataUpdateManyWithoutInstrumentNestedInput
+  joinAsFirstInstrument?: Prisma.JoinInstrumentUpdateManyWithoutFirstInstrumentNestedInput
+  joinAsSecondInstrument?: Prisma.JoinInstrumentUpdateManyWithoutSecondInstrumentNestedInput
+}
+
+export type InstrumentUncheckedUpdateWithoutAlertReadLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInstrumentTypeFieldUpdateOperationsInput | $Enums.InstrumentType
+  model?: Prisma.IntFieldUpdateOperationsInput | number
+  orderDisplay?: Prisma.IntFieldUpdateOperationsInput | number
+  maxValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  minValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  idSitrad?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.InstrumentDataUncheckedUpdateManyWithoutInstrumentNestedInput
+  joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutFirstInstrumentNestedInput
+  joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutSecondInstrumentNestedInput
 }
 
 export type InstrumentCreateManyOrganizationInput = {
@@ -1071,6 +1198,7 @@ export type InstrumentUpdateWithoutOrganizationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   data?: Prisma.InstrumentDataUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -1089,6 +1217,7 @@ export type InstrumentUncheckedUpdateWithoutOrganizationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   data?: Prisma.InstrumentDataUncheckedUpdateManyWithoutInstrumentNestedInput
+  alertReadLogs?: Prisma.AlertReadLogUncheckedUpdateManyWithoutInstrumentNestedInput
   joinAsFirstInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutFirstInstrumentNestedInput
   joinAsSecondInstrument?: Prisma.JoinInstrumentUncheckedUpdateManyWithoutSecondInstrumentNestedInput
 }
@@ -1115,12 +1244,14 @@ export type InstrumentUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type InstrumentCountOutputType = {
   data: number
+  alertReadLogs: number
   joinAsFirstInstrument: number
   joinAsSecondInstrument: number
 }
 
 export type InstrumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   data?: boolean | InstrumentCountOutputTypeCountDataArgs
+  alertReadLogs?: boolean | InstrumentCountOutputTypeCountAlertReadLogsArgs
   joinAsFirstInstrument?: boolean | InstrumentCountOutputTypeCountJoinAsFirstInstrumentArgs
   joinAsSecondInstrument?: boolean | InstrumentCountOutputTypeCountJoinAsSecondInstrumentArgs
 }
@@ -1140,6 +1271,13 @@ export type InstrumentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
  */
 export type InstrumentCountOutputTypeCountDataArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.InstrumentDataWhereInput
+}
+
+/**
+ * InstrumentCountOutputType without action
+ */
+export type InstrumentCountOutputTypeCountAlertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AlertReadLogWhereInput
 }
 
 /**
@@ -1173,6 +1311,7 @@ export type InstrumentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   organizationId?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   data?: boolean | Prisma.Instrument$dataArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.Instrument$alertReadLogsArgs<ExtArgs>
   joinAsFirstInstrument?: boolean | Prisma.Instrument$joinAsFirstInstrumentArgs<ExtArgs>
   joinAsSecondInstrument?: boolean | Prisma.Instrument$joinAsSecondInstrumentArgs<ExtArgs>
   _count?: boolean | Prisma.InstrumentCountOutputTypeDefaultArgs<ExtArgs>
@@ -1232,6 +1371,7 @@ export type InstrumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type InstrumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   data?: boolean | Prisma.Instrument$dataArgs<ExtArgs>
+  alertReadLogs?: boolean | Prisma.Instrument$alertReadLogsArgs<ExtArgs>
   joinAsFirstInstrument?: boolean | Prisma.Instrument$joinAsFirstInstrumentArgs<ExtArgs>
   joinAsSecondInstrument?: boolean | Prisma.Instrument$joinAsSecondInstrumentArgs<ExtArgs>
   _count?: boolean | Prisma.InstrumentCountOutputTypeDefaultArgs<ExtArgs>
@@ -1248,6 +1388,7 @@ export type $InstrumentPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     organization: Prisma.$OrganizationPayload<ExtArgs>
     data: Prisma.$InstrumentDataPayload<ExtArgs>[]
+    alertReadLogs: Prisma.$AlertReadLogPayload<ExtArgs>[]
     joinAsFirstInstrument: Prisma.$JoinInstrumentPayload<ExtArgs>[]
     joinAsSecondInstrument: Prisma.$JoinInstrumentPayload<ExtArgs>[]
   }
@@ -1661,6 +1802,7 @@ export interface Prisma__InstrumentClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   data<T extends Prisma.Instrument$dataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Instrument$dataArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstrumentDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  alertReadLogs<T extends Prisma.Instrument$alertReadLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Instrument$alertReadLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlertReadLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   joinAsFirstInstrument<T extends Prisma.Instrument$joinAsFirstInstrumentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Instrument$joinAsFirstInstrumentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JoinInstrumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   joinAsSecondInstrument<T extends Prisma.Instrument$joinAsSecondInstrumentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Instrument$joinAsSecondInstrumentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JoinInstrumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2122,6 +2264,30 @@ export type Instrument$dataArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.InstrumentDataScalarFieldEnum | Prisma.InstrumentDataScalarFieldEnum[]
+}
+
+/**
+ * Instrument.alertReadLogs
+ */
+export type Instrument$alertReadLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AlertReadLog
+   */
+  select?: Prisma.AlertReadLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AlertReadLog
+   */
+  omit?: Prisma.AlertReadLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AlertReadLogInclude<ExtArgs> | null
+  where?: Prisma.AlertReadLogWhereInput
+  orderBy?: Prisma.AlertReadLogOrderByWithRelationInput | Prisma.AlertReadLogOrderByWithRelationInput[]
+  cursor?: Prisma.AlertReadLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AlertReadLogScalarFieldEnum | Prisma.AlertReadLogScalarFieldEnum[]
 }
 
 /**

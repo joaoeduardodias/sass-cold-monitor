@@ -18,7 +18,7 @@ export const createInstrumentSchema = z.array(z.object({
 export type CreateInstrumentType = z.infer<typeof createInstrumentSchema>
 
 
-export const instrumentWebSocketSchema = z.array(z.object({
+const instrumentReadingSchema = z.object({
   idSitrad: z.number().int(),
   name: z.string().min(1),
   slug: z.string().min(1),
@@ -28,10 +28,13 @@ export const instrumentWebSocketSchema = z.array(z.object({
   status: z.string(),
   setPoint: z.preprocess((value) => value ?? 0, z.number()),
   differential: z.preprocess((value) => value ?? 0, z.number()),
+  isFan: z.boolean(),
   error: z.boolean(),
   isSensorError: z.boolean().default(false),
   organizationId: z.string().min(1),
-}))
+})
+
+export const instrumentWebSocketSchema = z.array(instrumentReadingSchema)
 
 export type InstrumentWebSocket = z.infer<typeof instrumentWebSocketSchema>
 

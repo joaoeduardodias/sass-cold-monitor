@@ -24,89 +24,109 @@ export async function dashboardWs(app: FastifyInstance) {
         try {
           const raw = JSON.parse(msg.toString())
 
-          if (raw.type !== 'AUTH') {
+          if (raw.type === 'AUTH') {
+            orgId = raw.payload?.organizationId
+            const token = raw.payload?.token
+
+            if (!orgId) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'organizationId is required',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            if (!token) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'token is required',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            const decoded = app.jwt.verify<{ sub: string }>(token)
+            const userId = decoded.sub
+
+            const org = await prisma.organization.findUnique({
+              where: { id: orgId },
+            })
+            if (!org) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'organization not found',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            const membership = await prisma.member.findFirst({
+              where: {
+                userId,
+                organizationId: org.id,
+              },
+            })
+
+            if (!membership) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'User cannot access this organization',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            const permissions = getUserPermissions(userId, membership.role)
+
+            if (permissions.cannot('get', 'Instrument')) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: `You're not allowed to see these instruments.`,
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            if (!dashboardConnectionsByOrg.has(orgId)) {
+              dashboardConnectionsByOrg.set(orgId, new Set())
+            }
+
+            dashboardConnectionsByOrg.get(orgId)!.add(conn)
+            conn.send(JSON.stringify({ type: 'AUTH_OK' }))
             return
           }
-
-          orgId = raw.payload?.organizationId
-          const token = raw.payload?.token
 
           if (!orgId) {
             conn.send(
               JSON.stringify({
                 type: 'AUTH_ERROR',
-                message: 'organizationId is required',
+                message: 'Authentication required',
               }),
             )
             conn.close()
             return
           }
 
-          if (!token) {
+          if (raw.type === 'INSTRUMENT_COMMAND') {
             conn.send(
               JSON.stringify({
-                type: 'AUTH_ERROR',
-                message: 'token is required',
+                type: 'INSTRUMENT_COMMAND_ERROR',
+                message: 'Use HTTP endpoint POST /organizations/:orgSlug/instruments/:instrumentId/command',
               }),
             )
-            conn.close()
             return
           }
-
-          const decoded = app.jwt.verify<{ sub: string }>(token)
-          const userId = decoded.sub
-
-          const org = await prisma.organization.findUnique({
-            where: { id: orgId },
-          })
-          if (!org) {
-            conn.send(
-              JSON.stringify({
-                type: 'AUTH_ERROR',
-                message: 'organization not found',
-              }),
-            )
-            conn.close()
-            return
-          }
-
-          const membership = await prisma.member.findFirst({
-            where: {
-              userId,
-              organizationId: org.id,
-            },
-          })
-
-          if (!membership) {
-            conn.send(
-              JSON.stringify({
-                type: 'AUTH_ERROR',
-                message: 'User cannot access this organization',
-              }),
-            )
-            conn.close()
-            return
-          }
-
-          const { cannot } = getUserPermissions(userId, membership.role)
-
-          if (cannot('get', 'Instrument')) {
-            conn.send(
-              JSON.stringify({
-                type: 'AUTH_ERROR',
-                message: `You're not allowed to see these instruments.`,
-              }),
-            )
-            conn.close()
-            return
-          }
-
-          if (!dashboardConnectionsByOrg.has(orgId)) {
-            dashboardConnectionsByOrg.set(orgId, new Set())
-          }
-
-          dashboardConnectionsByOrg.get(orgId)!.add(conn)
-          conn.send(JSON.stringify({ type: 'AUTH_OK' }))
         } catch {
           conn.send(
             JSON.stringify({

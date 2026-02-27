@@ -1,6 +1,6 @@
 import { api } from "../api"
 
-export const auditLogTypes = ["SYSTEM", "MEMBER", "INVITE", "INSTRUMENT", "DATA", "NOTIFICATION"] as const
+export const auditLogTypes = ["SYSTEM", "MEMBER", "INVITE", "INSTRUMENT", "DATA", "NOTIFICATION", "ALERT"] as const
 
 export type AuditLogType = (typeof auditLogTypes)[number]
 

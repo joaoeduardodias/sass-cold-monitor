@@ -55,6 +55,7 @@ const typeLabels: Record<AuditLogType, string> = {
   INSTRUMENT: "Instrumentos",
   DATA: "Leituras",
   NOTIFICATION: "Notificações",
+  ALERT: "Alertas",
 }
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20] as const
