@@ -7,11 +7,21 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Fan, Power, RotateCcw, Save, Snowflake } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
+
+const DIFFERENTIAL_MIN = 0.5
+const DIFFERENTIAL_MAX = 3
+const DIFFERENTIAL_VISUAL_RANGE = 1
+
+function clampValue(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
 
 interface InstrumentControlsProps {
   id: string
+  minValue: number
+  maxValue: number
   setpoint: number
   differential: number
   defrost: boolean
@@ -24,6 +34,8 @@ interface InstrumentControlsProps {
 
 export function InstrumentControls({
   id,
+  minValue,
+  maxValue,
   setpoint,
   differential,
   defrost,
@@ -49,12 +61,12 @@ export function InstrumentControls({
   }, [differential])
 
   const handleSetpointChange = (value: number[]) => {
-    setLocalSetpoint(value[0])
+    setLocalSetpoint(clampValue(value[0], minValue, maxValue))
     setChanged(true)
   }
 
   const handleDifferentialChange = (value: number[]) => {
-    setLocalDifferential(value[0])
+    setLocalDifferential(clampValue(value[0], DIFFERENTIAL_MIN, DIFFERENTIAL_MAX))
     setChanged(true)
   }
 
@@ -106,6 +118,15 @@ export function InstrumentControls({
     setLocalDifferential(differential)
     setChanged(false)
   }
+
+  const differentialSliderRange = useMemo(() => {
+    const halfRange = DIFFERENTIAL_VISUAL_RANGE / 2
+
+    return {
+      min: localDifferential - halfRange,
+      max: localDifferential + halfRange,
+    }
+  }, [localDifferential])
 
   return (
     <div className="space-y-6">
@@ -160,19 +181,21 @@ export function InstrumentControls({
                 onChange={(e) => {
                   const value = Number.parseFloat(e.target.value)
                   if (!Number.isNaN(value)) {
-                    setLocalSetpoint(value)
+                    setLocalSetpoint(clampValue(value, minValue, maxValue))
                     setChanged(true)
                   }
                 }}
                 className="h-8"
                 step={0.5}
+                min={minValue}
+                max={maxValue}
               />
             </div>
           </div>
           <Slider
             id="setpoint"
-            min={-25}
-            max={-10}
+            min={minValue}
+            max={maxValue}
             step={0.5}
             value={[localSetpoint]}
             onValueChange={handleSetpointChange}
@@ -193,22 +216,22 @@ export function InstrumentControls({
                 value={localDifferential}
                 onChange={(e) => {
                   const value = Number.parseFloat(e.target.value)
-                  if (!Number.isNaN(value) && value >= 0.5 && value <= 5) {
-                    setLocalDifferential(value)
+                  if (!Number.isNaN(value)) {
+                    setLocalDifferential(clampValue(value, DIFFERENTIAL_MIN, DIFFERENTIAL_MAX))
                     setChanged(true)
                   }
                 }}
                 className="h-8"
                 step={0.5}
-                min={0.5}
-                max={5}
+                min={DIFFERENTIAL_MIN}
+                max={DIFFERENTIAL_MAX}
               />
             </div>
           </div>
           <Slider
             id="differential"
-            min={0.5}
-            max={5}
+            min={differentialSliderRange.min}
+            max={differentialSliderRange.max}
             step={0.5}
             value={[localDifferential]}
             onValueChange={handleDifferentialChange}
@@ -222,20 +245,20 @@ export function InstrumentControls({
         <h4 className="font-medium text-blue-700 mb-1">Faixa de Operação</h4>
         <div className="flex justify-between text-sm">
           <span>Liga: {(localSetpoint + localDifferential).toFixed(1)}°C</span>
-          <span>Desliga: {localSetpoint.toFixed(1)}°C</span>
+          <span>Desliga: {(localSetpoint - localDifferential).toFixed(1)}°C</span>
         </div>
         <div className="mt-2 h-2 bg-blue-100 rounded-full relative">
           <div
             className="absolute h-2 bg-blue-500 rounded-full"
             style={{
-              left: `${((localSetpoint - -25) / 15) * 100}%`,
-              right: `${100 - ((localSetpoint + localDifferential - -25) / 15) * 100}%`,
+              left: `${((localSetpoint - minValue) / (maxValue - minValue)) * 100}%`,
+              right: `${100 - ((localSetpoint + localDifferential - minValue) / (maxValue - minValue)) * 100}%`,
             }}
           />
         </div>
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
-          <span>-25°C</span>
-          <span>-10°C</span>
+          <span>{minValue}°C</span>
+          <span>{maxValue}°C</span>
         </div>
       </div>
 

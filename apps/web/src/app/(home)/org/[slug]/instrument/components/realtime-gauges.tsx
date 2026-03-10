@@ -305,29 +305,7 @@ export function RealtimeGauges({
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {primaryValue !== null ? `${primaryValue.toFixed(1)} ${primaryUnit}` : "--"}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {instrumentType === "TEMPERATURE" ? "Temperatura atual" : "Pressão atual"}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">--</div>
-                  <div className="text-sm text-muted-foreground mt-1">Umidade</div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
 
         <div>
@@ -338,6 +316,8 @@ export function RealtimeGauges({
             <CardContent>
               <InstrumentControls
                 id={id}
+                minValue={minValue}
+                maxValue={maxValue}
                 setpoint={data.setpoint}
                 differential={data.differential}
                 defrost={data.defrost}

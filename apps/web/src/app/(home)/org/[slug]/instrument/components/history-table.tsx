@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { getInstrumentData } from "@/http/instruments/get-instrument-data"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -21,15 +22,15 @@ import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Too
 import { toast } from "sonner"
 
 type Reading = {
-  id: number
+  id: string
   timestamp: string
   temperature: number
-  pressure: number
-  humidity: number
+  pressure: number | null
+  humidity: number | null
   status: "normal" | "warning" | "critical"
   originalTemperature?: number
-  originalPressure?: number
-  originalHumidity?: number
+  originalPressure?: number | null
+  originalHumidity?: number | null
   edited?: boolean
   generated?: boolean
 }
@@ -37,8 +38,8 @@ type Reading = {
 type ChartData = {
   time: string
   temperature: number
-  pressure: number
-  humidity: number
+  pressure: number | null
+  humidity: number | null
 }
 
 type ChartConfig = {
@@ -51,6 +52,10 @@ type ChartConfig = {
 interface HistoryTableProps {
   id: string
   instrumentName: string
+  orgSlug: string
+  instrumentSlug: string
+  minValue: number
+  maxValue: number
 }
 type DataGenerationConfig = {
   startDate: string
@@ -66,12 +71,13 @@ type DataGenerationConfig = {
   overwriteExisting: boolean
 }
 
-export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
+export function HistoryTable({ id, instrumentName, orgSlug, instrumentSlug, minValue, maxValue }: HistoryTableProps) {
   const [readings, setReadings] = useState<Reading[]>([])
   const [chartData, setChartData] = useState<ChartData[]>([])
   const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [editingCell, setEditingCell] = useState<{ id: number; field: string } | null>(null)
+  const [editingCell, setEditingCell] = useState<{ id: string; field: string } | null>(null)
   const [editValue, setEditValue] = useState("")
   const [hasChanges, setHasChanges] = useState(false)
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false)
@@ -179,7 +185,7 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
       const status = temp > baseTemp + tempVar ? "critical" : temp > baseTemp + tempVar * 0.5 ? "warning" : "normal"
 
       newReadings.push({
-        id: Date.now() + generatedCount,
+        id: `generated-${Date.now()}-${generatedCount}`,
         timestamp: date.toLocaleString(),
         temperature: Number(temp.toFixed(2)),
         pressure: Number(pressure.toFixed(2)),
@@ -198,9 +204,7 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
     if (dataGenConfig.overwriteExisting) {
       setReadings(newReadings)
     } else {
-      setReadings((prev) =>
-        [...newReadings, ...prev].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
-      )
+      setReadings((prev) => [...newReadings, ...prev])
     }
 
     setTimeout(() => {
@@ -213,85 +217,105 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
 
 
   const itemsPerPage = 15
-  const totalPages = 10
+
+  const getTemperatureStatus = (temperature: number): Reading["status"] => {
+    if (temperature > maxValue) return "critical"
+    if (temperature > maxValue - (maxValue - minValue) * 0.2) return "warning"
+    return "normal"
+  }
+
+  const formatNumber = (value: number | null | undefined, digits: number) => {
+    if (value === null || value === undefined || Number.isNaN(value)) return "--"
+    return value.toFixed(digits)
+  }
+
+  type ApiInstrumentDataPoint = {
+    id: string
+    data: number
+    createdAt: string
+  }
+
+  const mapChartData = (temperatureData: ApiInstrumentDataPoint[], pressureData: ApiInstrumentDataPoint[]) => {
+    const pressureByDate = new Map(pressureData.map((point) => [point.createdAt, point.data]))
+
+    return temperatureData
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .map((point) => ({
+        time: new Date(point.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        temperature: point.data,
+        pressure: pressureByDate.get(point.createdAt) ?? null,
+        humidity: null,
+      }))
+  }
+
+  const applyChartInterval = (points: ChartData[]) => {
+    const intervalMinutes = Number.parseInt(chartInterval)
+    if (!intervalMinutes || points.length < 2) return points
+
+    return points.filter((_, index) => index % Math.max(1, Math.floor(intervalMinutes / 15)) === 0)
+  }
+
+  const mapTableData = (temperatureData: ApiInstrumentDataPoint[], pressureData: ApiInstrumentDataPoint[]) => {
+    const pressureByDate = new Map(pressureData.map((point) => [point.createdAt, point]))
+
+    return temperatureData
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .map((temperaturePoint) => {
+        const pressurePoint = pressureByDate.get(temperaturePoint.createdAt)
+        return {
+          id: temperaturePoint.id,
+          timestamp: new Date(temperaturePoint.createdAt).toLocaleString(),
+          temperature: temperaturePoint.data,
+          pressure: pressurePoint?.data ?? null,
+          humidity: null,
+          status: getTemperatureStatus(temperaturePoint.data),
+        } satisfies Reading
+      })
+  }
 
   useEffect(() => {
     loadData()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, page, startDate, endDate, chartInterval, tableInterval, chartConfig])
+  }, [id, orgSlug, instrumentSlug, page, startDate, endDate, chartInterval, tableInterval, chartConfig.tempVariation])
 
-  const loadData = () => {
+  const loadData = async () => {
     setLoading(true)
 
-    setTimeout(() => {
-      // Gerar dados para o gráfico (intervalos maiores)
-      const chartPoints = generateChartData()
-      setChartData(chartPoints)
+    try {
+      const chartVariation = Math.max(1, Math.round((Number.parseFloat(chartConfig.tempVariation) || 1) * 10))
+      const tableVariation = Number.parseInt(tableInterval)
 
-      // Gerar dados para a tabela (intervalos menores)
-      const tableData = generateTableData()
-      setReadings(tableData)
+      const { data } = await getInstrumentData({
+        orgSlug,
+        instrumentSlug,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        chartVariation,
+        tableVariation,
+      })
 
+      const mappedChartData = mapChartData(data.chartDataTemperature, data.chartDataPressure)
+      const mappedTableData = mapTableData(data.tableDataTemperature, data.tableDataPressure)
+      const pageCount = Math.max(1, Math.ceil(mappedTableData.length / itemsPerPage))
+      const currentPage = Math.min(page, pageCount)
+      const startIndex = (currentPage - 1) * itemsPerPage
+
+      if (currentPage !== page) {
+        setPage(currentPage)
+      }
+
+      setChartData(applyChartInterval(mappedChartData).slice(-50))
+      setReadings(mappedTableData.slice(startIndex, startIndex + itemsPerPage))
+      setTotalPages(pageCount)
+    } catch {
+      toast.error("Falha ao carregar dados reais do histórico")
+      setChartData([])
+      setReadings([])
+      setTotalPages(1)
+    } finally {
       setLoading(false)
-    }, 500)
-  }
-
-  const generateChartData = (): ChartData[] => {
-    const start = new Date(startDate)
-    const end = new Date(endDate)
-    const intervalMs = Number.parseInt(chartInterval) * 60 * 1000
-    const points: ChartData[] = []
-
-    // Usar configurações personalizadas ou valores padrão
-    const variation = Number.parseFloat(chartConfig.tempVariation) || 1
-    const minTemp = chartConfig.minValue ? Number.parseFloat(chartConfig.minValue) : -35
-    const maxTemp = chartConfig.maxValue ? Number.parseFloat(chartConfig.maxValue) : 105
-
-    for (let time = start.getTime(); time <= end.getTime(); time += intervalMs) {
-      const date = new Date(time)
-      const baseTemp = -18
-
-      // Aplicar variação personalizada
-      let temp = baseTemp + Math.sin(time / (4 * 60 * 60 * 1000)) * 2 * variation + Math.random() * 1.5 * variation
-
-      // Garantir que a temperatura esteja dentro dos limites
-      temp = Math.max(minTemp, Math.min(maxTemp, temp))
-
-      points.push({
-        time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        temperature: temp,
-        pressure: 101 + Math.cos(time / (6 * 60 * 60 * 1000)) * 0.5 + Math.random() * 0.3,
-        humidity: 85 + Math.sin(time / (3 * 60 * 60 * 1000)) * 3 + Math.random() * 2,
-      })
     }
-
-    return points.slice(-50) // Últimos 50 pontos para o gráfico
-  }
-
-  const generateTableData = (): Reading[] => {
-    const now = new Date()
-    const intervalMs = Number.parseInt(tableInterval) * 60 * 1000
-    const data: Reading[] = []
-
-    for (let i = 0; i < itemsPerPage; i++) {
-      const offset = (page - 1) * itemsPerPage + i
-      const time = new Date(now.getTime() - offset * intervalMs)
-      const baseTemp = -18
-      const temp = baseTemp + Math.sin(offset / 4) * 2 + Math.random() * 1.5
-      const status = temp > -16 ? "critical" : temp > -18 ? "warning" : "normal"
-
-      data.push({
-        id: offset + 1,
-        timestamp: time.toLocaleString(),
-        temperature: temp,
-        pressure: 101 + Math.cos(offset / 6) * 0.5 + Math.random() * 0.3,
-        humidity: 85 + Math.sin(offset / 3) * 3 + Math.random() * 2,
-        status,
-      })
-    }
-
-    return data
   }
 
   const handlePrint = () => {
@@ -368,7 +392,8 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
 
   const handleCellDoubleClick = (reading: Reading, field: string) => {
     setEditingCell({ id: reading.id, field })
-    setEditValue(reading[field as keyof Reading]?.toString() || "")
+    const currentValue = reading[field as "temperature" | "pressure" | "humidity"]
+    setEditValue(currentValue === null || currentValue === undefined ? "" : currentValue.toString())
   }
 
   const handleCellEdit = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -518,9 +543,9 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
             {filteredReadings.map((reading) => (
               <tr key={reading.id}>
                 <td>{reading.timestamp}</td>
-                <td>{reading.temperature.toFixed(2)}</td>
-                <td>{reading.pressure.toFixed(2)}</td>
-                <td>{reading.humidity.toFixed(1)}</td>
+                <td>{formatNumber(reading.temperature, 2)}</td>
+                <td>{formatNumber(reading.pressure, 2)}</td>
+                <td>{formatNumber(reading.humidity, 1)}</td>
                 <td>
                   {reading.status === "normal" && "Normal"}
                   {reading.status === "warning" && "Atenção"}
@@ -871,8 +896,8 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
                 <XAxis dataKey="time" />
                 <YAxis domain={getYAxisDomain()} />
                 <Tooltip
-                  formatter={(value: number, name: string) => [
-                    `${value.toFixed(2)}${name === "temperature" ? "°C" : name === "pressure" ? " kPa" : "%"}`,
+                  formatter={(value: number | string, name: string) => [
+                    `${typeof value === "number" ? value.toFixed(2) : value}${name === "temperature" ? "°C" : name === "pressure" ? " kPa" : "%"}`,
                     name === "temperature" ? "Temperatura" : name === "pressure" ? "Pressão" : "Umidade",
                   ]}
                 />
@@ -1021,7 +1046,7 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
                       />
                     ) : (
                       <span className={reading.edited ? "font-medium text-blue-600" : ""}>
-                        {reading.temperature.toFixed(2)}
+                        {formatNumber(reading.temperature, 2)}
                         {reading.edited && <span className="ml-1 text-xs text-blue-500">*</span>}
                       </span>
                     )}
@@ -1041,7 +1066,7 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
                       />
                     ) : (
                       <span className={reading.edited ? "font-medium text-blue-600" : ""}>
-                        {reading.pressure.toFixed(2)}
+                        {formatNumber(reading.pressure, 2)}
                         {reading.edited && <span className="ml-1 text-xs text-blue-500">*</span>}
                       </span>
                     )}
@@ -1061,7 +1086,7 @@ export function HistoryTable({ id, instrumentName }: HistoryTableProps) {
                       />
                     ) : (
                       <span className={reading.edited ? "font-medium text-blue-600" : ""}>
-                        {reading.humidity.toFixed(1)}
+                        {formatNumber(reading.humidity, 1)}
                         {reading.edited && <span className="ml-1 text-xs text-blue-500">*</span>}
                       </span>
                     )}

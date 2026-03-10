@@ -124,7 +124,14 @@ export default async function InstrumentPage({
                   <CardDescription>Últimas 100 leituras</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <HistoryTable instrumentName={instrument.name} id={instrument.id} />
+                  <HistoryTable
+                    instrumentName={instrument.name}
+                    id={instrument.id}
+                    orgSlug={slug}
+                    instrumentSlug={instrumentSlug}
+                    minValue={instrument.minValue}
+                    maxValue={instrument.maxValue}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
