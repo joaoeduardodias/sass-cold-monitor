@@ -61,7 +61,7 @@ importers:
         version: 5.0.1
       fastify-type-provider-zod:
         specifier: ^5.0.1
-        version: 5.0.1(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@3.25.73)
+        version: 5.0.1(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@4.3.6)
       googleapis:
         specifier: ^152.0.0
         version: 152.0.0
@@ -81,8 +81,8 @@ importers:
         specifier: ^8.18.3
         version: 8.18.3
       zod:
-        specifier: ^3.25.73
-        version: 3.25.73
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@cold-monitor/eslint-config':
         specifier: workspace:*
@@ -299,8 +299,8 @@ importers:
         specifier: ^6.7.3
         version: 6.7.3
       zod:
-        specifier: ^3.25.73
-        version: 3.25.73
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@cold-monitor/eslint-config':
         specifier: workspace:*
@@ -5325,9 +5325,6 @@ packages:
   zeptomatch@2.1.0:
     resolution: {integrity: sha512-KiGErG2J0G82LSpniV0CtIzjlJ10E04j02VOudJsPyPwNZgGnRKQy7I1R7GMyg/QswnE4l7ohSGrQbQbjXPPDA==}
 
-  zod@3.25.73:
-    resolution: {integrity: sha512-fuIKbQAWQl22Ba5d1quwEETQYjqnpKVyZIWAhbnnHgnDd3a+z4YgEfkI5SZ2xMELnLAXo/Flk2uXgysZNf0uaA==}
-
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
@@ -8472,12 +8469,12 @@ snapshots:
 
   fastify-plugin@5.0.1: {}
 
-  fastify-type-provider-zod@5.0.1(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@3.25.73):
+  fastify-type-provider-zod@5.0.1(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@4.3.6):
     dependencies:
       '@fastify/error': 4.2.0
       '@fastify/swagger': 9.5.1
       fastify: 5.4.0
-      zod: 3.25.73
+      zod: 4.3.6
 
   fastify@5.4.0:
     dependencies:
@@ -10559,8 +10556,6 @@ snapshots:
     dependencies:
       grammex: 3.1.12
       graphmatch: 1.1.0
-
-  zod@3.25.73: {}
 
   zod@4.3.6: {}
 

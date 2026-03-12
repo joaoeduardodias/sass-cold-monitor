@@ -3,7 +3,7 @@
 import { signInWithPassword } from "@/http/users/sign-in-with-password";
 import { HTTPError } from "ky";
 import { cookies } from "next/headers";
-import z from "zod/v4";
+import z from "zod";
 
 const signInSchema = z.object({
   email: z.email("Por favor, insira um email válido"),

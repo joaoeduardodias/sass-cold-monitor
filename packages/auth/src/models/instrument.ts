@@ -1,4 +1,4 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
 export const instrumentSchema = z.object({
   __typename: z.literal('Instrument'),

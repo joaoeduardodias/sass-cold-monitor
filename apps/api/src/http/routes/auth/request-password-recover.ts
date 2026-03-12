@@ -1,12 +1,12 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
-import { env } from '@cold-monitor/env'
 import { BadRequestError } from '@/http/routes/_errors/bad-request-error'
 import { sendEmailWithValidation } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
 import PasswordRecoveryEmail from '@/mail/templates/password-recovery-email'
+import { env } from '@cold-monitor/env'
 
 export async function requestPasswordRecover(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(

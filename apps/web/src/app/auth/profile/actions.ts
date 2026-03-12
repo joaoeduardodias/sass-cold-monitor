@@ -2,7 +2,7 @@
 
 import { updateProfile } from "@/http/users/update-profile"
 import { HTTPError } from "ky"
-import z from "zod/v4"
+import z from "zod"
 
 const updateProfileSchema = z.object({
   name: z.string().trim().min(2, "Informe um nome com pelo menos 2 caracteres"),

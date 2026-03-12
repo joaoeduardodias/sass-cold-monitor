@@ -1,6 +1,6 @@
 import type { CreateAbility, MongoAbility } from '@casl/ability'
 import { AbilityBuilder, createMongoAbility } from '@casl/ability'
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
 import type { User } from './models/user'
 import { permissions } from './permissions'
