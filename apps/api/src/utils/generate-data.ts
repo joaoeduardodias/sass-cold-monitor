@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@/prisma/generated/client'
 
 interface GenerateInstrumentDataInput {
   instrumentId: string
@@ -84,7 +83,7 @@ export function generateInstrumentData({
       instrumentId,
       createdAt: new Date(current),
       data: Number(currentValue.toFixed(2)),
-      editData: 0,
+      editData: Number(currentValue.toFixed(2)),
       generateData: 1,
       userEditData: null,
     })
@@ -98,41 +97,44 @@ export async function saveInstrumentData(
 ) {
   if (formatInstrumentDataResult.length === 0) return
 
-  const batchSize = 5000
+  const batchSize = 500
 
   for (let i = 0; i < formatInstrumentDataResult.length; i += batchSize) {
     const batch = formatInstrumentDataResult.slice(i, i + batchSize)
+    await prisma.$transaction(async (tx) => {
+      for (const item of batch) {
+        const existing = await tx.instrumentData.findFirst({
+          where: {
+            instrumentId: item.instrumentId,
+            createdAt: item.createdAt,
+          },
+          select: { id: true },
+        })
 
-    const values = Prisma.join(
-      batch.map(
-        (d) =>
-          Prisma.sql`(
-          gen_random_uuid(),
-          ${d.createdAt},
-          now(),
-          ${d.instrumentId},
-          ${d.data},
-          ${d.editData},
-          ${d.generateData ?? null},
-          ${d.userEditData ?? null}
-        )`,
-      ),
-    )
+        if (existing) {
+          await tx.instrumentData.update({
+            where: { id: existing.id },
+            data: {
+              data: item.data,
+              editData: item.editData,
+              generateData: item.generateData,
+              userEditData: item.userEditData,
+            },
+          })
+          continue
+        }
 
-    await prisma.$executeRaw`
-    INSERT INTO "instrument_data" (
-      id,
-      created_at,
-      updated_at,
-      instrument_id,
-      data,
-      edit_data,
-      generate_data,
-      user_edit_data
-    )
-    VALUES ${values}
-    ON CONFLICT ("instrument_id", "created_at")
-    DO UPDATE SET "edit_data" = EXCLUDED."edit_data"
-  `
+        await tx.instrumentData.create({
+          data: {
+            instrumentId: item.instrumentId,
+            createdAt: item.createdAt,
+            data: item.data,
+            editData: item.editData,
+            generateData: item.generateData,
+            userEditData: item.userEditData,
+          },
+        })
+      }
+    })
   }
 }

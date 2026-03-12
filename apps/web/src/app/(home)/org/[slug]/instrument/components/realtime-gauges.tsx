@@ -230,8 +230,13 @@ export function RealtimeGauges({
 
   const primaryValue = instrumentType === "TEMPERATURE" ? data.temperature : data.pressure
   const primaryUnit = instrumentType === "TEMPERATURE" ? "°C" : "kPa"
+  const hasLiveReading = data.connected && primaryValue !== null
+  const displayedOperationalStatus = data.connected ? data.operationalStatus : "alarm"
 
   const tempStatus = useMemo(() => {
+    if (!data.connected) {
+      return { status: "critical", label: "Erro de comunicação", color: "bg-red-500" as const }
+    }
     if (primaryValue === null) {
       return { status: "normal", label: "Sem leitura", color: "bg-gray-500" as const }
     }
@@ -246,7 +251,7 @@ export function RealtimeGauges({
     }
 
     return { status: "normal", label: "Normal", color: "bg-green-500" as const }
-  }, [maxValue, minValue, primaryValue])
+  }, [data.connected, maxValue, minValue, primaryValue])
 
   return (
     <div className="space-y-6">
@@ -265,7 +270,7 @@ export function RealtimeGauges({
           )}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Status:</span>
-            {getOperationalStatusBadge(data.operationalStatus)}
+            {getOperationalStatusBadge(displayedOperationalStatus)}
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -290,7 +295,7 @@ export function RealtimeGauges({
               </div>
             </CardHeader>
             <CardContent className="flex justify-center">
-              {primaryValue !== null ? (
+              {hasLiveReading ? (
                 <Gauge
                   value={primaryValue}
                   min={minValue}
@@ -300,7 +305,19 @@ export function RealtimeGauges({
                   type={instrumentType}
                 />
               ) : (
-                <div className="h-[200px] flex items-center text-muted-foreground">Sem leitura em tempo real</div>
+                <div className="flex h-[200px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-red-200 bg-red-50/70 px-6 text-center">
+                  <WifiOff className="h-10 w-10 text-red-500" />
+                  <div className="space-y-1">
+                    <p className="font-medium text-red-700">
+                      {data.connected ? "Sem leitura em tempo real" : "Instrumento desconectado"}
+                    </p>
+                    <p className="text-sm text-red-600">
+                      {data.connected
+                        ? `Nenhum valor de ${primaryUnit} disponivel no momento.`
+                        : "Status em erro por perda de comunicacao. A ultima temperatura nao sera exibida."}
+                    </p>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>

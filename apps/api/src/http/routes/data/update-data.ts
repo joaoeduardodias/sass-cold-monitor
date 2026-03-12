@@ -26,7 +26,6 @@ export async function updateData(app: FastifyInstance) {
               z.object({
                 id: z.uuid(),
                 editData: z.number(),
-                userUpdatedAt: z.uuid(),
               }),
             ),
           }),
@@ -58,7 +57,10 @@ export async function updateData(app: FastifyInstance) {
             data.map(async (item) => {
               const result = await tx.instrumentData.updateMany({
                 where: { id: item.id },
-                data: item,
+                data: {
+                  editData: item.editData,
+                  userEditData: userId,
+                },
               })
 
               if (result.count === 0) {

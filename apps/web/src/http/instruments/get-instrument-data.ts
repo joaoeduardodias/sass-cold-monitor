@@ -1,6 +1,6 @@
 import { api } from "../api"
 
-type InstrumentDataPoint = {
+export type InstrumentDataPoint = {
   id: string
   data: number
   updatedUserAt: string | null
@@ -17,7 +17,7 @@ interface GetInstrumentDataRequest {
   tableVariation?: number
 }
 
-interface GetInstrumentDataResponse {
+export interface GetInstrumentDataResponse {
   data: {
     id: string
     name: string

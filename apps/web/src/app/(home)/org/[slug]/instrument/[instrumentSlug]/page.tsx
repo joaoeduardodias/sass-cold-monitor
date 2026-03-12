@@ -3,19 +3,15 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getInstrumentData } from "@/http/instruments/get-instrument-data"
 import { getInstrumentsBySlug } from "@/http/instruments/get-instruments-by-slug"
 import { getOrganization } from "@/http/organizations/get-organization"
 import { getOperationalStatusBadge, mapOperationalStatus } from "@/utils/get-operational-status-badge"
 import {
   ArrowLeft,
-  Bell,
-  History,
-  Thermometer
 } from "lucide-react"
-import { AlertSettings } from "../components/alert-settings"
 import { HistoryTable } from "../components/history-table"
+import { InstrumentPageTabs } from "../components/instrument-page-tabs"
 import { RealtimeGauges } from "../components/realtime-gauges"
 
 function toDateMs(input: string | Date) {
@@ -28,6 +24,7 @@ export default async function InstrumentPage({
   params: Promise<{ slug: string, instrumentSlug: string }>
 }) {
   const { slug, instrumentSlug } = await params
+  const initialNowIso = new Date().toISOString()
 
   const [{ organization }, { instrument }] = await Promise.all([
     getOrganization(slug),
@@ -76,22 +73,8 @@ export default async function InstrumentPage({
 
 
         <div className="mt-6">
-          <Tabs defaultValue="realtime">
-            <TabsList>
-              <TabsTrigger value="realtime" className="flex items-center gap-2">
-                <Thermometer className="h-4 w-4" />
-                Tempo Real
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                Histórico
-              </TabsTrigger>
-              <TabsTrigger value="alerts" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Alertas
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="realtime" className="mt-4">
+          <InstrumentPageTabs
+            realtime={(
               <Card>
                 <CardHeader>
                   <CardTitle>Monitoramento e Controle em Tempo Real</CardTitle>
@@ -116,37 +99,27 @@ export default async function InstrumentPage({
                   />
                 </CardContent>
               </Card>
-            </TabsContent>
-            <TabsContent value="history" className="mt-4">
+            )}
+            history={(
               <Card>
                 <CardHeader>
                   <CardTitle>Histórico de Leituras</CardTitle>
-                  <CardDescription>Últimas 100 leituras</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <HistoryTable
+                    initialNowIso={initialNowIso}
                     instrumentName={instrument.name}
                     id={instrument.id}
                     orgSlug={slug}
                     instrumentSlug={instrumentSlug}
+                    instrumentType={instrument.type}
                     minValue={instrument.minValue}
                     maxValue={instrument.maxValue}
                   />
                 </CardContent>
               </Card>
-            </TabsContent>
-            <TabsContent value="alerts" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Configuração de Alertas</CardTitle>
-                  <CardDescription>Defina os limites para notificações</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <AlertSettings id={instrument.id} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            )}
+          />
         </div>
       </div>
     </>

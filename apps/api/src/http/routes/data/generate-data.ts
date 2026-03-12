@@ -30,9 +30,9 @@ export async function generateData(app: FastifyInstance) {
             instrumentId: z.uuid(),
           }),
           body: z.object({
-            startDate: z.date('Data inicial inválida'),
-            defrostDate: z.date('Data de descongelamento inválida'),
-            endDate: z.date('Data final inválida'),
+            startDate: z.coerce.date('Data inicial inválida'),
+            defrostDate: z.coerce.date('Data de descongelamento inválida').optional(),
+            endDate: z.coerce.date('Data final inválida'),
             variation: z.number(),
             initialTemp: z.number().nullish(),
             averageTemp: z.number().nullish(),
