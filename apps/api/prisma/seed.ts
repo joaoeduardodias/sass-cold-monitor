@@ -1,8 +1,12 @@
+import { env } from '@cold-monitor/env'
 import { faker } from '@faker-js/faker'
-import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '../src/prisma/generated/client'
+
 import { hash } from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
 
 async function seed() {
   await prisma.member.deleteMany()

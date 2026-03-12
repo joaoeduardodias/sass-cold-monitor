@@ -6,4 +6,6 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   noExternal: ['@cold-monitor/env', '@cold-monitor/auth'],
+  external: ['@prisma/client', '.prisma/client'],
+
 })

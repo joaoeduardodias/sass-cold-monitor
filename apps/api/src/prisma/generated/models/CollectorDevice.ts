@@ -1365,6 +1365,11 @@ export type CollectorDeviceFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` CollectorDevices.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of CollectorDevices.
+   */
   distinct?: Prisma.CollectorDeviceScalarFieldEnum | Prisma.CollectorDeviceScalarFieldEnum[]
 }
 

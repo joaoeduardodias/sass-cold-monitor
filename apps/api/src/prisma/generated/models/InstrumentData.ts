@@ -1291,6 +1291,11 @@ export type InstrumentDataFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` InstrumentData.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of InstrumentData.
+   */
   distinct?: Prisma.InstrumentDataScalarFieldEnum | Prisma.InstrumentDataScalarFieldEnum[]
 }
 
