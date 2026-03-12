@@ -17,6 +17,9 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_API_URL: z.url(),
   },
+  shared: {
+    NEXT_PUBLIC_API_URL: z.url(),
+  },
   runtimeEnv: {
     PORT: process.env.PORT,
     DATABASE_URL: process.env.DATABASE_URL,
