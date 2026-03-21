@@ -13,7 +13,7 @@ export async function createOrganization({
   domain,
   shouldAttachUsersByDomain,
 }: CreateOrganizationRequest): Promise<CreateOrganizationResponse> {
-  await api.post('organizations', {
+  await api.post('organization', {
     json: {
       name,
       domain,
