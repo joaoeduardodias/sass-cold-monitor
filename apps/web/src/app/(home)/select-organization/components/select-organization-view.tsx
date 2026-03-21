@@ -56,13 +56,13 @@ export function SelectOrganizationView({ organizations }: SelectOrganizationView
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold">
-              Selecione uma organização
+              Selecione uma empresa
             </h1>
 
             <p className="text-muted-foreground max-w-md mx-auto">
               {hasOrganizations
-                ? `Você tem acesso a ${organizations.length} organizações.`
-                : "Você ainda não tem nenhuma organização. Crie a primeira para começar."}
+                ? `Você tem acesso a ${organizations.length} empresas.`
+                : "Você ainda não tem nenhuma empresa. Crie a primeira para começar."}
             </p>
           </div>
 
