@@ -1,11 +1,30 @@
 "use client"
 
-
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 import {
-  Building2
+  Building2,
+  Plus,
 } from "lucide-react";
 
+import { OrganizationForm } from "../../org/organization-form";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { OrganizationCard } from "./organization-card";
 
 interface SelectOrganizationViewProps {
@@ -18,6 +37,14 @@ interface SelectOrganizationViewProps {
 }
 
 export function SelectOrganizationView({ organizations }: SelectOrganizationViewProps) {
+  const router = useRouter()
+  const [isCreateOrganizationOpen, setIsCreateOrganizationOpen] = useState(false)
+  const hasOrganizations = organizations.length > 0
+
+  async function handleOrganizationCreated() {
+    setIsCreateOrganizationOpen(false)
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
@@ -33,24 +60,56 @@ export function SelectOrganizationView({ organizations }: SelectOrganizationView
             </h1>
 
             <p className="text-muted-foreground max-w-md mx-auto">
-              Você tem acesso a {organizations.length} organizações.
+              {hasOrganizations
+                ? `Você tem acesso a ${organizations.length} organizações.`
+                : "Você ainda não tem nenhuma organização. Crie a primeira para começar."}
             </p>
           </div>
 
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {organizations.map((org) => (
-              <OrganizationCard
-                key={org.id}
-                avatarUrl={org.avatarUrl}
-                name={org.name}
-                slug={org.slug}
-                id={org.id}
-              />
-            ))}
-          </div>
-
-
+          {hasOrganizations ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {organizations.map((org) => (
+                <OrganizationCard
+                  key={org.id}
+                  avatarUrl={org.avatarUrl}
+                  name={org.name}
+                  slug={org.slug}
+                  id={org.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader className="text-center">
+                <CardTitle>Criar organization</CardTitle>
+                <CardDescription>
+                  Abra o formulário e cadastre a sua primeira organization para continuar.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <Dialog
+                  open={isCreateOrganizationOpen}
+                  onOpenChange={setIsCreateOrganizationOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button size="lg">
+                      <Plus className="size-4" />
+                      Criar organization
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-xl">
+                    <DialogHeader>
+                      <DialogTitle>Criar organization</DialogTitle>
+                      <DialogDescription>
+                        Preencha os dados abaixo para criar sua primeira organization.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <OrganizationForm onSuccess={handleOrganizationCreated} />
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </div>

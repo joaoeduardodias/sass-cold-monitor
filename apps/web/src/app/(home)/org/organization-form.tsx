@@ -19,18 +19,20 @@ import {
 interface OrganizationFormProps {
   isUpdating?: boolean
   initialData?: OrganizationSchema
+  onSuccess?: () => Promise<void> | void
 }
 
 export function OrganizationForm({
   isUpdating = false,
   initialData,
+  onSuccess,
 }: OrganizationFormProps) {
   const formAction = isUpdating
     ? updateOrganizationAction
     : createOrganizationAction
 
   const [{ errors, message, success }, handleSubmit, isPending] =
-    useFormState(formAction)
+    useFormState(formAction, onSuccess)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
