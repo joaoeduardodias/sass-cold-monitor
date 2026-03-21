@@ -1,14 +1,13 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import {
   Building2,
   Plus,
 } from "lucide-react";
 
-import { OrganizationForm } from "../../org/organization-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { OrganizationForm } from "../../org/organization-form";
 import { OrganizationCard } from "./organization-card";
 
 interface SelectOrganizationViewProps {
@@ -81,9 +81,9 @@ export function SelectOrganizationView({ organizations }: SelectOrganizationView
           ) : (
             <Card className="max-w-2xl mx-auto">
               <CardHeader className="text-center">
-                <CardTitle>Criar organization</CardTitle>
+                <CardTitle>Adicionar Empresa</CardTitle>
                 <CardDescription>
-                  Abra o formulário e cadastre a sua primeira organization para continuar.
+                  Abra o formulário e adicione a sua primeira empresa para continuar.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center">
@@ -94,14 +94,14 @@ export function SelectOrganizationView({ organizations }: SelectOrganizationView
                   <DialogTrigger asChild>
                     <Button size="lg">
                       <Plus className="size-4" />
-                      Criar organization
+                      Adicionar Empresa
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
-                      <DialogTitle>Criar organization</DialogTitle>
+                      <DialogTitle>Criar Empresa</DialogTitle>
                       <DialogDescription>
-                        Preencha os dados abaixo para criar sua primeira organization.
+                        Preencha os dados abaixo para criar sua primeira empresa.
                       </DialogDescription>
                     </DialogHeader>
                     <OrganizationForm onSuccess={handleOrganizationCreated} />
