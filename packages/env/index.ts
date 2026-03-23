@@ -13,12 +13,15 @@ export const env = createEnv({
     EMAIL_API_KEY: z.string(),
     EMAIL_FROM_EMAIL: z.email(),
     EMAIL_FROM_NAME: z.string(),
+
   },
   client: {
     NEXT_PUBLIC_API_URL: z.url(),
+    NEXT_PUBLIC_APP_URL: z.url(),
   },
   shared: {
     NEXT_PUBLIC_API_URL: z.url(),
+    NEXT_PUBLIC_APP_URL: z.url(),
   },
   runtimeEnv: {
     PORT: process.env.PORT,
@@ -33,6 +36,7 @@ export const env = createEnv({
     EMAIL_API_KEY: process.env.EMAIL_API_KEY,
     EMAIL_FROM_EMAIL: process.env.EMAIL_FROM_EMAIL,
     EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   emptyStringAsUndefined: true,
 })
