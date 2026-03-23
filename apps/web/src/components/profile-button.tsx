@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
 
-import { auth, getCurrentOrg } from '@/auth/auth'
+import { ability, auth, getCurrentOrg } from '@/auth/auth'
 
 import { getInitials } from '@/utils/get-initials'
 import Link from 'next/link'
@@ -18,6 +18,8 @@ import {
 export async function ProfileButton() {
   const { user } = await auth()
   const currentOrg = await getCurrentOrg()
+  const permissions = currentOrg ? await ability(currentOrg) : null
+  const canAccessSettings = Boolean(currentOrg && permissions?.can('manage', 'all'))
 
   return (
     <DropdownMenu>
@@ -43,14 +45,14 @@ export async function ProfileButton() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
-          {currentOrg && (
+        {canAccessSettings && (
+          <DropdownMenuItem asChild>
             <Link href={`/org/${currentOrg}/settings`} className="cursor-pointer">
               <Settings className="mr-2 size-4" />
               <span>Configurações</span>
             </Link>
-          )}
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <Link href="/auth/profile" className="cursor-pointer">
             <User className="mr-2 size-4" />

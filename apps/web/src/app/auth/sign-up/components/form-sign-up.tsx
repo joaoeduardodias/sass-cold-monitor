@@ -82,7 +82,7 @@ export function FormSignUp() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
             >
               {showPassword ? (
                 <Eye className="size-4" />
@@ -116,7 +116,7 @@ export function FormSignUp() {
               onClick={() =>
                 setShowConfirmPassword(!showConfirmPassword)
               }
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
             >
               {showConfirmPassword ? (
                 <Eye className="size-4" />

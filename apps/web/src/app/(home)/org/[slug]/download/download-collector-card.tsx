@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { api } from '@/http/api'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -112,19 +113,18 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          href={collectorDownloadUrl}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-          download
-        >
-          Baixar coletor (.exe)
-        </Link>
+        <Button asChild size="lg">
+          <Link href={collectorDownloadUrl} download>
+            Baixar coletor (.exe)
+          </Link>
+        </Button>
 
-        <button
+        <Button
           type="button"
           onClick={handleGenerateSetupToken}
           disabled={isLoadingToken}
-          className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium hover:bg-muted disabled:opacity-60"
+          variant="outline"
+          size="lg"
         >
           {isLoadingToken ? (
             <>
@@ -134,7 +134,7 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
           ) : (
             'Gerar token de ativação'
           )}
-        </button>
+        </Button>
       </div>
 
       {errorMessage && (
@@ -145,23 +145,27 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
         <div className="mt-4 rounded-md bg-muted p-4">
           <p className="text-sm font-medium">Token de ativação</p>
           <p className="mt-2 break-all font-mono text-xs">{setupToken}</p>
-          <button
+          <Button
             type="button"
             onClick={handleCopyToken}
-            className="mt-3 inline-flex h-8 items-center justify-center rounded-md border border-border px-3 text-xs font-medium hover:bg-background"
+            variant="outline"
+            size="sm"
+            className="mt-3"
           >
             {copiedSetupToken ? 'Copiado' : 'Copiar token'}
-          </button>
+          </Button>
 
           <p className="mt-4 text-sm font-medium">Senha de parada (stopPassword)</p>
           <p className="mt-2 break-all font-mono text-xs">{stopPassword}</p>
-          <button
+          <Button
             type="button"
             onClick={handleCopyStopPassword}
-            className="mt-3 inline-flex h-8 items-center justify-center rounded-md border border-border px-3 text-xs font-medium hover:bg-background"
+            variant="outline"
+            size="sm"
+            className="mt-3"
           >
             {copiedStopPassword ? 'Copiado' : 'Copiar senha'}
-          </button>
+          </Button>
         </div>
       )}
 

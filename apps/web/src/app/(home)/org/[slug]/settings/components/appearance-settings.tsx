@@ -105,17 +105,19 @@ export function AppearanceSettings() {
             <Label>Cor Principal</Label>
             <div className="grid grid-cols-3 gap-2">
               {colorOptions.map((color) => (
-                <button
+                <Button
                   key={color.value}
+                  type="button"
+                  variant="outline"
                   onClick={() => handleInputChange("primaryColor", color.value)}
-                  className={`flex items-center gap-2 p-2 rounded-md border transition-colors ${settings.primaryColor === color.value
-                    ? "border-blue-500 bg-blue-50"
+                  className={`h-auto justify-start gap-2 p-2 transition-colors ${settings.primaryColor === color.value
+                    ? "border-blue-500 bg-blue-50 hover:bg-blue-100"
                     : "border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   <div className={`w-4 h-4 rounded-full ${color.color}`} />
                   <span className="text-sm">{color.label}</span>
-                </button>
+                </Button>
               ))}
             </div>
           </div>

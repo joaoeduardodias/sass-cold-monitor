@@ -76,6 +76,8 @@ type DataGenerationConfig = {
 
 interface HistoryTableProps {
   id: string
+  canEditHistory: boolean
+  canGenerateHistory: boolean
   initialNowIso: string
   instrumentName: string
   orgSlug: string
@@ -172,6 +174,8 @@ function getStatusColor(status: string) {
 
 export function HistoryTable({
   id,
+  canEditHistory,
+  canGenerateHistory,
   initialNowIso,
   instrumentName,
   orgSlug,
@@ -607,6 +611,10 @@ export function HistoryTable({
   }
 
   const handleCellDoubleClick = (reading: Reading, field: MetricField) => {
+    if (!canEditHistory) {
+      return
+    }
+
     const currentValue = field === "temperature" ? reading.temperature : reading.pressure
     const pointId = field === "temperature" ? reading.temperaturePointId : reading.pressurePointId
 
@@ -999,7 +1007,7 @@ export function HistoryTable({
       </div>
 
       <div className="flex justify-between">
-        {isDialogReady ? (
+        {canGenerateHistory && isDialogReady ? (
           <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -1105,11 +1113,13 @@ export function HistoryTable({
               </div>
             </DialogContent>
           </Dialog>
-        ) : (
+        ) : canGenerateHistory ? (
           <Button variant="outline" disabled>
             <Database className="mr-2 size-4" />
             Gerar Dados
           </Button>
+        ) : (
+          <div />
         )}
         <Button onClick={handlePrint} variant="outline">
           <Printer className="mr-2 size-4" />
@@ -1361,7 +1371,7 @@ export function HistoryTable({
         </CardContent>
       </Card>
 
-      {hasChanges && (
+      {canEditHistory && hasChanges && (
         <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-500" />
@@ -1382,12 +1392,23 @@ export function HistoryTable({
 
       <Card className="border-sky-200 bg-sky-50/60">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-sky-900">Como editar o historico</CardTitle>
+          <CardTitle className="text-sm text-sky-900">
+            {canEditHistory ? "Como editar o historico" : "Permissoes do historico"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-sky-950">
-          <p>Use duplo clique em qualquer valor da tabela para entrar no modo de edicao.</p>
-          <p><strong>Enter</strong> salva a celula atual e <strong>Esc</strong> cancela a edicao.</p>
-          <p><strong>Ctrl + setas</strong> salva o valor atual e navega entre as celulas da pagina atual.</p>
+          {canEditHistory ? (
+            <>
+              <p>Use duplo clique em qualquer valor da tabela para entrar no modo de edicao.</p>
+              <p><strong>Enter</strong> salva a celula atual e <strong>Esc</strong> cancela a edicao.</p>
+              <p><strong>Ctrl + setas</strong> salva o valor atual e navega entre as celulas da pagina atual.</p>
+            </>
+          ) : (
+            <>
+              <p>Seu perfil pode consultar e imprimir o historico, mas nao pode editar leituras.</p>
+              {!canGenerateHistory && <p>A geracao de novos dados historicos tambem esta desabilitada para este perfil.</p>}
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -1453,7 +1474,11 @@ export function HistoryTable({
                       <TableCell
                         key={`value-${reading.id}`}
                         className="h-10 border-r border-slate-200 px-1.5 py-1 text-right last:border-r-0"
-                        title={`Status: ${reading.status} | Origem: ${rowOrigin} | Duplo clique para editar`}
+                        title={
+                          canEditHistory
+                            ? `Status: ${reading.status} | Origem: ${rowOrigin} | Duplo clique para editar`
+                            : `Status: ${reading.status} | Origem: ${rowOrigin}`
+                        }
                       >
                         <div className="relative h-8">
                           {editingCell?.id === reading.id && editingCell.field === metricField ? (
@@ -1468,13 +1493,15 @@ export function HistoryTable({
                             />
                           ) : (
                             <div
-                              className={`group flex h-8 cursor-pointer items-center justify-end gap-1 rounded px-1.5 transition-colors hover:bg-blue-50 ${getStatusColor(reading.status)}`}
+                              className={`group flex h-8 items-center justify-end gap-1 rounded px-1.5 transition-colors ${canEditHistory ? "cursor-pointer hover:bg-blue-50" : ""} ${getStatusColor(reading.status)}`}
                               onDoubleClick={() => handleCellDoubleClick(reading, metricField)}
                             >
                               <span className={isFieldEdited(reading, metricField) ? "font-semibold text-sky-700" : "font-semibold"}>
                                 {formatNumber(value, 1)}
                               </span>
-                              <Edit className="h-3 w-3 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                              {canEditHistory && (
+                                <Edit className="h-3 w-3 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                              )}
                             </div>
                           )}
                         </div>

@@ -23,18 +23,21 @@ interface InvitePageProps {
 
 const roleLabels: Record<string, string> = {
   admin: "Administrador",
+  editor: "Editor",
   operator: "Operador",
   viewer: "Visualizador",
 }
 
 const roleDescriptions: Record<string, string> = {
   admin: "Acesso completo, incluindo configurações e gerenciamento de usuários",
-  operator: "Visualizar dados e controlar equipamentos",
-  viewer: "Apenas visualização de dados e relatórios",
+  editor: "Visualiza instrumentos e histórico, além de editar e gerar dados históricos",
+  operator: "Acessa somente o tempo real e os controles operacionais do instrumento",
+  viewer: "Visualiza instrumentos e histórico sem editar ou gerar dados",
 }
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-50 text-red-700 border-red-200",
+  editor: "bg-purple-50 text-purple-700 border-purple-200",
   operator: "bg-blue-50 text-blue-700 border-blue-200",
   viewer: "bg-zinc-100 text-zinc-700 border-zinc-200",
 }

@@ -1,3 +1,4 @@
+import { ability } from "@/auth/auth"
 import Link from "next/link"
 
 import { Header } from "@/components/header"
@@ -25,20 +26,32 @@ export default async function InstrumentPage({
 }) {
   const { slug, instrumentSlug } = await params
   const initialNowIso = new Date().toISOString()
+  const permissions = await ability(slug)
+  const canControlInstrument = Boolean(permissions?.can("manage", "all") || permissions?.can("update", "Instrument"))
+  const canReadHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("read", "InstrumentData"))
+  const canGenerateHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("create", "InstrumentData"))
+  const canEditHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("update", "InstrumentData"))
 
   const [{ organization }, { instrument }] = await Promise.all([
     getOrganization(slug),
     getInstrumentsBySlug({ orgSlug: slug, instrumentSlug }),
   ])
 
-  const { data } = await getInstrumentData({
-    orgSlug: slug,
-    instrumentSlug,
-    startDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    endDate: new Date(),
-    chartVariation: 10,
-    tableVariation: 10,
-  })
+  const data = canReadHistory
+    ? (await getInstrumentData({
+      orgSlug: slug,
+      instrumentSlug,
+      startDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      endDate: new Date(),
+      chartVariation: 10,
+      tableVariation: 10,
+    })).data
+    : {
+      tableDataTemperature: [],
+      tableDataPressure: [],
+      chartDataTemperature: [],
+      chartDataPressure: [],
+    }
 
   const latestDataPoint = [
     ...data.tableDataTemperature,
@@ -74,11 +87,16 @@ export default async function InstrumentPage({
 
         <div className="mt-6">
           <InstrumentPageTabs
+            showHistoryTab={canReadHistory}
             realtime={(
               <Card>
                 <CardHeader>
-                  <CardTitle>Monitoramento e Controle em Tempo Real</CardTitle>
-                  <CardDescription>Visualização dos sensores e controles operacionais</CardDescription>
+                  <CardTitle>{canControlInstrument ? "Monitoramento e Controle em Tempo Real" : "Monitoramento em Tempo Real"}</CardTitle>
+                  <CardDescription>
+                    {canControlInstrument
+                      ? "Visualização dos sensores e controles operacionais"
+                      : "Visualização dos sensores e status operacionais"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <RealtimeGauges
@@ -96,6 +114,7 @@ export default async function InstrumentPage({
                     initialDefrost={operationalStatus === "defrosting"}
                     initialFan={Boolean(instrument.isFan)}
                     operationalStatus={operationalStatus}
+                    canControlInstrument={canControlInstrument}
                   />
                 </CardContent>
               </Card>
@@ -107,6 +126,8 @@ export default async function InstrumentPage({
                 </CardHeader>
                 <CardContent>
                   <HistoryTable
+                    canEditHistory={canEditHistory}
+                    canGenerateHistory={canGenerateHistory}
                     initialNowIso={initialNowIso}
                     instrumentName={instrument.name}
                     id={instrument.id}

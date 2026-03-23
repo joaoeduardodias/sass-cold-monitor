@@ -41,6 +41,7 @@ interface RealtimeGaugesProps {
   initialDefrost: boolean
   initialFan: boolean
   operationalStatus: OperationalStatus
+  canControlInstrument: boolean
 }
 
 function toNumberOrNull(value: unknown): number | null {
@@ -66,6 +67,7 @@ export function RealtimeGauges({
   initialDefrost,
   initialFan,
   operationalStatus: initialOperationalStatus,
+  canControlInstrument,
 }: RealtimeGaugesProps) {
   const [data, setData] = useState<RealtimeData>({
     temperature: instrumentType === "TEMPERATURE" ? initialValue : null,
@@ -325,28 +327,43 @@ export function RealtimeGauges({
 
         </div>
 
-        <div>
-          <Card className="h-full">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Controles Operacionais</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InstrumentControls
-                id={id}
-                minValue={minValue}
-                maxValue={maxValue}
-                setpoint={data.setpoint}
-                differential={data.differential}
-                defrost={data.defrost}
-                fan={data.fan}
-                showFanControl={canControlFan}
-                onToggleDefrost={handleToggleDefrost}
-                onToggleFan={handleToggleFan}
-                onSaveSettings={handleSaveSettings}
-              />
-            </CardContent>
-          </Card>
-        </div>
+        {canControlInstrument ? (
+          <div>
+            <Card className="h-full">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Controles Operacionais</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <InstrumentControls
+                  id={id}
+                  minValue={minValue}
+                  maxValue={maxValue}
+                  setpoint={data.setpoint}
+                  differential={data.differential}
+                  defrost={data.defrost}
+                  fan={data.fan}
+                  showFanControl={canControlFan}
+                  onToggleDefrost={handleToggleDefrost}
+                  onToggleFan={handleToggleFan}
+                  onSaveSettings={handleSaveSettings}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div>
+            <Card className="h-full">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Controles Operacionais</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 px-4 py-6 text-sm text-muted-foreground">
+                  Seu perfil possui acesso somente de visualizacao para este instrumento.
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )

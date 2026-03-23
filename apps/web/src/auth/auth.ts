@@ -41,8 +41,8 @@ export async function getCurrentMembership(explicitOrg?: string) {
   return membership
 }
 
-export async function ability() {
-  const membership = await getCurrentMembership()
+export async function ability(explicitOrg?: string) {
+  const membership = await getCurrentMembership(explicitOrg)
 
   if (!membership) {
     return null

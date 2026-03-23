@@ -126,7 +126,7 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
   const [newUser, setNewUser] = useState<{
     name: string
     email: string
-    role: "admin" | "operator" | "viewer"
+    role: "admin" | "operator" | "viewer" | "editor"
   }>({
     name: "",
     email: "",
@@ -140,7 +140,7 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
 
   const [inviteForm, setInviteForm] = useState({
     emails: "",
-    role: "viewer" as "admin" | "operator" | "viewer",
+    role: "viewer" as "admin" | "operator" | "viewer" | "editor",
     message: "",
   })
 
@@ -269,7 +269,7 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     refetchOnWindowFocus: false,
   })
 
-  const roleToApi = (role: "admin" | "operator" | "viewer") => role.toUpperCase() as Role
+  const roleToApi = (role: "admin" | "operator" | "viewer" | "editor") => role.toUpperCase() as Role
   const roleToLabelKey = (role: Role) => role.toLowerCase() as keyof typeof roleLabels
 
   const filteredUsers = users.filter(
@@ -478,12 +478,12 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
 type NewUserForm = {
   name: string
   email: string
-  role: "admin" | "operator" | "viewer"
+  role: "admin" | "operator" | "viewer" | "editor"
 }
 
 type InviteForm = {
   emails: string
-  role: "admin" | "operator" | "viewer"
+  role: "admin" | "operator" | "viewer" | "editor"
   message: string
 }
 
@@ -579,12 +579,13 @@ function UsersTab({
 
               <div className="space-y-2">
                 <Label htmlFor="user-role">Função</Label>
-                <Select value={newUser.role} onValueChange={(value: "viewer" | "operator" | "admin") => setNewUser({ ...newUser, role: value })}>
+                <Select value={newUser.role} onValueChange={(value: "viewer" | "operator" | "admin" | "editor") => setNewUser({ ...newUser, role: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="viewer">Visualizador</SelectItem>
+                    <SelectItem value="editor">Editor</SelectItem>
                     <SelectItem value="operator">Operador</SelectItem>
                     <SelectItem value="admin">Administrador</SelectItem>
                   </SelectContent>
@@ -736,10 +737,13 @@ function UsersTab({
                 <strong>Administrador:</strong> Acesso completo ao sistema, incluindo configurações
               </p>
               <p>
-                <strong>Operador:</strong> Pode visualizar dados e controlar equipamentos
+                <strong>Operador:</strong> Acessa somente o tempo real e os controles operacionais do instrumento
               </p>
               <p>
-                <strong>Visualizador:</strong> Apenas visualização de dados e relatórios
+                <strong>Visualizador:</strong> Visualiza instrumentos e histórico, sem editar ou gerar dados
+              </p>
+              <p>
+                <strong>Editor:</strong> Visualiza instrumentos e histórico, além de editar e gerar dados históricos
               </p>
             </div>
           </div>
@@ -838,6 +842,7 @@ function InvitesTab({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="viewer">Visualizador</SelectItem>
+                      <SelectItem value="editor">Editor</SelectItem>
                       <SelectItem value="operator">Operador</SelectItem>
                       <SelectItem value="admin">Administrador</SelectItem>
                     </SelectContent>
