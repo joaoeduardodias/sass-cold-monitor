@@ -17,6 +17,19 @@ import {
 } from '@/utils/websocket/schemas/agent'
 import { handleValuesInstruments } from '@/utils/websocket/send-values-instruments'
 
+const websocketHandshakeResponse = {
+  101: {
+    description: 'Switching Protocols para conexao WebSocket estabelecida.',
+  },
+  426: {
+    description: 'Este endpoint exige upgrade para WebSocket.',
+  },
+}
+
+function normalizeAuthToken(rawToken: string | undefined) {
+  return rawToken?.replace(/^Bearer\s+/i, '').trim() ?? ''
+}
+
 function broadcastToOrg(orgId: string, data: unknown) {
   const conns = dashboardConnectionsByOrg.get(orgId)
   if (!conns) return
@@ -31,16 +44,17 @@ function broadcastToOrg(orgId: string, data: unknown) {
 const latestAlertLevelByInstrument = new Map<string, 'normal' | 'warning' | 'critical'>()
 
 export async function agentWs(app: FastifyInstance) {
-  app.get('/ws/agent',
-    {
-      schema: {
-        tags: ['WebSocket'],
-        summary: 'WebSocket endpoint for agents.',
-        operationId: 'agentWs',
-      },
-      websocket: true,
+  app.route({
+    method: 'GET',
+    url: '/ws/agent',
+    schema: {
+      tags: ['WebSocket'],
+      summary: 'Handshake do WebSocket para agents.',
+      description: 'Endpoint HTTP GET usado para iniciar a conexao WebSocket dos agents.',
+      operationId: 'agentWs',
+      response: websocketHandshakeResponse,
     },
-    (conn) => {
+    wsHandler: (conn: WebSocket) => {
       let authenticatedOrgId: string | null = null
 
       conn.on('message', async (message: Buffer) => {
@@ -54,16 +68,46 @@ export async function agentWs(app: FastifyInstance) {
               conn.send(
                 JSON.stringify({
                   type: 'AUTH_ERROR',
-                  message: 'Invalid AUTH payload',
+                  message: 'Invalid AUTH: token or deviceToken is required',
                 }),
               )
               conn.close()
               return
             }
 
-            const { organizationId, token } = parsedAuth.data
+            const { organizationId } = parsedAuth.data
+            const rawToken = parsedAuth.data.token
+              ?? parsedAuth.data.deviceToken
+              ?? parsedAuth.data.device_token
+            const token = normalizeAuthToken(rawToken)
+
+            if (!token) {
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'token is required',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            let decoded: { sub: string; organizationId?: string }
             try {
-              const decoded = app.jwt.verify<{ sub: string; organizationId?: string }>(token)
+              decoded = app.jwt.verify<{ sub: string; organizationId?: string }>(token)
+            } catch (error) {
+              console.error('Agent auth token verification failed', error)
+              conn.send(
+                JSON.stringify({
+                  type: 'AUTH_ERROR',
+                  message: 'Invalid auth token, token verification failed.',
+                }),
+              )
+              conn.close()
+              return
+            }
+
+            try {
               const userId = decoded.sub
               const tokenOrganizationId = decoded.organizationId
               const resolvedOrganizationId = organizationId ?? tokenOrganizationId
@@ -147,7 +191,7 @@ export async function agentWs(app: FastifyInstance) {
                 conn.send(
                   JSON.stringify({
                     type: 'AUTH_ERROR',
-                    message: 'Invalid token',
+                    message: 'Invalid token, missing stop password.',
                   }),
                 )
                 conn.close()
@@ -158,7 +202,7 @@ export async function agentWs(app: FastifyInstance) {
                 conn.send(
                   JSON.stringify({
                     type: 'AUTH_ERROR',
-                    message: 'Agent already authenticated for another organization',
+                    message: 'Agent already authenticated for another organization.',
                   }),
                 )
                 conn.close()
@@ -188,11 +232,12 @@ export async function agentWs(app: FastifyInstance) {
                 },
               }))
               return
-            } catch {
+            } catch (error) {
+              console.error('Agent authentication failed after token verification', error)
               conn.send(
                 JSON.stringify({
                   type: 'AUTH_ERROR',
-                  message: 'Invalid auth token.',
+                  message: 'Authentication failed.',
                 }),
               )
               conn.close()
@@ -226,7 +271,9 @@ export async function agentWs(app: FastifyInstance) {
             }
 
             case 'INSTRUMENT_CREATE': {
-              const instrumentsWithoutOrg = payload.filter((inst) => inst.organizationId !== authenticatedOrgId)
+              const instrumentsWithoutOrg = payload.filter(
+                (inst) => inst.organizationId !== authenticatedOrgId,
+              )
               if (instrumentsWithoutOrg.length > 0) {
                 conn.send(
                   JSON.stringify({
@@ -362,8 +409,10 @@ export async function agentWs(app: FastifyInstance) {
                   })
                 }
 
-                if ((settings?.emailEnabled ?? true)
-                  && (settings?.emailRecipients?.length ?? 0) > 0) {
+                if (
+                  (settings?.emailEnabled ?? true) &&
+                  (settings?.emailRecipients?.length ?? 0) > 0
+                ) {
                   const emailTemplate =
                     settings?.emailTemplate ??
                     `Alerta ColdMonitor
@@ -418,5 +467,10 @@ Verifique o sistema imediatamente.`
         console.log('Agent desconectado')
       })
     },
-  )
+    handler: async (_request, reply) => {
+      return reply.code(426).send({
+        message: 'Use a WebSocket connection for this endpoint.',
+      })
+    },
+  })
 }

@@ -176,6 +176,7 @@ model Invite {
 model CollectorDevice {
   id             String       @id @default(uuid())
   token          String       @unique
+  setupToken     String?      @unique @map("setup_token")
   stopPassword   String?      @map("stop_password")
   organizationId String       @map("organization_id")
   userId         String       @map("user_id")

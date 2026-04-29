@@ -222,6 +222,7 @@ export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof 
 export const CollectorDeviceScalarFieldEnum = {
   id: 'id',
   token: 'token',
+  setupToken: 'setupToken',
   stopPassword: 'stopPassword',
   organizationId: 'organizationId',
   userId: 'userId',

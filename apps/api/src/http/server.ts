@@ -5,7 +5,6 @@ import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { fastify } from 'fastify'
 import {
-  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
   ZodTypeProvider,
@@ -14,6 +13,7 @@ import {
 import websocketPlugin from '@/plugins/fastify-websocket'
 
 import { errorHandler } from './error-handler'
+import { swaggerSchemaTransform, swaggerTransformObject } from './swagger'
 import { authenticateWithGoogle } from './routes/auth/authenticate-with-google'
 import { authenticateWithPassword } from './routes/auth/authenticate-with-password'
 import { createUser } from './routes/auth/create-user'
@@ -88,8 +88,9 @@ app.register(fastifySwagger, {
       },
     },
   },
-  transform: jsonSchemaTransform,
-})
+  transform: swaggerSchemaTransform,
+  transformObject: swaggerTransformObject,
+} as any)
 
 app.register(fastifySwaggerUi, {
   routePrefix: '/docs',

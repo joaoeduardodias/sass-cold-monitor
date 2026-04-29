@@ -1,23 +1,32 @@
 import type { FastifyInstance } from 'fastify'
+import type { WebSocket } from 'ws'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
 import { dashboardConnectionsByOrg } from '@/realtime/dashboard-connections'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
-export async function dashboardWs(app: FastifyInstance) {
-  app.register(auth).get(
-    '/ws/dashboard',
-    {
-      schema: {
-        tags: ['WebSocket'],
-        summary: 'WebSocket endpoint for dashboard.',
-        operationId: 'dashboardWs',
-      },
-      websocket: true,
-    },
-    (conn, request) => {
+const websocketHandshakeResponse = {
+  101: {
+    description: 'Switching Protocols para conexao WebSocket estabelecida.',
+  },
+  426: {
+    description: 'Este endpoint exige upgrade para WebSocket.',
+  },
+}
 
+export async function dashboardWs(app: FastifyInstance) {
+  app.register(auth).route({
+    method: 'GET',
+    url: '/ws/dashboard',
+    schema: {
+      tags: ['WebSocket'],
+      summary: 'Handshake do WebSocket para dashboard.',
+      description: 'Endpoint HTTP GET usado para iniciar a conexao WebSocket do dashboard.',
+      operationId: 'dashboardWs',
+      response: websocketHandshakeResponse,
+    },
+    wsHandler: (conn: WebSocket) => {
       let orgId: string | null = null
 
       conn.on('message', async (msg: Buffer) => {
@@ -147,5 +156,10 @@ export async function dashboardWs(app: FastifyInstance) {
         }
       })
     },
-  )
+    handler: async (_request, reply) => {
+      return reply.code(426).send({
+        message: 'Use a WebSocket connection for this endpoint.',
+      })
+    },
+  })
 }

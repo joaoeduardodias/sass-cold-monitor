@@ -4,6 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
 import { prisma } from '@/lib/prisma'
+import { BadRequestError } from '@/http/routes/_errors/bad-request-error'
 
 export async function authenticateWithGoogle(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -41,16 +42,21 @@ export async function authenticateWithGoogle(app: FastifyInstance) {
           grant_type: 'authorization_code',
         }),
       })
+
       const tokenGoogle = await tokenResponse.json()
+
+      if (!tokenResponse.ok) {
+        throw new BadRequestError('Falha ao autenticar com o Google.')
+      }
 
       const { access_token: AccessTokenGoogle } = z
         .object({
           access_token: z.string(),
-          expires_in: z.number(),
-          refresh_token: z.string(),
-          scope: z.string(),
+          expires_in: z.number().optional(),
+          refresh_token: z.string().optional(),
+          scope: z.string().optional(),
           token_type: z.literal('Bearer'),
-          id_token: z.string(),
+          id_token: z.string().optional(),
         })
         .parse(tokenGoogle)
 
@@ -62,7 +68,13 @@ export async function authenticateWithGoogle(app: FastifyInstance) {
           },
         },
       )
+
       const googleUserData = await userInfoResponse.json()
+
+      if (!userInfoResponse.ok) {
+        throw new BadRequestError('Não foi possível obter os dados do usuário no Google.')
+      }
+
       const {
         id: googleId,
         email,
@@ -73,7 +85,7 @@ export async function authenticateWithGoogle(app: FastifyInstance) {
           id: z.string(),
           email: z.email(),
           name: z.string(),
-          picture: z.url(),
+          picture: z.url().optional().nullable(),
         })
         .parse(googleUserData)
 

@@ -1,0 +1,34 @@
+appId: com.coldmonitor.agent
+productName: Cold Monitor Agent
+
+directories:
+  output: "release"
+
+files:
+  - "dist/**"
+  - "dist-electron/**"
+  - "package.json"
+
+extraResources:
+  - from: "public"
+    to: "public"
+
+win:
+  target:
+    - nsis
+  icon: "public/LOGO.png"
+  artifactName: "ColdMonitorAgent-Setup-${version}.exe"
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: false
+  runAfterFinish: true
+  createDesktopShortcut: false
+  createStartMenuShortcut: true
+  shortcutName: "Cold Monitor Agent"
+  deleteAppDataOnUninstall: true
+  include: "build/nsis-uninstall.nsh"
+
+publish: null

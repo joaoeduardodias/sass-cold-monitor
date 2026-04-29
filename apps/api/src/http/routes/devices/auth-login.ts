@@ -91,6 +91,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
           organizationId,
           userId,
           token: setupToken,
+          setupToken,
           stopPassword,
           isActive: true,
         },
@@ -114,7 +115,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         response: {
           200: z.object({
             latest: z.object({
-              token: z.string(),
+              setupToken: z.string(),
               stopPassword: z.string(),
               createdAt: z.date(),
             }).nullable(),
@@ -151,6 +152,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         },
         select: {
           token: true,
+          setupToken: true,
           stopPassword: true,
           createdAt: true,
         },
@@ -165,7 +167,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
 
       return reply.status(200).send({
         latest: {
-          token: latest.token,
+          setupToken: latest.setupToken ?? latest.token,
           stopPassword: latest.stopPassword,
           createdAt: latest.createdAt,
         },
@@ -251,13 +253,17 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
 
       const collectorDevice = await prisma.collectorDevice.findFirst({
         where: {
-          token: setupToken,
+          OR: [
+            { setupToken },
+            { token: setupToken },
+          ],
           organizationId,
           userId,
           isActive: true,
         },
         select: {
           id: true,
+          setupToken: true,
           stopPassword: true,
         },
       })
@@ -284,6 +290,7 @@ export async function devicesAuthLoginRoute(app: FastifyInstance) {
         },
         data: {
           token: wsToken,
+          setupToken: null,
           stopPassword: collectorDevice.stopPassword,
           isActive: true,
         },

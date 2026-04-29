@@ -17,7 +17,7 @@ type BootstrapResponse = {
 
 type LatestCollectorResponse = {
   latest: {
-    token: string
+    setupToken: string
     stopPassword: string
     createdAt: string
   } | null
@@ -52,7 +52,7 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
         })
         .json<LatestCollectorResponse>()
 
-      setLatestToken(response.latest?.token ?? '')
+      setLatestToken(response.latest?.setupToken ?? '')
       setLatestStopPassword(response.latest?.stopPassword ?? '')
     } catch {
       setLatestErrorMessage('Não foi possível carregar o último token e senha agora.')

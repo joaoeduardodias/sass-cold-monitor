@@ -50,14 +50,14 @@ function EmptyMonitoringState({
 
                 <Button asChild size="lg" variant="outline" className="bg-white/80">
                   <Link href={`/org/${organizationSlug}/settings?tab=collector`}>
-                    Ver instrucoes de instalacao
+                    Ver instruções de instalação
                     <ArrowRight className="size-4" />
                   </Link>
                 </Button>
               </div>
             ) : (
               <p className="mt-6 text-sm font-medium text-sky-800">
-                Aguarde a configuracao do coletor por um administrador para visualizar as leituras aqui.
+                Aguarde a configuração do coletor por um administrador para visualizar as leituras aqui.
               </p>
             )}
           </div>
@@ -83,9 +83,9 @@ function EmptyMonitoringState({
                   <ShieldCheck className="size-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">2. Gere o token de ativacao</p>
+                  <p className="text-sm font-medium">2. Gere o token de ativação</p>
                   <p className="text-sm text-muted-foreground">
-                    Na aba de configuracao do coletor voce gera as credenciais para o primeiro acesso.
+                    Na aba de configuração do coletor você gera as credenciais para o primeiro acesso.
                   </p>
                 </div>
               </div>
@@ -97,7 +97,7 @@ function EmptyMonitoringState({
                 <div>
                   <p className="text-sm font-medium">3. Conecte os instrumentos</p>
                   <p className="text-sm text-muted-foreground">
-                    Depois da configuracao inicial, os dados comecam a chegar aqui em tempo real.
+                    Depois da configuração inicial, os dados começam a chegar aqui em tempo real.
                   </p>
                 </div>
               </div>

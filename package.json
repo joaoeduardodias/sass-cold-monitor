@@ -4,6 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:collector": "pnpm --filter @cold-monitor/collector dev",
+    "dist:collector": "pnpm --filter @cold-monitor/collector dist",
     "lint": "turbo run lint"
   },
   "devDependencies": {

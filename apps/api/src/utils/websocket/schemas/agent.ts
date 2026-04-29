@@ -4,8 +4,16 @@ import { InstrumentType } from '@/prisma/generated/enums'
 
 export const authAgentPayloadSchema = z.object({
   organizationId: z.uuid().optional(),
-  token: z.string().min(1),
-})
+  token: z.string().min(1).optional(),
+  deviceToken: z.string().min(1).optional(),
+  device_token: z.string().min(1).optional(),
+}).refine(
+  (payload) => Boolean(payload.token ?? payload.deviceToken ?? payload.device_token),
+  {
+    message: 'token or deviceToken is required',
+    path: ['token'],
+  },
+)
 
 export const createInstrumentSchema = z.array(z.object({
   idSitrad: z.number(),
