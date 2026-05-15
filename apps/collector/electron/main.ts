@@ -7,7 +7,7 @@ import WebSocket from 'ws'
 import { startAppCollector, stopCollector, type CollectorRuntimeEvent, setCollectorRuntimeEventHandler } from './collector-service'
 import { WS_URL } from './constants'
 import { getCollectorConfig, getRendererConfig, setCollectorConfig } from './config-store'
-import { hydrateAuthFromDeviceConfig } from './device-auth'
+import { hydrateAuthFromDeviceConfig, readExternalDeviceConfig } from './device-auth'
 import { store } from './store'
 import { configureTrayActions, createTray, createWindow, requestStopAuthFromRenderer, setTray } from './window-tray'
 
@@ -103,10 +103,10 @@ ipcMain.handle('save-config', (_e, cfg) => {
 })
 ipcMain.handle('start', async () => startAppCollector())
 ipcMain.handle('stop-with-auth', async (_e, password: string) => {
-  await hydrateAuthFromDeviceConfig()
-
-  const savedPassword = getCollectorConfig()?.stopPassword?.trim()
   const informedPassword = typeof password === 'string' ? password.trim() : ''
+  const storedPassword = getCollectorConfig()?.stopPassword?.trim()
+  const externalPassword = readExternalDeviceConfig()?.stopPassword?.trim()
+  const savedPassword = storedPassword || externalPassword
 
   if (!savedPassword) {
     return { success: false, error: 'Senha de parada não configurada para validação.' }

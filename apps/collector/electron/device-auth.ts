@@ -148,13 +148,17 @@ export async function hydrateAuthFromDeviceConfig() {
     || (typeof external?.setupToken === 'string' && external.setupToken.trim() !== persisted.setupToken.trim())
   const shouldPreferSetupToken = Boolean((external?.setupToken ?? persisted.setupToken).trim())
 
+  const stopPasswordValue = external?.stopPassword || persisted.stopPassword
+
   setCollectorConfig({
-    ...persisted,
-    token: shouldPreferSetupToken ? '' : authInputChanged && !external?.token ? '' : nextToken,
-    setupToken: nextSetupToken,
+    sitradUrl: persisted.sitradUrl,
+    username: persisted.username,
+    password: persisted.password,
     organizationId: external?.organizationId ?? (authInputChanged ? '' : persisted.organizationId),
     userId: external?.userId ?? (authInputChanged ? '' : persisted.userId),
-    stopPassword: external?.stopPassword ?? persisted.stopPassword,
+    token: shouldPreferSetupToken ? '' : authInputChanged && !external?.token ? '' : nextToken,
+    setupToken: nextSetupToken,
+    ...(stopPasswordValue ? { stopPassword: stopPasswordValue } : {}),
   })
 }
 

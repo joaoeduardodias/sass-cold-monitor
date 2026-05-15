@@ -91,6 +91,7 @@ export function getRendererConfig(): RendererCollectorConfig | undefined {
 }
 
 export function setCollectorConfig(config: Partial<CollectorConfig>): void {
+  const rawStored = (store.get('config') ?? {}) as Partial<CollectorConfig>
   const current = getCollectorConfig()
 
   const next: CollectorConfig = {
@@ -104,9 +105,18 @@ export function setCollectorConfig(config: Partial<CollectorConfig>): void {
     setupToken: config.setupToken ?? current?.setupToken ?? '',
   }
 
-  const encoded = { ...next }
-  for (const field of SENSITIVE_FIELDS) {
-    encoded[field] = encryptSecret(next[field] ?? '')
+  // For sensitive fields, preserve the raw encrypted value when the field was not
+  // explicitly provided — avoids overwriting a valid encrypted value with '' when
+  // OS-level decryption fails silently (e.g. after a reinstall/key rotation).
+  const encoded: CollectorConfig = {
+    sitradUrl: next.sitradUrl,
+    username: next.username,
+    organizationId: next.organizationId,
+    userId: next.userId,
+    password: config.password !== undefined ? encryptSecret(next.password) : (rawStored.password ?? ''),
+    stopPassword: config.stopPassword !== undefined ? encryptSecret(next.stopPassword) : (rawStored.stopPassword ?? ''),
+    token: config.token !== undefined ? encryptSecret(next.token) : (rawStored.token ?? ''),
+    setupToken: config.setupToken !== undefined ? encryptSecret(next.setupToken) : (rawStored.setupToken ?? ''),
   }
 
   store.set('config', encoded)

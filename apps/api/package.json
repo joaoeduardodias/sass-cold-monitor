@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "pnpm env:load tsx watch src/http/server.ts",
     "build": "tsup",
-    "test": "tsx --test src/utils/create-slug.test.ts src/utils/notifications/evaluate-alert-level.test.ts",
+    "test": "pnpm env:load vitest run",
+    "test:watch": "pnpm env:load vitest",
     "start": "pnpm env:load node dist/http/server.js",
     "db:migrate": "pnpm env:load prisma migrate dev",
     "db:migrate:deploy": "pnpm env:load prisma migrate deploy",
@@ -59,7 +60,8 @@
     "dotenv-cli": "^8.0.0",
     "prisma": "7.5.0",
     "tsup": "^8.5.1",
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.3",
+    "vitest": "^2.1.9"
   },
   "prettier": "@cold-monitor/prettier",
   "eslintConfig": {

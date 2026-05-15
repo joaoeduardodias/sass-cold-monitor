@@ -298,9 +298,94 @@ Protect against:
 
 Project rules require tests for every new or changed feature.
 
+## API Tests (Vitest)
+
+`apps/api` uses **Vitest 2.x** (not Jest). Config: `apps/api/vitest.config.ts`.
+
+Scripts:
+* `pnpm --filter @cold-monitor/api test` — run all tests once
+* `pnpm --filter @cold-monitor/api test:watch` — watch mode
+
+The test script runs `pnpm env:load vitest run` so all env vars are loaded from the root `.env`.
+
+### Setup file
+
+`apps/api/src/test/setup.ts` seeds required env vars before any module is imported (needed because `@cold-monitor/env` validates env at load time via `@t3-oss/env-nextjs`).
+
+### Helpers (`apps/api/src/test/helpers.ts`)
+
+* `buildTestApp(...plugins)` — creates an isolated Fastify instance with JWT + optional WebSocket support. Accepts `buildTestApp({ websocket: true }, plugin)` overload.
+* `signToken(app, payload)` — signs a JWT with `TEST_JWT_SECRET = 'test-secret'`.
+* `authHeaders(token)` — returns `{ authorization: 'Bearer <token>' }`.
+* `makePrismaMock()` — returns a full Prisma mock with `vi.fn()` on every model method.
+* `uuid(seed)` — generates a deterministic UUID v4-format string from any seed value. Always use this for IDs that appear in response bodies (Zod validates UUID format).
+
+### Mocking pattern
+
+Always mock Prisma and email **before** importing the route module:
+
+```ts
+import { vi } from 'vitest'
+import { makePrismaMock } from '@/test/helpers'
+
+const prismaMock = makePrismaMock()
+
+vi.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+// vi.mock('@/lib/email', ...) when route sends emails
+
+// Top-level await: module is imported AFTER vi.mock() is set up
+const { myRoute } = await import('./my-route')
+```
+
+### Known constraints
+
+* **`instrumentSchema` from `@cold-monitor/auth`** requires `__typename: 'Instrument'` and `organization_id` (snake_case). Prisma records use `organizationId`. Add both fields to any mock that goes through `instrumentSchema.parse()`.
+* **WS routes** (`ws/agent`, `ws/dashboard`) use non-Zod response schemas (`{ 101: { description } }`). Testing them end-to-end crashes `fastify-type-provider-zod`. Their tests only verify route registration via `app.printRoutes()`.
+* **ADMIN role** has `manage all` (CASL). Tests that expect a 401 for "unauthorized role" must use `VIEWER` or `OPERATOR`, not `ADMIN`.
+
+### Route test template
+
+```ts
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { authHeaders, buildTestApp, makePrismaMock, signToken, uuid } from '@/test/helpers'
+
+const prismaMock = makePrismaMock()
+vi.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+
+const { myRoute } = await import('./my-route')
+
+describe('METHOD /path', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+
+  it('returns 401 without token', async () => {
+    const app = await buildTestApp(myRoute)
+    const response = await app.inject({ method: 'GET', url: '/path' })
+    expect(response.statusCode).toBe(401)
+  })
+
+  it('happy path', async () => {
+    prismaMock.someModel.findFirst.mockResolvedValue({ id: uuid('record'), ... })
+    const app = await buildTestApp(myRoute)
+    const token = await signToken(app, { sub: uuid('user') })
+    const response = await app.inject({
+      method: 'GET',
+      url: '/path',
+      headers: authHeaders(token),
+    })
+    expect(response.statusCode).toBe(200)
+  })
+})
+```
+
+### Protected routes must cover
+
+* no token → 401
+* unauthorized role → 401
+* authorized role → 2xx
+
 ## Unit Tests
 
-Use Jest for:
+Use Vitest (API) for:
 
 * utils
 * services

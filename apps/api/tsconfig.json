@@ -6,11 +6,12 @@
     "prisma.config.ts"
   ],
   "compilerOptions": {
-    "jsx": "react",
-    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     }
   }
