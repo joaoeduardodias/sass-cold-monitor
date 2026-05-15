@@ -1,5 +1,5 @@
-import { useState, useTransition, type FormEvent } from "react";
-import { toast } from "sonner";
+import { type FormEvent, useState, useTransition } from 'react'
+import { toast } from 'sonner'
 
 interface FormState {
   success: boolean
@@ -10,15 +10,16 @@ interface FormState {
 export function useFormState(
   action: (data: FormData) => Promise<FormState>,
   onSuccess?: () => Promise<void> | void,
-  initialState?: FormState
+  initialState?: FormState,
 ) {
-
-  const [isPending, startTransition] = useTransition();
-  const [formState, setFormState] = useState(initialState ?? {
-    success: false,
-    message: null,
-    errors: null
-  })
+  const [isPending, startTransition] = useTransition()
+  const [formState, setFormState] = useState(
+    initialState ?? {
+      success: false,
+      message: null,
+      errors: null,
+    },
+  )
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -34,7 +35,7 @@ export function useFormState(
       }
 
       if (state.success) {
-        toast.success(state.message ?? "Operação realizada com sucesso.")
+        toast.success(state.message ?? 'Operação realizada com sucesso.')
       }
 
       setFormState(state)

@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "postinstall": "electron-builder install-app-deps",
     "build": "vite build",
+    "test": "tsx --test electron/utils/convert-to-number.test.ts electron/utils/create-slug.test.ts",
     "dist": "pnpm build && electron-builder --win --x64"
   },
   "dependencies": {

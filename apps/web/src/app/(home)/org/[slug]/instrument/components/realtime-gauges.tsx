@@ -1,15 +1,23 @@
-"use client"
+'use client'
 
-import { Gauge } from "@/components/gauge"
-import type { DashboardWsMessage, OperationalStatus } from "@/components/instrument-grid.types"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useDashboardWs } from "@/hooks/use-dashboard-ws"
-import { sendInstrumentCommand } from "@/http/instruments/send-instrument-command"
-import { getOperationalStatusBadge, mapOperationalStatus } from "@/utils/get-operational-status-badge"
-import { Clock, Thermometer, Wifi, WifiOff } from "lucide-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { InstrumentControls } from "./instrument-controls"
+import { Clock, Thermometer, Wifi, WifiOff } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { Gauge } from '@/components/gauge'
+import type {
+  DashboardWsMessage,
+  OperationalStatus,
+} from '@/components/instrument-grid.types'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useDashboardWs } from '@/hooks/use-dashboard-ws'
+import { sendInstrumentCommand } from '@/http/instruments/send-instrument-command'
+import {
+  getOperationalStatusBadge,
+  mapOperationalStatus,
+} from '@/utils/get-operational-status-badge'
+
+import { InstrumentControls } from './instrument-controls'
 
 const COMMUNICATION_TIMEOUT_MS = 10_000
 
@@ -31,7 +39,7 @@ interface RealtimeGaugesProps {
   orgSlug: string
   organizationId: string
   model: number
-  instrumentType: "TEMPERATURE" | "PRESSURE"
+  instrumentType: 'TEMPERATURE' | 'PRESSURE'
   minValue: number
   maxValue: number
   initialValue: number | null
@@ -45,7 +53,7 @@ interface RealtimeGaugesProps {
 }
 
 function toNumberOrNull(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return null
   }
 
@@ -70,8 +78,8 @@ export function RealtimeGauges({
   canControlInstrument,
 }: RealtimeGaugesProps) {
   const [data, setData] = useState<RealtimeData>({
-    temperature: instrumentType === "TEMPERATURE" ? initialValue : null,
-    pressure: instrumentType === "PRESSURE" ? initialValue : null,
+    temperature: instrumentType === 'TEMPERATURE' ? initialValue : null,
+    pressure: instrumentType === 'PRESSURE' ? initialValue : null,
     humidity: null,
     timestamp: initialLastUpdated ?? new Date().toISOString(),
     connected: false,
@@ -84,7 +92,7 @@ export function RealtimeGauges({
   const disconnectTimerRef = useRef<number | null>(null)
   const updatePulseTimerRef = useRef<number | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
-  const canControlFan = model !== 73 && instrumentType !== "PRESSURE"
+  const canControlFan = model !== 73 && instrumentType !== 'PRESSURE'
 
   useEffect(() => {
     return () => {
@@ -109,59 +117,71 @@ export function RealtimeGauges({
     }, COMMUNICATION_TIMEOUT_MS)
   }, [])
 
-  const handleDashboardMessage = useCallback((message: DashboardWsMessage) => {
-    if (message.type === "INSTRUMENT_VALUES") {
-      const reading = message.payload.find((item) => item.instrumentId === id)
-      if (!reading) return
+  const handleDashboardMessage = useCallback(
+    (message: DashboardWsMessage) => {
+      if (message.type === 'INSTRUMENT_VALUES') {
+        const reading = message.payload.find((item) => item.instrumentId === id)
+        if (!reading) return
 
-      const nextValue = toNumberOrNull(reading.value)
-      const mappedStatus = mapOperationalStatus(reading.status)
+        const nextValue = toNumberOrNull(reading.value)
+        const mappedStatus = mapOperationalStatus(reading.status)
 
-      setIsUpdating(true)
-      markReadingAlive()
-      setData((prev) => ({
-        ...prev,
-        temperature: instrumentType === "TEMPERATURE" ? nextValue : prev.temperature,
-        pressure: instrumentType === "PRESSURE" ? nextValue : prev.pressure,
-        timestamp: new Date().toISOString(),
-        setpoint: reading.setPoint,
-        differential: reading.differential,
-        operationalStatus: mappedStatus,
-        defrost: mappedStatus === "defrosting",
-        fan: reading.isFan,
-      }))
-      if (updatePulseTimerRef.current !== null) {
-        window.clearTimeout(updatePulseTimerRef.current)
+        setIsUpdating(true)
+        markReadingAlive()
+        setData((prev) => ({
+          ...prev,
+          temperature:
+            instrumentType === 'TEMPERATURE' ? nextValue : prev.temperature,
+          pressure: instrumentType === 'PRESSURE' ? nextValue : prev.pressure,
+          timestamp: new Date().toISOString(),
+          setpoint: reading.setPoint,
+          differential: reading.differential,
+          operationalStatus: mappedStatus,
+          defrost: mappedStatus === 'defrosting',
+          fan: reading.isFan,
+        }))
+        if (updatePulseTimerRef.current !== null) {
+          window.clearTimeout(updatePulseTimerRef.current)
+        }
+        updatePulseTimerRef.current = window.setTimeout(
+          () => setIsUpdating(false),
+          250,
+        )
+        return
       }
-      updatePulseTimerRef.current = window.setTimeout(() => setIsUpdating(false), 250)
-      return
-    }
 
-    if (message.type === "INSTRUMENT_UPDATE" && message.payload.instrumentId === id) {
-      const nextValue = toNumberOrNull(message.payload.value)
-      const mappedStatus = mapOperationalStatus(message.payload.status)
+      if (
+        message.type === 'INSTRUMENT_UPDATE' &&
+        message.payload.instrumentId === id
+      ) {
+        const nextValue = toNumberOrNull(message.payload.value)
+        const mappedStatus = mapOperationalStatus(message.payload.status)
 
-      setIsUpdating(true)
-      markReadingAlive()
-      setData((prev) => ({
-        ...prev,
-        temperature: instrumentType === "TEMPERATURE" ? nextValue : prev.temperature,
-        pressure: instrumentType === "PRESSURE" ? nextValue : prev.pressure,
-        timestamp: message.payload.updatedAt ?? new Date().toISOString(),
-        setpoint: message.payload.setpoint,
-        differential: message.payload.differential,
-        operationalStatus: mappedStatus,
-        defrost: mappedStatus === "defrosting",
-        fan: message.payload.isFan,
-      }))
-      if (updatePulseTimerRef.current !== null) {
-        window.clearTimeout(updatePulseTimerRef.current)
+        setIsUpdating(true)
+        markReadingAlive()
+        setData((prev) => ({
+          ...prev,
+          temperature:
+            instrumentType === 'TEMPERATURE' ? nextValue : prev.temperature,
+          pressure: instrumentType === 'PRESSURE' ? nextValue : prev.pressure,
+          timestamp: message.payload.updatedAt ?? new Date().toISOString(),
+          setpoint: message.payload.setpoint,
+          differential: message.payload.differential,
+          operationalStatus: mappedStatus,
+          defrost: mappedStatus === 'defrosting',
+          fan: message.payload.isFan,
+        }))
+        if (updatePulseTimerRef.current !== null) {
+          window.clearTimeout(updatePulseTimerRef.current)
+        }
+        updatePulseTimerRef.current = window.setTimeout(
+          () => setIsUpdating(false),
+          250,
+        )
       }
-      updatePulseTimerRef.current = window.setTimeout(() => setIsUpdating(false), 250)
-      return
-    }
-
-  }, [id, instrumentType, markReadingAlive])
+    },
+    [id, instrumentType, markReadingAlive],
+  )
 
   const { connected } = useDashboardWs({
     organizationId,
@@ -176,10 +196,10 @@ export function RealtimeGauges({
 
   const sendCommand = useCallback(
     async (
-      action: "SET_DEFROST" | "SET_FAN" | "SET_SETPOINT" | "SET_DIFFERENTIAL",
+      action: 'SET_DEFROST' | 'SET_FAN' | 'SET_SETPOINT' | 'SET_DIFFERENTIAL',
       value: boolean | number,
     ) => {
-      if (action === "SET_DEFROST" || action === "SET_FAN") {
+      if (action === 'SET_DEFROST' || action === 'SET_FAN') {
         await sendInstrumentCommand({
           orgSlug,
           instrumentId: id,
@@ -202,7 +222,7 @@ export function RealtimeGauges({
   const handleToggleDefrost = useCallback(
     async (checked: boolean) => {
       setData((prev) => ({ ...prev, defrost: checked }))
-      await sendCommand("SET_DEFROST", checked)
+      await sendCommand('SET_DEFROST', checked)
     },
     [sendCommand],
   )
@@ -211,7 +231,7 @@ export function RealtimeGauges({
     async (checked: boolean) => {
       if (!canControlFan) return
       setData((prev) => ({ ...prev, fan: checked }))
-      await sendCommand("SET_FAN", checked)
+      await sendCommand('SET_FAN', checked)
     },
     [canControlFan, sendCommand],
   )
@@ -224,35 +244,57 @@ export function RealtimeGauges({
         differential: settings.differential,
       }))
 
-      await sendCommand("SET_SETPOINT", settings.setpoint)
-      await sendCommand("SET_DIFFERENTIAL", settings.differential)
+      await sendCommand('SET_SETPOINT', settings.setpoint)
+      await sendCommand('SET_DIFFERENTIAL', settings.differential)
     },
     [sendCommand],
   )
 
-  const primaryValue = instrumentType === "TEMPERATURE" ? data.temperature : data.pressure
-  const primaryUnit = instrumentType === "TEMPERATURE" ? "°C" : "kPa"
+  const primaryValue =
+    instrumentType === 'TEMPERATURE' ? data.temperature : data.pressure
+  const primaryUnit = instrumentType === 'TEMPERATURE' ? '°C' : 'kPa'
   const hasLiveReading = data.connected && primaryValue !== null
-  const displayedOperationalStatus = data.connected ? data.operationalStatus : "alarm"
+  const displayedOperationalStatus = data.connected
+    ? data.operationalStatus
+    : 'alarm'
 
   const tempStatus = useMemo(() => {
     if (!data.connected) {
-      return { status: "critical", label: "Erro de comunicação", color: "bg-red-500" as const }
+      return {
+        status: 'critical',
+        label: 'Erro de comunicação',
+        color: 'bg-red-500' as const,
+      }
     }
     if (primaryValue === null) {
-      return { status: "normal", label: "Sem leitura", color: "bg-gray-500" as const }
+      return {
+        status: 'normal',
+        label: 'Sem leitura',
+        color: 'bg-gray-500' as const,
+      }
     }
     if (primaryValue < minValue || primaryValue > maxValue) {
-      return { status: "critical", label: "Crítico", color: "bg-red-500" as const }
+      return {
+        status: 'critical',
+        label: 'Crítico',
+        color: 'bg-red-500' as const,
+      }
     }
 
     const range = Math.abs(maxValue - minValue)
     const margin = range * 0.2
-    if (primaryValue <= minValue + margin || primaryValue >= maxValue - margin) {
-      return { status: "warning", label: "Atenção", color: "bg-yellow-500" as const }
+    if (
+      primaryValue <= minValue + margin ||
+      primaryValue >= maxValue - margin
+    ) {
+      return {
+        status: 'warning',
+        label: 'Atenção',
+        color: 'bg-yellow-500' as const,
+      }
     }
 
-    return { status: "normal", label: "Normal", color: "bg-green-500" as const }
+    return { status: 'normal', label: 'Normal', color: 'bg-green-500' as const }
   }, [data.connected, maxValue, minValue, primaryValue])
 
   return (
@@ -275,23 +317,27 @@ export function RealtimeGauges({
             {getOperationalStatusBadge(displayedOperationalStatus)}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-sm">
           <Clock className="h-4 w-4" />
           <span suppressHydrationWarning>
             Última atualização: {new Date(data.timestamp).toLocaleTimeString()}
           </span>
-          {isUpdating && <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />}
+          {isUpdating && (
+            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
+          )}
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
-          <Card className={`transition-all duration-300 ${isUpdating ? "ring-2 ring-blue-200" : ""}`}>
+          <Card
+            className={`transition-all duration-300 ${isUpdating ? 'ring-2 ring-blue-200' : ''}`}
+          >
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Thermometer className="h-5 w-5 text-blue-600" />
-                  {instrumentType === "TEMPERATURE" ? "Temperatura" : "Pressão"}
+                  {instrumentType === 'TEMPERATURE' ? 'Temperatura' : 'Pressão'}
                 </CardTitle>
                 <Badge className={tempStatus.color}>{tempStatus.label}</Badge>
               </div>
@@ -302,7 +348,9 @@ export function RealtimeGauges({
                   value={primaryValue}
                   min={minValue}
                   max={maxValue}
-                  status={tempStatus.status as "normal" | "warning" | "critical"}
+                  status={
+                    tempStatus.status as 'normal' | 'warning' | 'critical'
+                  }
                   size={200}
                   type={instrumentType}
                 />
@@ -311,27 +359,29 @@ export function RealtimeGauges({
                   <WifiOff className="h-10 w-10 text-red-500" />
                   <div className="space-y-1">
                     <p className="font-medium text-red-700">
-                      {data.connected ? "Sem leitura em tempo real" : "Instrumento desconectado"}
+                      {data.connected
+                        ? 'Sem leitura em tempo real'
+                        : 'Instrumento desconectado'}
                     </p>
                     <p className="text-sm text-red-600">
                       {data.connected
                         ? `Nenhum valor de ${primaryUnit} disponivel no momento.`
-                        : "Status em erro por perda de comunicacao. A ultima temperatura nao sera exibida."}
+                        : 'Status em erro por perda de comunicacao. A ultima temperatura nao sera exibida.'}
                     </p>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
-
-
         </div>
 
         {canControlInstrument ? (
           <div>
             <Card className="h-full">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Controles Operacionais</CardTitle>
+                <CardTitle className="text-lg">
+                  Controles Operacionais
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <InstrumentControls
@@ -354,11 +404,14 @@ export function RealtimeGauges({
           <div>
             <Card className="h-full">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Controles Operacionais</CardTitle>
+                <CardTitle className="text-lg">
+                  Controles Operacionais
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 px-4 py-6 text-sm text-muted-foreground">
-                  Seu perfil possui acesso somente de visualizacao para este instrumento.
+                <div className="border-muted-foreground/30 bg-muted/30 text-muted-foreground rounded-lg border border-dashed px-4 py-6 text-sm">
+                  Seu perfil possui acesso somente de visualizacao para este
+                  instrumento.
                 </div>
               </CardContent>
             </Card>

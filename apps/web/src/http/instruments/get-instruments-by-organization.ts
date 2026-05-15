@@ -1,17 +1,17 @@
-import { api } from "../api";
+import { api } from '../api'
 
 interface GetInstrumentsByOrganization {
   instruments: {
-    id: string;
-    name: string;
-    slug: string;
-    model: number;
-    orderDisplay: number;
-    maxValue: number;
-    minValue: number;
-    isActive: boolean;
-    type: "TEMPERATURE" | "PRESSURE";
-    idSitrad: number | null;
+    id: string
+    name: string
+    slug: string
+    model: number
+    orderDisplay: number
+    maxValue: number
+    minValue: number
+    isActive: boolean
+    type: 'TEMPERATURE' | 'PRESSURE'
+    idSitrad: number | null
   }[]
 }
 

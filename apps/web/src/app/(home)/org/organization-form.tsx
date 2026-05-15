@@ -30,8 +30,10 @@ export function OrganizationForm({
     ? updateOrganizationAction
     : createOrganizationAction
 
-  const [{ errors, message, success }, handleSubmit, isPending] =
-    useFormState(formAction, onSuccess)
+  const [{ errors, message, success }, handleSubmit, isPending] = useFormState(
+    formAction,
+    onSuccess,
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -46,7 +48,7 @@ export function OrganizationForm({
       )}
 
       {success === true && message && (
-        <Alert >
+        <Alert>
           <AlertTriangle className="size-4" />
           <AlertTitle>Sucesso!</AlertTitle>
           <AlertDescription>
@@ -94,12 +96,12 @@ export function OrganizationForm({
             />
           </div>
           <label htmlFor="shouldAttachUsersByDomain" className="space-y-1">
-            <span className="text-sm font-medium leading-none">
+            <span className="text-sm leading-none font-medium">
               Auto-join novos usuários.
             </span>
-            <p className="text-sm text-muted-foreground">
-              Isso trará automaticamente todos os membros com o mesmo domínio de e-mail
-              para esta empresa.
+            <p className="text-muted-foreground text-sm">
+              Isso trará automaticamente todos os membros com o mesmo domínio de
+              e-mail para esta empresa.
             </p>
           </label>
         </div>
@@ -110,7 +112,6 @@ export function OrganizationForm({
           </p>
         )}
       </div>
-
 
       <Button className="w-full" type="submit" disabled={isPending}>
         {isPending ? (

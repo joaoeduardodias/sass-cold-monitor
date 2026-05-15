@@ -1,6 +1,14 @@
-import { api } from "../api"
+import { api } from '../api'
 
-export const auditLogTypes = ["SYSTEM", "MEMBER", "INVITE", "INSTRUMENT", "DATA", "NOTIFICATION", "ALERT"] as const
+export const auditLogTypes = [
+  'SYSTEM',
+  'MEMBER',
+  'INVITE',
+  'INSTRUMENT',
+  'DATA',
+  'NOTIFICATION',
+  'ALERT',
+] as const
 
 export type AuditLogType = (typeof auditLogTypes)[number]
 
@@ -13,7 +21,7 @@ export type AuditLog = {
   action: string
   details: string
   actor: string | null
-  status: "success" | "failed"
+  status: 'success' | 'failed'
 }
 
 type GetAuditLogsParams = {
@@ -41,12 +49,12 @@ type GetAuditLogsResponse = {
 export async function getAuditLogs(params: GetAuditLogsParams) {
   const searchParams = new URLSearchParams()
 
-  if (params.startDate) searchParams.set("startDate", params.startDate)
-  if (params.endDate) searchParams.set("endDate", params.endDate)
-  if (params.type) searchParams.set("type", params.type)
-  if (params.actor?.trim()) searchParams.set("actor", params.actor.trim())
-  if (params.page) searchParams.set("page", String(params.page))
-  if (params.pageSize) searchParams.set("pageSize", String(params.pageSize))
+  if (params.startDate) searchParams.set('startDate', params.startDate)
+  if (params.endDate) searchParams.set('endDate', params.endDate)
+  if (params.type) searchParams.set('type', params.type)
+  if (params.actor?.trim()) searchParams.set('actor', params.actor.trim())
+  if (params.page) searchParams.set('page', String(params.page))
+  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize))
 
   const query = searchParams.toString()
   const endpoint = query

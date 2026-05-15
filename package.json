@@ -6,9 +6,11 @@
     "dev": "turbo run dev",
     "dev:collector": "pnpm --filter @cold-monitor/collector dev",
     "dist:collector": "pnpm --filter @cold-monitor/collector dist",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "devDependencies": {
+    "tsx": "^4.20.3",
     "turbo": "^2.5.4"
   },
   "packageManager": "pnpm@10.28.1",

@@ -1,32 +1,30 @@
-import { defineAbilityFor } from '@cold-monitor/auth';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { defineAbilityFor } from '@cold-monitor/auth'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
-import { getMembership } from '@/http/members/get-membership';
-import { getProfile } from '@/http/users/get-profile';
-
+import { getMembership } from '@/http/members/get-membership'
+import { getProfile } from '@/http/users/get-profile'
 
 export async function getToken(): Promise<string | undefined> {
   try {
-    const cookiesStore = await cookies();
-    return cookiesStore.get('token')?.value;
+    const cookiesStore = await cookies()
+    return cookiesStore.get('token')?.value
   } catch {
-    return undefined;
+    return undefined
   }
 }
 export async function isAuthenticated(): Promise<boolean> {
-  const token = await getToken();
-  return !!token;
+  const token = await getToken()
+  return !!token
 }
-
 
 export async function getCurrentOrg(explicitOrg?: string) {
   if (explicitOrg) {
-    return explicitOrg;
+    return explicitOrg
   }
 
-  const cookiesStore = await cookies();
-  return cookiesStore.get('org')?.value;
+  const cookiesStore = await cookies()
+  return cookiesStore.get('org')?.value
 }
 
 export async function getCurrentMembership(explicitOrg?: string) {
@@ -49,7 +47,7 @@ export async function ability(explicitOrg?: string) {
   }
 
   const ability = defineAbilityFor({
-    __typename: "User",
+    __typename: 'User',
     id: membership.userId,
     role: membership.role,
   })
@@ -68,7 +66,7 @@ export async function auth() {
     const { user } = await getProfile()
 
     return { user }
-  } catch { }
+  } catch {}
 
   redirect('/api/auth/sign-out')
 }

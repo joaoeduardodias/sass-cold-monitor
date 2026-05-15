@@ -1,17 +1,24 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
 interface GaugeProps {
   value: number
   min: number
   max: number
-  status: "normal" | "warning" | "critical"
-  type: "TEMPERATURE" | "PRESSURE"
+  status: 'normal' | 'warning' | 'critical'
+  type: 'TEMPERATURE' | 'PRESSURE'
   size?: number
 }
 
-export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps) {
+export function Gauge({
+  value,
+  min,
+  max,
+  status,
+  type,
+  size = 120,
+}: GaugeProps) {
   const [animatedValue, setAnimatedValue] = useState(min)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -32,34 +39,37 @@ export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps)
   }, [value])
 
   // Calcular o percentual (0-100)
-  const percentage = Math.max(0, Math.min(100, ((animatedValue - min) / (max - min)) * 100))
+  const percentage = Math.max(
+    0,
+    Math.min(100, ((animatedValue - min) / (max - min)) * 100),
+  )
 
   // Cores baseadas no status
   const getColors = () => {
     switch (status) {
-      case "normal":
+      case 'normal':
         return {
-          primary: "#10b981", // green-500
-          secondary: "#d1fae5", // green-100
-          background: "#f0fdf4", // green-50
+          primary: '#10b981', // green-500
+          secondary: '#d1fae5', // green-100
+          background: '#f0fdf4', // green-50
         }
-      case "warning":
+      case 'warning':
         return {
-          primary: "#f59e0b", // yellow-500
-          secondary: "#fef3c7", // yellow-100
-          background: "#fffbeb", // yellow-50
+          primary: '#f59e0b', // yellow-500
+          secondary: '#fef3c7', // yellow-100
+          background: '#fffbeb', // yellow-50
         }
-      case "critical":
+      case 'critical':
         return {
-          primary: "#ef4444", // red-500
-          secondary: "#fecaca", // red-100
-          background: "#fef2f2", // red-50
+          primary: '#ef4444', // red-500
+          secondary: '#fecaca', // red-100
+          background: '#fef2f2', // red-50
         }
       default:
         return {
-          primary: "#6b7280", // gray-500
-          secondary: "#e5e7eb", // gray-200
-          background: "#f9fafb", // gray-50
+          primary: '#6b7280', // gray-500
+          secondary: '#e5e7eb', // gray-200
+          background: '#f9fafb', // gray-50
         }
     }
   }
@@ -78,8 +88,8 @@ export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps)
       <svg
         width={size}
         height={size}
-        className="transform -rotate-90"
-        style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
+        className="-rotate-90 transform"
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
       >
         <circle
           cx={centerX}
@@ -100,7 +110,7 @@ export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps)
           strokeLinecap="round"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
-          className={`transition-all duration-1000 ease-out ${isAnimating ? "animate-pulse" : ""}`}
+          className={`transition-all duration-1000 ease-out ${isAnimating ? 'animate-pulse' : ''}`}
           style={{
             filter: `drop-shadow(0 0 6px ${colors.primary}40)`,
           }}
@@ -110,12 +120,14 @@ export function Gauge({ value, min, max, status, type, size = 120 }: GaugeProps)
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
           <div
-            className={`text-xl font-bold transition-all duration-500 ${isAnimating ? "scale-110" : "scale-100"}`}
+            className={`text-xl font-bold transition-all duration-500 ${isAnimating ? 'scale-110' : 'scale-100'}`}
             style={{ color: colors.primary }}
           >
             {animatedValue.toFixed(1)}
           </div>
-          <div className="text-xs text-muted-foreground font-medium">{type === "TEMPERATURE" ? "°C" : " Bar"}</div>
+          <div className="text-muted-foreground text-xs font-medium">
+            {type === 'TEMPERATURE' ? '°C' : ' Bar'}
+          </div>
         </div>
       </div>
     </div>

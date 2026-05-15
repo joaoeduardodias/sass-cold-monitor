@@ -1,18 +1,18 @@
-import { api } from "../api"
+import { api } from '../api'
 
 type InstrumentCommandRequest =
   | {
-    orgSlug: string
-    instrumentId: string
-    action: "SET_DEFROST" | "SET_FAN"
-    value: boolean
-  }
+      orgSlug: string
+      instrumentId: string
+      action: 'SET_DEFROST' | 'SET_FAN'
+      value: boolean
+    }
   | {
-    orgSlug: string
-    instrumentId: string
-    action: "SET_SETPOINT" | "SET_DIFFERENTIAL"
-    value: number
-  }
+      orgSlug: string
+      instrumentId: string
+      action: 'SET_SETPOINT' | 'SET_DIFFERENTIAL'
+      value: number
+    }
 
 export async function sendInstrumentCommand({
   orgSlug,
@@ -20,10 +20,13 @@ export async function sendInstrumentCommand({
   action,
   value,
 }: InstrumentCommandRequest) {
-  await api.post(`organizations/${orgSlug}/instruments/${instrumentId}/command`, {
-    json: {
-      action,
-      value,
+  await api.post(
+    `organizations/${orgSlug}/instruments/${instrumentId}/command`,
+    {
+      json: {
+        action,
+        value,
+      },
     },
-  })
+  )
 }

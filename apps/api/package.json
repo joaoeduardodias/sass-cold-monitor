@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "pnpm env:load tsx watch src/http/server.ts",
     "build": "tsup",
+    "test": "tsx --test src/utils/create-slug.test.ts src/utils/notifications/evaluate-alert-level.test.ts",
     "start": "pnpm env:load node dist/http/server.js",
     "db:migrate": "pnpm env:load prisma migrate dev",
     "db:migrate:deploy": "pnpm env:load prisma migrate deploy",

@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 
 export type InstrumentDataPoint = {
   id: string
@@ -23,7 +23,7 @@ export interface GetInstrumentDataResponse {
     name: string
     dateOpen: string
     dateClose: string
-    type: "JOIN" | "TEMPERATURE" | "PRESSURE"
+    type: 'JOIN' | 'TEMPERATURE' | 'PRESSURE'
     chartDataTemperature: InstrumentDataPoint[]
     chartDataPressure: InstrumentDataPoint[]
     tableDataTemperature: InstrumentDataPoint[]

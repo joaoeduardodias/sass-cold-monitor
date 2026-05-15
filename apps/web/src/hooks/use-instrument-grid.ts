@@ -1,35 +1,48 @@
-"use client"
+'use client'
 
-import type { DashboardWsMessage, Instrument, InstrumentStatus } from "@/components/instrument-grid.types"
-import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments-by-organization"
-import { getNotificationSettings } from "@/http/notifications/get-notification-settings"
-import { useDashboardWs } from "@/hooks/use-dashboard-ws"
-import { mapOperationalStatus } from "@/utils/get-operational-status-badge"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { toast } from "sonner"
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
+
+import type {
+  DashboardWsMessage,
+  Instrument,
+  InstrumentStatus,
+} from '@/components/instrument-grid.types'
+import { useDashboardWs } from '@/hooks/use-dashboard-ws'
+import { getInstrumentsByOrganization } from '@/http/instruments/get-instruments-by-organization'
+import { getNotificationSettings } from '@/http/notifications/get-notification-settings'
+import { mapOperationalStatus } from '@/utils/get-operational-status-badge'
 
 const COMMUNICATION_TIMEOUT_MS = 10_000
 const WARNING_THRESHOLD = 0.3
 const CRITICAL_THRESHOLD = 0.1
 
 function toNumberOrNull(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return null
   }
 
   return value
 }
 
-function getStatusByValue(value: number, minValue: number, maxValue: number): InstrumentStatus {
-  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue) || minValue === maxValue) {
-    return "normal"
+function getStatusByValue(
+  value: number,
+  minValue: number,
+  maxValue: number,
+): InstrumentStatus {
+  if (
+    !Number.isFinite(minValue) ||
+    !Number.isFinite(maxValue) ||
+    minValue === maxValue
+  ) {
+    return 'normal'
   }
 
   const lowerBound = Math.min(minValue, maxValue)
   const upperBound = Math.max(minValue, maxValue)
 
   if (value <= lowerBound || value >= upperBound) {
-    return "critical"
+    return 'critical'
   }
 
   const range = upperBound - lowerBound
@@ -39,14 +52,14 @@ function getStatusByValue(value: number, minValue: number, maxValue: number): In
   const boundaryDistanceRatio = nearestBoundaryDistance / range
 
   if (boundaryDistanceRatio <= CRITICAL_THRESHOLD) {
-    return "critical"
+    return 'critical'
   }
 
   if (boundaryDistanceRatio <= WARNING_THRESHOLD) {
-    return "warning"
+    return 'warning'
   }
 
-  return "normal"
+  return 'normal'
 }
 
 type UseInstrumentGridParams = {
@@ -54,16 +67,19 @@ type UseInstrumentGridParams = {
   organizationSlug: string
 }
 
-function createInitialInstrument(organizationId: string, instrument: {
-  id: string
-  idSitrad: number | null
-  name: string
-  slug: string
-  model: number
-  type: "TEMPERATURE" | "PRESSURE"
-  minValue: number
-  maxValue: number
-}): Instrument {
+function createInitialInstrument(
+  organizationId: string,
+  instrument: {
+    id: string
+    idSitrad: number | null
+    name: string
+    slug: string
+    model: number
+    type: 'TEMPERATURE' | 'PRESSURE'
+    minValue: number
+    maxValue: number
+  },
+): Instrument {
   return {
     id: instrument.id,
     idSitrad: instrument.idSitrad,
@@ -75,8 +91,8 @@ function createInitialInstrument(organizationId: string, instrument: {
     min: instrument.minValue,
     max: instrument.maxValue,
     value: null,
-    status: "normal",
-    operationalStatus: "idle",
+    status: 'normal',
+    operationalStatus: 'idle',
     error: false,
     isSensorError: false,
     isFan: false,
@@ -86,7 +102,10 @@ function createInitialInstrument(organizationId: string, instrument: {
   }
 }
 
-export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstrumentGridParams) {
+export function useInstrumentGrid({
+  organizationId,
+  organizationSlug,
+}: UseInstrumentGridParams) {
   const [instruments, setInstruments] = useState<Instrument[]>([])
   const [loading, setLoading] = useState(true)
   const [wsConnectedAt, setWsConnectedAt] = useState<number | null>(null)
@@ -94,19 +113,29 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
 
   const pushEnabledRef = useRef(true)
   const hasShownLoadErrorRef = useRef(false)
-  const alertStatusByInstrumentRef = useRef<Map<string, InstrumentStatus>>(new Map())
+  const alertStatusByInstrumentRef = useRef<Map<string, InstrumentStatus>>(
+    new Map(),
+  )
 
   const notifyStatusAlert = useCallback((instrument: Instrument) => {
-    if (instrument.value === null || instrument.status === "normal") return
+    if (instrument.value === null || instrument.status === 'normal') return
 
-    const title = `Alerta ${instrument.status === "critical" ? "Crítico" : "de Atenção"}`
+    const title = `Alerta ${instrument.status === 'critical' ? 'Crítico' : 'de Atenção'}`
     const body = `${instrument.name}: valor ${instrument.value.toFixed(1)} (mín ${instrument.min.toFixed(1)} / máx ${instrument.max.toFixed(1)})`
 
-    if (pushEnabledRef.current && "Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body, tag: `alert-${instrument.id}` })
+    if (
+      pushEnabledRef.current &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      const notification = new Notification(title, {
+        body,
+        tag: `alert-${instrument.id}`,
+      })
+      notification.onshow = null
     }
 
-    if (instrument.status === "critical") {
+    if (instrument.status === 'critical') {
       toast.error(body)
       return
     }
@@ -119,14 +148,19 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
 
     const loadInstruments = async () => {
       try {
-        const { instruments: responseInstruments } = await getInstrumentsByOrganization(organizationSlug)
+        const { instruments: responseInstruments } =
+          await getInstrumentsByOrganization(organizationSlug)
         if (!isMounted) return
 
         hasShownLoadErrorRef.current = false
-        setInstruments(responseInstruments.map((instrument) => createInitialInstrument(organizationId, instrument)))
+        setInstruments(
+          responseInstruments.map((instrument) =>
+            createInitialInstrument(organizationId, instrument),
+          ),
+        )
       } catch {
         if (!hasShownLoadErrorRef.current) {
-          toast.error("Não foi possível carregar os instrumentos.")
+          toast.error('Não foi possível carregar os instrumentos.')
           hasShownLoadErrorRef.current = true
         }
       } finally {
@@ -136,7 +170,7 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
       }
     }
 
-    void loadInstruments()
+    loadInstruments()
     return () => {
       isMounted = false
     }
@@ -153,10 +187,14 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
     }
 
     for (const instrument of instruments) {
-      const previousStatus = previousStatuses.get(instrument.id) ?? "normal"
+      const previousStatus = previousStatuses.get(instrument.id) ?? 'normal'
       previousStatuses.set(instrument.id, instrument.status)
 
-      if (instrument.error || instrument.isSensorError || instrument.status === "normal") {
+      if (
+        instrument.error ||
+        instrument.isSensorError ||
+        instrument.status === 'normal'
+      ) {
         continue
       }
 
@@ -178,8 +216,8 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
 
   useEffect(() => {
     const requestBrowserPermission = async () => {
-      if (!("Notification" in window)) return
-      if (Notification.permission === "default") {
+      if (!('Notification' in window)) return
+      if (Notification.permission === 'default') {
         await Notification.requestPermission()
       }
     }
@@ -195,14 +233,16 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
       await requestBrowserPermission()
     }
 
-    void setupNotifications()
+    setupNotifications()
   }, [organizationSlug])
 
   const handleDashboardMessage = useCallback((message: DashboardWsMessage) => {
-    if (message.type === "INSTRUMENT_VALUES") {
+    if (message.type === 'INSTRUMENT_VALUES') {
       setWsConnectedAt(Date.now())
       setInstruments((prev) => {
-        const prevById = new Map(prev.map((instrument) => [instrument.id, instrument]))
+        const prevById = new Map(
+          prev.map((instrument) => [instrument.id, instrument]),
+        )
         const nextById = new Map(prevById)
         const updatedAt = new Date().toISOString()
 
@@ -211,9 +251,10 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
           const nextValue = toNumberOrNull(reading.value)
           const min = previous?.min ?? 0
           const max = previous?.max ?? 0
-          const status = nextValue !== null
-            ? getStatusByValue(nextValue, min, max)
-            : previous?.status ?? "normal"
+          const status =
+            nextValue !== null
+              ? getStatusByValue(nextValue, min, max)
+              : (previous?.status ?? 'normal')
 
           nextById.set(reading.instrumentId, {
             id: reading.instrumentId,
@@ -231,18 +272,25 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
             error: reading.error,
             isSensorError: reading.isSensorError,
             isFan: reading.isFan,
-            setpoint: toNumberOrNull(reading.setPoint) ?? previous?.setpoint ?? 0,
-            differential: toNumberOrNull(reading.differential) ?? previous?.differential ?? 0,
+            setpoint:
+              toNumberOrNull(reading.setPoint) ?? previous?.setpoint ?? 0,
+            differential:
+              toNumberOrNull(reading.differential) ??
+              previous?.differential ??
+              0,
             lastUpdated: updatedAt,
           })
         }
 
-        const ordered = prev.map((instrument) => nextById.get(instrument.id) ?? instrument)
+        const ordered = prev.map(
+          (instrument) => nextById.get(instrument.id) ?? instrument,
+        )
         const existingIds = new Set(prev.map((instrument) => instrument.id))
         const appended = message.payload
           .map((reading) => nextById.get(reading.instrumentId))
-          .filter((instrument): instrument is Instrument =>
-            instrument !== undefined && !existingIds.has(instrument.id),
+          .filter(
+            (instrument): instrument is Instrument =>
+              instrument !== undefined && !existingIds.has(instrument.id),
           )
 
         return [...ordered, ...appended]
@@ -250,31 +298,40 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
       return
     }
 
-    if (message.type === "INSTRUMENT_UPDATE") {
+    if (message.type === 'INSTRUMENT_UPDATE') {
       setWsConnectedAt(Date.now())
-      setInstruments((prev) => prev.map((instrument) => {
-        if (instrument.id !== message.payload.instrumentId) {
-          return instrument
-        }
+      setInstruments((prev) =>
+        prev.map((instrument) => {
+          if (instrument.id !== message.payload.instrumentId) {
+            return instrument
+          }
 
-        const nextValue = toNumberOrNull(message.payload.value) ?? instrument.value
-        const nextMin = message.payload.minValue
-        const nextMax = message.payload.maxValue
+          const nextValue =
+            toNumberOrNull(message.payload.value) ?? instrument.value
+          const nextMin = message.payload.minValue
+          const nextMax = message.payload.maxValue
 
-        return {
-          ...instrument,
-          min: nextMin,
-          max: nextMax,
-          value: nextValue,
-          setpoint: toNumberOrNull(message.payload.setpoint) ?? instrument.setpoint,
-          differential: toNumberOrNull(message.payload.differential) ?? instrument.differential,
-          operationalStatus: mapOperationalStatus(message.payload.status),
-          status: nextValue !== null ? getStatusByValue(nextValue, nextMin, nextMax) : instrument.status,
-          isSensorError: message.payload.isSensorError,
-          isFan: message.payload.isFan,
-          lastUpdated: message.payload.updatedAt,
-        }
-      }))
+          return {
+            ...instrument,
+            min: nextMin,
+            max: nextMax,
+            value: nextValue,
+            setpoint:
+              toNumberOrNull(message.payload.setpoint) ?? instrument.setpoint,
+            differential:
+              toNumberOrNull(message.payload.differential) ??
+              instrument.differential,
+            operationalStatus: mapOperationalStatus(message.payload.status),
+            status:
+              nextValue !== null
+                ? getStatusByValue(nextValue, nextMin, nextMax)
+                : instrument.status,
+            isSensorError: message.payload.isSensorError,
+            isFan: message.payload.isFan,
+            lastUpdated: message.payload.updatedAt,
+          }
+        }),
+      )
     }
   }, [])
 
@@ -292,7 +349,9 @@ export function useInstrumentGrid({ organizationId, organizationSlug }: UseInstr
   const isCommunicationFailure = useCallback(
     (instrument: Instrument) => {
       if (!wsConnectedAt) return false
-      const referenceTs = instrument.lastUpdated ? new Date(instrument.lastUpdated).getTime() : wsConnectedAt
+      const referenceTs = instrument.lastUpdated
+        ? new Date(instrument.lastUpdated).getTime()
+        : wsConnectedAt
       return nowMs - referenceTs > COMMUNICATION_TIMEOUT_MS
     },
     [nowMs, wsConnectedAt],

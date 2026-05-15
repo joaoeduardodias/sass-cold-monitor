@@ -1,21 +1,6 @@
-"use client"
+'use client'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink
-} from "@/components/ui/pagination"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AlertCircle,
   ArrowDown,
@@ -28,13 +13,41 @@ import {
   Edit,
   RotateCcw,
   Save,
-  Trash2
-} from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { toast } from "sonner"
+  Trash2,
+} from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
-import { getInstrumentsByOrganization } from "@/http/instruments/get-instruments-by-organization"
-import { updateInstruments } from "@/http/instruments/update-instruments"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+} from '@/components/ui/pagination'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { getInstrumentsByOrganization } from '@/http/instruments/get-instruments-by-organization'
+import { updateInstruments } from '@/http/instruments/update-instruments'
 
 type Instrument = {
   id: string
@@ -45,7 +58,7 @@ type Instrument = {
   maxValue: number
   minValue: number
   isActive: boolean
-  type: "TEMPERATURE" | "PRESSURE"
+  type: 'TEMPERATURE' | 'PRESSURE'
   idSitrad: number | null
 }
 
@@ -54,54 +67,63 @@ type InstrumentsMapped = {
   name: string
   slug: string
   type: string
-  typeKey: "TEMPERATURE" | "PRESSURE"
+  typeKey: 'TEMPERATURE' | 'PRESSURE'
   maxValue: number
   minValue: number
   active: boolean
-  status: "online" | "offline"
+  status: 'online' | 'offline'
   orderDisplay: number
   model: number
   idSitrad: number | null
 }
-
 
 type InstrumentSettingsProps = {
   initialInstruments?: Instrument[]
   organizationSlug?: string
 }
 const instrumentType: Record<string, string> = {
-  TEMPERATURE: "Temperatura",
-  PRESSURE: "Pressão"
+  TEMPERATURE: 'Temperatura',
+  PRESSURE: 'Pressão',
 }
 
-const parseInstrumentType = (value: string): "TEMPERATURE" | "PRESSURE" | null => {
+const parseInstrumentType = (
+  value: string,
+): 'TEMPERATURE' | 'PRESSURE' | null => {
   const normalized = value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
 
-  if (normalized === "temperature" || normalized === "temperatura" || normalized === "temp") {
-    return "TEMPERATURE"
+  if (
+    normalized === 'temperature' ||
+    normalized === 'temperatura' ||
+    normalized === 'temp'
+  ) {
+    return 'TEMPERATURE'
   }
 
-  if (normalized === "pressure" || normalized === "pressao" || normalized === "pres") {
-    return "PRESSURE"
+  if (
+    normalized === 'pressure' ||
+    normalized === 'pressao' ||
+    normalized === 'pres'
+  ) {
+    return 'PRESSURE'
   }
 
-  if (value.toUpperCase() === "TEMPERATURE") return "TEMPERATURE"
-  if (value.toUpperCase() === "PRESSURE") return "PRESSURE"
+  if (value.toUpperCase() === 'TEMPERATURE') return 'TEMPERATURE'
+  if (value.toUpperCase() === 'PRESSURE') return 'PRESSURE'
 
   return null
 }
 
 const slugify = (value: string) =>
   value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 
 const instrumentsMapped = (instruments: Instrument[]): InstrumentsMapped[] =>
   instruments.map((instrument) => {
@@ -117,24 +139,34 @@ const instrumentsMapped = (instruments: Instrument[]): InstrumentsMapped[] =>
       minValue,
       maxValue,
       active: instrument.isActive,
-      status: instrument.isActive ? "online" : "offline",
+      status: instrument.isActive ? 'online' : 'offline',
       orderDisplay: instrument.orderDisplay,
       model: instrument.model,
       idSitrad: instrument.idSitrad,
     }
   })
 
-export function ChamberSettings({ initialInstruments, organizationSlug }: InstrumentSettingsProps) {
+export function ChamberSettings({
+  initialInstruments,
+  organizationSlug,
+}: InstrumentSettingsProps) {
   const queryClient = useQueryClient()
-  const { data: instrumentsData, isLoading, error } = useQuery({
-    queryKey: ["instruments", organizationSlug],
+  const {
+    data: instrumentsData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['instruments', organizationSlug],
     queryFn: async () => {
       if (!organizationSlug) return []
-      const { instruments } = await getInstrumentsByOrganization(organizationSlug)
+      const { instruments } =
+        await getInstrumentsByOrganization(organizationSlug)
       return instrumentsMapped(instruments)
     },
     enabled: Boolean(organizationSlug),
-    initialData: initialInstruments ? instrumentsMapped(initialInstruments) : [],
+    initialData: initialInstruments
+      ? instrumentsMapped(initialInstruments)
+      : [],
     staleTime: 30_000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -147,20 +179,31 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
     return []
   })
 
-  const [originalInstruments, setOriginalInstruments] = useState<InstrumentsMapped[]>([])
-  const [editingCell, setEditingCell] = useState<{ id: string; field: string } | null>(null)
-  const [editValue, setEditValue] = useState("")
+  const [originalInstruments, setOriginalInstruments] = useState<
+    InstrumentsMapped[]
+  >([])
+  const [editingCell, setEditingCell] = useState<{
+    id: string
+    field: string
+  } | null>(null)
+  const [editValue, setEditValue] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [nameSortDirection, setNameSortDirection] = useState<"asc" | "desc" | null>(null)
-  const [pendingNameSortDirection, setPendingNameSortDirection] = useState<"asc" | "desc" | null>(null)
+  const [nameSortDirection, setNameSortDirection] = useState<
+    'asc' | 'desc' | null
+  >(null)
+  const [pendingNameSortDirection, setPendingNameSortDirection] = useState<
+    'asc' | 'desc' | null
+  >(null)
   const [showNameSortAlert, setShowNameSortAlert] = useState(false)
 
   const sortedInstruments = useMemo(() => {
     const list = [...instruments]
     if (nameSortDirection) {
-      const direction = nameSortDirection === "asc" ? 1 : -1
-      return list.sort((a, b) => direction * a.name.localeCompare(b.name, "pt-BR"))
+      const direction = nameSortDirection === 'asc' ? 1 : -1
+      return list.sort(
+        (a, b) => direction * a.name.localeCompare(b.name, 'pt-BR'),
+      )
     }
     return list.sort((a, b) => a.orderDisplay - b.orderDisplay)
   }, [instruments, nameSortDirection])
@@ -178,7 +221,8 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
   const lastSyncRef = useRef<string | null>(null)
   const sourceInstruments = useMemo(() => {
     if (organizationSlug && instrumentsData) return instrumentsData
-    if (initialInstruments !== undefined) return instrumentsMapped(initialInstruments)
+    if (initialInstruments !== undefined)
+      return instrumentsMapped(initialInstruments)
     return null
   }, [organizationSlug, instrumentsData, initialInstruments])
 
@@ -204,50 +248,63 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
   const canFetch = Boolean(organizationSlug) || initialInstruments !== undefined
   const hasError = Boolean(error)
 
-  const activeCount = useMemo(() => instruments.filter((c) => c.active).length, [instruments])
-  const onlineCount = useMemo(() => instruments.filter((c) => c.status === "online").length, [instruments])
-  const offlineCount = useMemo(() => instruments.filter((c) => c.status === "offline").length, [instruments])
+  const activeCount = useMemo(
+    () => instruments.filter((c) => c.active).length,
+    [instruments],
+  )
+  const onlineCount = useMemo(
+    () => instruments.filter((c) => c.status === 'online').length,
+    [instruments],
+  )
+  const offlineCount = useMemo(
+    () => instruments.filter((c) => c.status === 'offline').length,
+    [instruments],
+  )
 
   const hasRealChanges = () => {
     if (originalInstruments.length === 0) return false
     return JSON.stringify(instruments) !== JSON.stringify(originalInstruments)
   }
 
-  const handleCellDoubleClick = (instruments: InstrumentsMapped, field: string) => {
-    if (field === "active" || field === "status" || field === "slug") return
+  const handleCellDoubleClick = (
+    instruments: InstrumentsMapped,
+    field: string,
+  ) => {
+    if (field === 'active' || field === 'status' || field === 'slug') return
     setEditingCell({ id: instruments.id, field })
-    const originalValue = instruments[field as keyof InstrumentsMapped]?.toString() || ""
+    const originalValue =
+      instruments[field as keyof InstrumentsMapped]?.toString() || ''
     setEditValue(originalValue)
   }
 
   const handleCellEdit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell("down")
-    } else if (e.key === "Tab") {
+      navigateToNextCell('down')
+    } else if (e.key === 'Tab') {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell(e.shiftKey ? "left" : "right")
-    } else if (e.key === "ArrowDown" && e.ctrlKey) {
+      navigateToNextCell(e.shiftKey ? 'left' : 'right')
+    } else if (e.key === 'ArrowDown' && e.ctrlKey) {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell("down")
-    } else if (e.key === "ArrowUp" && e.ctrlKey) {
+      navigateToNextCell('down')
+    } else if (e.key === 'ArrowUp' && e.ctrlKey) {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell("up")
-    } else if (e.key === "ArrowRight" && e.ctrlKey) {
+      navigateToNextCell('up')
+    } else if (e.key === 'ArrowRight' && e.ctrlKey) {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell("right")
-    } else if (e.key === "ArrowLeft" && e.ctrlKey) {
+      navigateToNextCell('right')
+    } else if (e.key === 'ArrowLeft' && e.ctrlKey) {
       e.preventDefault()
       saveCellEdit()
-      navigateToNextCell("left")
-    } else if (e.key === "Escape") {
+      navigateToNextCell('left')
+    } else if (e.key === 'Escape') {
       setEditingCell(null)
-      setEditValue("")
+      setEditValue('')
     }
   }
 
@@ -256,10 +313,10 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
 
     let newValue: string | number = editValue
 
-    if (["minValue", "maxValue", "orderDisplay"].includes(editingCell.field)) {
+    if (['minValue', 'maxValue', 'orderDisplay'].includes(editingCell.field)) {
       const numValue = Number.parseFloat(editValue)
       if (isNaN(numValue)) {
-        toast.error("Valor inválido")
+        toast.error('Valor inválido')
         return
       }
       newValue = numValue
@@ -269,15 +326,15 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
       prev.map((instruments) => {
         if (instruments.id !== editingCell.id) return instruments
 
-        if (editingCell.field === "name") {
+        if (editingCell.field === 'name') {
           const nextName = String(newValue)
           return { ...instruments, name: nextName, slug: slugify(nextName) }
         }
 
-        if (editingCell.field === "type") {
+        if (editingCell.field === 'type') {
           const parsedType = parseInstrumentType(String(newValue))
           if (!parsedType) {
-            toast.error("Tipo inválido. Use Temperatura ou Pressão.")
+            toast.error('Tipo inválido. Use Temperatura ou Pressão.')
             return instruments
           }
 
@@ -293,28 +350,30 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
     )
 
     setEditingCell(null)
-    setEditValue("")
-    toast.success("Valor alterado")
+    setEditValue('')
+    toast.success('Valor alterado')
   }
 
-  const navigateToNextCell = (direction: "up" | "down" | "left" | "right") => {
+  const navigateToNextCell = (direction: 'up' | 'down' | 'left' | 'right') => {
     if (!editingCell) return
 
     const editableFields = [
-      "orderDisplay",
-      "name",
-      "type",
-      "minValue",
-      "maxValue",
+      'orderDisplay',
+      'name',
+      'type',
+      'minValue',
+      'maxValue',
     ]
-    const currentInstrumentsIndex = sortedInstruments.findIndex((c) => c.id === editingCell.id)
+    const currentInstrumentsIndex = sortedInstruments.findIndex(
+      (c) => c.id === editingCell.id,
+    )
     const currentFieldIndex = editableFields.indexOf(editingCell.field)
 
     let nextInstrumentsId = editingCell.id
     let nextField = editingCell.field
 
     switch (direction) {
-      case "down":
+      case 'down':
         if (currentInstrumentsIndex < sortedInstruments.length - 1) {
           nextInstrumentsId = sortedInstruments[currentInstrumentsIndex + 1].id
         } else {
@@ -322,7 +381,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         }
         break
 
-      case "up":
+      case 'up':
         if (currentInstrumentsIndex > 0) {
           nextInstrumentsId = sortedInstruments[currentInstrumentsIndex - 1].id
         } else {
@@ -330,52 +389,67 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         }
         break
 
-      case "right":
+      case 'right':
         if (currentFieldIndex < editableFields.length - 1) {
           nextField = editableFields[currentFieldIndex + 1]
         } else {
           nextField = editableFields[0]
           if (currentInstrumentsIndex < sortedInstruments.length - 1) {
-            nextInstrumentsId = sortedInstruments[currentInstrumentsIndex + 1].id
+            nextInstrumentsId =
+              sortedInstruments[currentInstrumentsIndex + 1].id
           } else {
             nextInstrumentsId = sortedInstruments[0].id
           }
         }
         break
 
-      case "left":
+      case 'left':
         if (currentFieldIndex > 0) {
           nextField = editableFields[currentFieldIndex - 1]
         } else {
           nextField = editableFields[editableFields.length - 1]
           if (currentInstrumentsIndex > 0) {
-            nextInstrumentsId = sortedInstruments[currentInstrumentsIndex - 1].id
+            nextInstrumentsId =
+              sortedInstruments[currentInstrumentsIndex - 1].id
           } else {
-            nextInstrumentsId = sortedInstruments[sortedInstruments.length - 1].id
+            nextInstrumentsId =
+              sortedInstruments[sortedInstruments.length - 1].id
           }
         }
         break
     }
 
-    const targetInstruments = instruments.find((c) => c.id === nextInstrumentsId)
+    const targetInstruments = instruments.find(
+      (c) => c.id === nextInstrumentsId,
+    )
     if (targetInstruments) {
       setEditingCell({ id: nextInstrumentsId, field: nextField })
-      setEditValue(targetInstruments[nextField as keyof InstrumentsMapped]?.toString() || "")
+      setEditValue(
+        targetInstruments[nextField as keyof InstrumentsMapped]?.toString() ||
+          '',
+      )
     }
   }
 
-  const moveOrderDisplay = (instrumentsId: string, direction: "up" | "down") => {
+  const moveOrderDisplay = (
+    instrumentsId: string,
+    direction: 'up' | 'down',
+  ) => {
     if (nameSortDirection) {
-      toast.info("Desative a ordenação por nome para ajustar a ordem manualmente.")
+      toast.info(
+        'Desative a ordenação por nome para ajustar a ordem manualmente.',
+      )
       return
     }
     const instrument = instruments.find((c) => c.id === instrumentsId)
     if (!instrument) return
 
     const currentOrder = instrument.orderDisplay
-    const targetOrder = direction === "up" ? currentOrder - 1 : currentOrder + 1
+    const targetOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1
 
-    const targetInstruments = instruments.find((c) => c.orderDisplay === targetOrder)
+    const targetInstruments = instruments.find(
+      (c) => c.orderDisplay === targetOrder,
+    )
 
     if (targetInstruments) {
       setInstruments((prev) =>
@@ -399,25 +473,25 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
       prev.map((instruments) =>
         instruments.id === id
           ? {
-            ...instruments,
-            active: !instruments.active,
-            status: instruments.active ? "offline" : "online",
-          }
+              ...instruments,
+              active: !instruments.active,
+              status: instruments.active ? 'offline' : 'online',
+            }
           : instruments,
       ),
     )
-    toast.success("Status da câmara alterado")
+    toast.success('Status da câmara alterado')
   }
 
   const deleteInstruments = (id: string) => {
     setInstruments(instruments.filter((c) => c.id !== id))
-    toast.success("Câmara removida")
+    toast.success('Câmara removida')
   }
 
-  const applyNameSort = (direction: "asc" | "desc") => {
-    const multiplier = direction === "asc" ? 1 : -1
-    const sortedByName = [...instruments].sort((a, b) =>
-      multiplier * a.name.localeCompare(b.name, "pt-BR"),
+  const applyNameSort = (direction: 'asc' | 'desc') => {
+    const multiplier = direction === 'asc' ? 1 : -1
+    const sortedByName = [...instruments].sort(
+      (a, b) => multiplier * a.name.localeCompare(b.name, 'pt-BR'),
     )
     setInstruments(
       sortedByName.map((instrument, index) => ({
@@ -430,7 +504,11 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
 
   const toggleSortByName = () => {
     const nextDirection =
-      nameSortDirection === null ? "asc" : nameSortDirection === "asc" ? "desc" : null
+      nameSortDirection === null
+        ? 'asc'
+        : nameSortDirection === 'asc'
+          ? 'desc'
+          : null
 
     if (nextDirection) {
       if (nameSortDirection) {
@@ -463,38 +541,40 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
     setShowNameSortAlert(false)
   }
 
-  const { mutateAsync: updateInstrumentsMutation, isPending: isSaving } = useMutation({
-    mutationFn: async () => {
-      if (!organizationSlug) {
-        toast.error("Slug da organização não informado")
-        return
-      }
+  const { mutateAsync: updateInstrumentsMutation, isPending: isSaving } =
+    useMutation({
+      mutationFn: async () => {
+        if (!organizationSlug) {
+          toast.error('Slug da organização não informado')
+          return
+        }
 
-      await updateInstruments({
-        org: organizationSlug,
-        instruments: instruments.map((instrument) => ({
-          id: instrument.id,
-          name: instrument.name,
-          model: instrument.model,
-          orderDisplay: instrument.orderDisplay,
-          maxValue: instrument.maxValue,
-          minValue: instrument.minValue,
-          isActive: instrument.active,
-          type: instrument.typeKey,
-          idSitrad: instrument.idSitrad,
-        })),
-      })
-
-    },
-    onSuccess: async () => {
-      setOriginalInstruments(JSON.parse(JSON.stringify(instruments)))
-      await queryClient.invalidateQueries({ queryKey: ["instruments", organizationSlug] })
-      toast.success("Todas as alterações foram salvas!")
-    },
-    onError: () => {
-      toast.error("Não foi possível salvar as alterações. Tente novamente.")
-    },
-  })
+        await updateInstruments({
+          org: organizationSlug,
+          instruments: instruments.map((instrument) => ({
+            id: instrument.id,
+            name: instrument.name,
+            model: instrument.model,
+            orderDisplay: instrument.orderDisplay,
+            maxValue: instrument.maxValue,
+            minValue: instrument.minValue,
+            isActive: instrument.active,
+            type: instrument.typeKey,
+            idSitrad: instrument.idSitrad,
+          })),
+        })
+      },
+      onSuccess: async () => {
+        setOriginalInstruments(JSON.parse(JSON.stringify(instruments)))
+        await queryClient.invalidateQueries({
+          queryKey: ['instruments', organizationSlug],
+        })
+        toast.success('Todas as alterações foram salvas!')
+      },
+      onError: () => {
+        toast.error('Não foi possível salvar as alterações. Tente novamente.')
+      },
+    })
 
   const saveAllChanges = async () => {
     await updateInstrumentsMutation()
@@ -502,37 +582,42 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
 
   const resetChanges = () => {
     setInstruments(JSON.parse(JSON.stringify(originalInstruments)))
-    toast.info("Alterações descartadas")
+    toast.info('Alterações descartadas')
   }
 
   const exportConfig = () => {
-    const config = instruments.map(({ status, ...instruments }) => instruments)
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" })
+    const config = instruments.map(({ status: _status, ...instrumentConfig }) => instrumentConfig)
+    const blob = new Blob([JSON.stringify(config, null, 2)], {
+      type: 'application/json',
+    })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
+    const a = document.createElement('a')
     a.href = url
-    a.download = "configuracao-camaras.json"
+    a.download = 'configuracao-camaras.json'
     a.click()
-    toast.success("Configuração exportada")
+    toast.success('Configuração exportada')
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "online":
+      case 'online':
         return (
-          <Badge variant="outline" className="text-green-600 border-green-200">
+          <Badge variant="outline" className="border-green-200 text-green-600">
             Online
           </Badge>
         )
-      case "offline":
+      case 'offline':
         return (
-          <Badge variant="outline" className="text-red-600 border-red-200">
+          <Badge variant="outline" className="border-red-200 text-red-600">
             Offline
           </Badge>
         )
-      case "maintenance":
+      case 'maintenance':
         return (
-          <Badge variant="outline" className="text-yellow-600 border-yellow-200">
+          <Badge
+            variant="outline"
+            className="border-yellow-200 text-yellow-600"
+          >
             Manutenção
           </Badge>
         )
@@ -546,7 +631,6 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
     const maxVisiblePages = 5
 
     if (totalPages <= maxVisiblePages) {
-
       for (let i = 1; i <= totalPages; i++) {
         items.push(
           <PaginationItem key={i}>
@@ -564,7 +648,6 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         )
       }
     } else {
-
       if (currentPage <= 3) {
         for (let i = 1; i <= 4; i++) {
           items.push(
@@ -636,7 +719,6 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
           )
         }
       } else {
-
         items.push(
           <PaginationItem key={1}>
             <PaginationLink
@@ -701,16 +783,22 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{instruments.length}</div>
-              <div className="text-sm text-muted-foreground">Total de Câmaras</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {instruments.length}
+              </div>
+              <div className="text-muted-foreground text-sm">
+                Total de Câmaras
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-              <div className="text-sm text-muted-foreground">Ativas</div>
+              <div className="text-2xl font-bold text-green-600">
+                {activeCount}
+              </div>
+              <div className="text-muted-foreground text-sm">Ativas</div>
             </div>
           </CardContent>
         </Card>
@@ -720,7 +808,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
               <div className="text-2xl font-bold text-blue-600">
                 {onlineCount}
               </div>
-              <div className="text-sm text-muted-foreground">Online</div>
+              <div className="text-muted-foreground text-sm">Online</div>
             </div>
           </CardContent>
         </Card>
@@ -730,37 +818,39 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
               <div className="text-2xl font-bold text-red-600">
                 {offlineCount}
               </div>
-              <div className="text-sm text-muted-foreground">Offline</div>
+              <div className="text-muted-foreground text-sm">Offline</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {!canFetch && (
-        <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/30 rounded-lg border border-dashed p-6 text-center">
+          <p className="text-muted-foreground text-sm">
             Selecione uma organização para carregar os instrumentos.
           </p>
         </div>
       )}
 
       {canFetch && isLoading && !hasData && (
-        <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-          <p className="text-sm text-muted-foreground">Carregando instrumentos...</p>
+        <div className="bg-muted/30 rounded-lg border border-dashed p-6 text-center">
+          <p className="text-muted-foreground text-sm">
+            Carregando instrumentos...
+          </p>
         </div>
       )}
 
       {canFetch && hasError && !hasData && (
-        <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/30 rounded-lg border border-dashed p-6 text-center">
+          <p className="text-muted-foreground text-sm">
             Não foi possível carregar os instrumentos. Tente novamente.
           </p>
         </div>
       )}
 
       {canFetch && !isLoading && !hasData && !hasError && (
-        <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/30 rounded-lg border border-dashed p-6 text-center">
+          <p className="text-muted-foreground text-sm">
             Nenhum instrumento encontrado. Cadastre um instrumento para começar.
           </p>
         </div>
@@ -774,10 +864,12 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
       </div>
 
       {hasRealChanges() && (
-        <div className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-yellow-600" />
-            <span className="text-sm font-medium">Você tem alterações não salvas</span>
+            <span className="text-sm font-medium">
+              Você tem alterações não salvas
+            </span>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={resetChanges}>
@@ -786,7 +878,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
             </Button>
             <Button size="sm" onClick={saveAllChanges} disabled={isSaving}>
               <Save className="mr-2 h-4 w-4" />
-              {isSaving ? "Salvando..." : "Salvar Tudo"}
+              {isSaving ? 'Salvando...' : 'Salvar Tudo'}
             </Button>
           </div>
         </div>
@@ -797,7 +889,8 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Ordenação por nome</AlertTitle>
           <AlertDescription>
-            Ao ordenar pelo nome, o campo de ordem de exibição (orderDisplay) será alterado.
+            Ao ordenar pelo nome, o campo de ordem de exibição (orderDisplay)
+            será alterado.
             <div className="mt-3 flex items-center gap-2">
               <Button size="sm" variant="outline" onClick={cancelNameSort}>
                 Cancelar
@@ -810,7 +903,9 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
         </Alert>
       )}
 
-      <div className={`rounded-md border ${!hasData ? "opacity-60 pointer-events-none" : ""}`}>
+      <div
+        className={`rounded-md border ${!hasData ? 'pointer-events-none opacity-60' : ''}`}
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -819,14 +914,18 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="group h-7 w-full justify-between px-2 -ml-2 cursor-pointer"
+                  className="group -ml-2 h-7 w-full cursor-pointer justify-between px-2"
                   onClick={toggleSortByName}
                 >
                   <span className="text-left">Nome</span>
-                  {nameSortDirection === "asc" && <ArrowUp className="ml-2 h-3 w-3" />}
-                  {nameSortDirection === "desc" && <ArrowDown className="ml-2 h-3 w-3" />}
+                  {nameSortDirection === 'asc' && (
+                    <ArrowUp className="ml-2 h-3 w-3" />
+                  )}
+                  {nameSortDirection === 'desc' && (
+                    <ArrowDown className="ml-2 h-3 w-3" />
+                  )}
                   {!nameSortDirection && (
-                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    <ArrowUpDown className="text-muted-foreground ml-2 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                   )}
                 </Button>
               </TableHead>
@@ -844,13 +943,15 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
               <TableRow key={instruments.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-mono">{instruments.orderDisplay}</span>
+                    <span className="font-mono text-sm">
+                      {instruments.orderDisplay}
+                    </span>
                     <div className="flex flex-col gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-3 w-3 p-0"
-                        onClick={() => moveOrderDisplay(instruments.id, "up")}
+                        onClick={() => moveOrderDisplay(instruments.id, 'up')}
                         disabled={instruments.orderDisplay === 1}
                       >
                         <ArrowUp className="h-2 w-2" />
@@ -859,8 +960,10 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                         variant="ghost"
                         size="sm"
                         className="h-3 w-3 p-0"
-                        onClick={() => moveOrderDisplay(instruments.id, "down")}
-                        disabled={instruments.orderDisplay === instrumentsMapped.length}
+                        onClick={() => moveOrderDisplay(instruments.id, 'down')}
+                        disabled={
+                          instruments.orderDisplay === instrumentsMapped.length
+                        }
                       >
                         <ArrowDown className="h-2 w-2" />
                       </Button>
@@ -868,35 +971,41 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                   </div>
                 </TableCell>
 
-                <TableCell className="font-medium min-w-[120px]">
+                <TableCell className="min-w-[120px] font-medium">
                   <div className="relative h-8">
-                    {editingCell?.id === instruments.id && editingCell?.field === "name" ? (
+                    {editingCell?.id === instruments.id &&
+                    editingCell?.field === 'name' ? (
                       <Input
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
                         onKeyDown={handleCellEdit}
                         onBlur={saveCellEdit}
                         onFocus={(e) => e.target.select()}
-                        className="absolute inset-0 h-8 border-2 border-blue-500 bg-white shadow-lg z-50 text-sm"
+                        className="absolute inset-0 z-50 h-8 border-2 border-blue-500 bg-white text-sm shadow-lg"
                         autoFocus
                       />
                     ) : (
                       <div
-                        className="flex items-center h-8 px-2 rounded hover:bg-blue-50 transition-colors cursor-pointer group"
-                        onDoubleClick={() => handleCellDoubleClick(instruments, "name")}
+                        className="group flex h-8 cursor-pointer items-center rounded px-2 transition-colors hover:bg-blue-50"
+                        onDoubleClick={() =>
+                          handleCellDoubleClick(instruments, 'name')
+                        }
                       >
-                        <span className="truncate flex-1">{instruments.name}</span>
-                        <Edit className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2" />
+                        <span className="flex-1 truncate">
+                          {instruments.name}
+                        </span>
+                        <Edit className="ml-2 h-3 w-3 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     )}
                   </div>
                 </TableCell>
 
-
                 <TableCell className="min-w-[140px]">
                   <div className="relative h-8">
-                    <div className="flex items-center h-8 px-2 rounded bg-muted/30 text-muted-foreground">
-                      <span className="truncate flex-1">{instruments.slug}</span>
+                    <div className="bg-muted/30 text-muted-foreground flex h-8 items-center rounded px-2">
+                      <span className="flex-1 truncate">
+                        {instruments.slug}
+                      </span>
                     </div>
                   </div>
                 </TableCell>
@@ -906,19 +1015,20 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                     <Select
                       value={instruments.typeKey}
                       onValueChange={(value) => {
-                        if (value !== "TEMPERATURE" && value !== "PRESSURE") return
+                        if (value !== 'TEMPERATURE' && value !== 'PRESSURE')
+                          return
                         setInstruments((prev) =>
                           prev.map((item) =>
                             item.id === instruments.id
                               ? {
-                                ...item,
-                                typeKey: value,
-                                type: instrumentType[value],
-                              }
+                                  ...item,
+                                  typeKey: value,
+                                  type: instrumentType[value],
+                                }
                               : item,
                           ),
                         )
-                        toast.success("Tipo atualizado")
+                        toast.success('Tipo atualizado')
                       }}
                     >
                       <SelectTrigger className="h-8">
@@ -934,7 +1044,8 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
 
                 <TableCell className="w-20">
                   <div className="relative h-8">
-                    {editingCell?.id === instruments.id && editingCell?.field === "minValue" ? (
+                    {editingCell?.id === instruments.id &&
+                    editingCell?.field === 'minValue' ? (
                       <Input
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
@@ -942,16 +1053,20 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                         onBlur={saveCellEdit}
                         onFocus={(e) => e.target.select()}
                         type="number"
-                        className="absolute inset-0 h-8 border-2 border-blue-500 bg-white shadow-lg z-50 text-sm text-center"
+                        className="absolute inset-0 z-50 h-8 border-2 border-blue-500 bg-white text-center text-sm shadow-lg"
                         autoFocus
                       />
                     ) : (
                       <div
-                        className="flex items-center justify-center h-8 px-2 rounded hover:bg-blue-50 transition-colors cursor-pointer group"
-                        onDoubleClick={() => handleCellDoubleClick(instruments, "minValue")}
+                        className="group flex h-8 cursor-pointer items-center justify-center rounded px-2 transition-colors hover:bg-blue-50"
+                        onDoubleClick={() =>
+                          handleCellDoubleClick(instruments, 'minValue')
+                        }
                       >
-                        <span className="font-mono text-sm">{instruments.minValue.toFixed(1)}</span>
-                        <Edit className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
+                        <span className="font-mono text-sm">
+                          {instruments.minValue.toFixed(1)}
+                        </span>
+                        <Edit className="ml-1 h-3 w-3 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     )}
                   </div>
@@ -959,7 +1074,8 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
 
                 <TableCell className="w-20">
                   <div className="relative h-8">
-                    {editingCell?.id === instruments.id && editingCell?.field === "maxValue" ? (
+                    {editingCell?.id === instruments.id &&
+                    editingCell?.field === 'maxValue' ? (
                       <Input
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
@@ -967,37 +1083,47 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                         onBlur={saveCellEdit}
                         onFocus={(e) => e.target.select()}
                         type="number"
-                        className="absolute inset-0 h-8 border-2 border-blue-500 bg-white shadow-lg z-50 text-sm text-center"
+                        className="absolute inset-0 z-50 h-8 border-2 border-blue-500 bg-white text-center text-sm shadow-lg"
                         autoFocus
                       />
                     ) : (
                       <div
-                        className="flex items-center justify-center h-8 px-2 rounded hover:bg-blue-50 transition-colors cursor-pointer group"
-                        onDoubleClick={() => handleCellDoubleClick(instruments, "maxValue")}
+                        className="group flex h-8 cursor-pointer items-center justify-center rounded px-2 transition-colors hover:bg-blue-50"
+                        onDoubleClick={() =>
+                          handleCellDoubleClick(instruments, 'maxValue')
+                        }
                       >
-                        <span className="font-mono text-sm">{instruments.maxValue.toFixed(1)}</span>
-                        <Edit className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
+                        <span className="font-mono text-sm">
+                          {instruments.maxValue.toFixed(1)}
+                        </span>
+                        <Edit className="ml-1 h-3 w-3 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     )}
                   </div>
                 </TableCell>
 
-                <TableCell className="w-[100px]">{getStatusBadge(instruments.status)}</TableCell>
+                <TableCell className="w-[100px]">
+                  {getStatusBadge(instruments.status)}
+                </TableCell>
 
                 <TableCell className="w-20">
                   <div className="flex justify-center">
-                    <Switch checked={instruments.active} onCheckedChange={() => toggleInstrumentsActive(instruments.id)} />
+                    <Switch
+                      checked={instruments.active}
+                      onCheckedChange={() =>
+                        toggleInstrumentsActive(instruments.id)
+                      }
+                    />
                   </div>
                 </TableCell>
 
                 <TableCell className="w-[100px]">
                   <div className="flex items-center gap-1">
-
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => deleteInstruments(instruments.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -1008,8 +1134,10 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
           </TableBody>
         </Table>
       </div>
-      <div className={`flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${!hasData ? "opacity-60 pointer-events-none" : ""}`}>
-        <div className="w-full flex items-center gap-2 text-sm text-muted-foreground">
+      <div
+        className={`flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${!hasData ? 'pointer-events-none opacity-60' : ''}`}
+      >
+        <div className="text-muted-foreground flex w-full items-center gap-2 text-sm">
           <span>Mostrar</span>
           <Select
             value={itemsPerPage.toString()}
@@ -1018,7 +1146,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
               setCurrentPage(1)
             }}
           >
-            <SelectTrigger className="w-16 h-6">
+            <SelectTrigger className="h-6 w-16">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1027,11 +1155,11 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
               <SelectItem value="20">20</SelectItem>
             </SelectContent>
           </Select>
-          <span>
-            de {instruments.length} câmaras
-          </span>
+          <span>de {instruments.length} câmaras</span>
           <span className="hidden md:inline">•</span>
-          <span className="hidden md:inline">Página {currentPage} de {totalPages}</span>
+          <span className="hidden md:inline">
+            Página {currentPage} de {totalPages}
+          </span>
         </div>
 
         <Pagination className="justify-end">
@@ -1044,7 +1172,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                   e.preventDefault()
                   if (currentPage > 1) setCurrentPage(currentPage - 1)
                 }}
-                className={`size-9 rounded-full ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+                className={`size-9 rounded-full ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
               >
                 <ChevronsLeft />
               </Button>
@@ -1060,7 +1188,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                   e.preventDefault()
                   if (currentPage < totalPages) setCurrentPage(currentPage + 1)
                 }}
-                className={`size-9 rounded-full ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
+                className={`size-9 rounded-full ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
               >
                 <ChevronsRight />
               </Button>
@@ -1072,7 +1200,7 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
       {hasData && (
         <div className="rounded-lg bg-blue-50 p-4">
           <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <CheckCircle className="mt-0.5 h-5 w-5 text-blue-600" />
             <div>
               <h4 className="font-medium text-blue-900">Como usar</h4>
               <div className="mt-2 space-y-1 text-sm text-blue-800">
@@ -1083,25 +1211,31 @@ export function ChamberSettings({ initialInstruments, organizationSlug }: Instru
                   • <strong>Enter</strong> salva e vai para a linha de baixo
                 </p>
                 <p>
-                  • <strong>Tab</strong> salva e vai para a próxima coluna (Shift+Tab para anterior)
+                  • <strong>Tab</strong> salva e vai para a próxima coluna
+                  (Shift+Tab para anterior)
                 </p>
                 <p>
-                  • <strong>Ctrl + Setas</strong> navega entre células salvando automaticamente
+                  • <strong>Ctrl + Setas</strong> navega entre células salvando
+                  automaticamente
                 </p>
                 <p>
                   • <strong>Escape</strong> cancela a edição
                 </p>
                 <p>
-                  • <strong>Ordem de exibição</strong> controla como as câmaras aparecem no dashboard
+                  • <strong>Ordem de exibição</strong> controla como as câmaras
+                  aparecem no dashboard
                 </p>
                 <p>
-                  • <strong>Setas ↑↓</strong> na coluna Ordem para reordenar rapidamente
+                  • <strong>Setas ↑↓</strong> na coluna Ordem para reordenar
+                  rapidamente
                 </p>
                 <p>
-                  • <strong>Selecione múltiplas câmaras</strong> para edição em massa
+                  • <strong>Selecione múltiplas câmaras</strong> para edição em
+                  massa
                 </p>
                 <p>
-                  • <strong>Use os switches</strong> para ativar/desativar câmaras
+                  • <strong>Use os switches</strong> para ativar/desativar
+                  câmaras
                 </p>
                 <p>
                   • <strong>Exporte/Importe</strong> configurações para backup

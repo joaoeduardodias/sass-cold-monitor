@@ -1,20 +1,20 @@
-"use client"
+'use client'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { CardContent, CardFooter } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useFormState } from "@/hooks/use-form-state"
+import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
-import { ButtonGoogle } from "@/components/button-google"
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { signUpAction } from "../actions"
+import { ButtonGoogle } from '@/components/button-google'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { CardContent, CardFooter } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useFormState } from '@/hooks/use-form-state'
 
+import { signUpAction } from '../actions'
 
 export function FormSignUp() {
   const router = useRouter()
@@ -22,11 +22,13 @@ export function FormSignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const [{ success, message, errors }, handleSubmit, isPending] =
-    useFormState(signUpAction, () => {
+  const [{ success, message, errors }, handleSubmit, isPending] = useFormState(
+    signUpAction,
+    () => {
       // router.push("/auth/sign-in")
-      router.push("/")
-    })
+      router.push('/')
+    },
+  )
 
   return (
     <form onSubmit={handleSubmit}>
@@ -43,29 +45,17 @@ export function FormSignUp() {
 
         <div className="space-y-2">
           <Label htmlFor="name">Nome</Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="Seu nome completo"
-          />
+          <Input id="name" name="name" placeholder="Seu nome completo" />
           {errors?.name && (
-            <p className="text-xs ml-1 text-red-600">
-              {errors.name[0]}
-            </p>
+            <p className="ml-1 text-xs text-red-600">{errors.name[0]}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            placeholder="seu@email.com"
-          />
+          <Input id="email" name="email" placeholder="seu@email.com" />
           {errors?.email && (
-            <p className="text-xs ml-1 text-red-600">
-              {errors.email[0]}
-            </p>
+            <p className="ml-1 text-xs text-red-600">{errors.email[0]}</p>
           )}
         </div>
 
@@ -75,14 +65,14 @@ export function FormSignUp() {
             <Input
               id="password"
               name="password"
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
             />
 
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
             >
               {showPassword ? (
                 <Eye className="size-4" />
@@ -93,30 +83,24 @@ export function FormSignUp() {
           </div>
 
           {errors?.password && (
-            <p className="text-xs ml-1 text-red-600">
-              {errors.password[0]}
-            </p>
+            <p className="ml-1 text-xs text-red-600">{errors.password[0]}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">
-            Confirmar senha
-          </Label>
+          <Label htmlFor="confirmPassword">Confirmar senha</Label>
 
           <div className="relative">
             <Input
               id="confirmPassword"
               name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
+              type={showConfirmPassword ? 'text' : 'password'}
               placeholder="••••••••"
             />
             <button
               type="button"
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
             >
               {showConfirmPassword ? (
                 <Eye className="size-4" />
@@ -127,7 +111,7 @@ export function FormSignUp() {
           </div>
 
           {errors?.confirmPassword && (
-            <p className="text-xs ml-1 text-red-600">
+            <p className="ml-1 text-xs text-red-600">
               {errors.confirmPassword[0]}
             </p>
           )}
@@ -135,15 +119,12 @@ export function FormSignUp() {
 
         <div className="flex items-start justify-center space-x-3">
           <Checkbox id="terms" name="acceptTerms" />
-          <Label
-            htmlFor="terms"
-            className="text-sm leading-relaxed"
-          >
-            Aceito os{" "}
+          <Label htmlFor="terms" className="text-sm leading-relaxed">
+            Aceito os{' '}
             <Link href="/terms" className="underline">
               termos de uso
-            </Link>{" "}
-            e{" "}
+            </Link>{' '}
+            e{' '}
             <Link href="/privacy" className="underline">
               política de privacidade
             </Link>
@@ -151,36 +132,26 @@ export function FormSignUp() {
         </div>
 
         {errors?.acceptTerms && (
-          <p className="text-xs ml-1 text-red-600">
-            {errors.acceptTerms[0]}
-          </p>
+          <p className="ml-1 text-xs text-red-600">{errors.acceptTerms[0]}</p>
         )}
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isPending}
-        >
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
               Criando conta...
             </>
           ) : (
-            "Criar conta"
+            'Criar conta'
           )}
         </Button>
         <ButtonGoogle isPending={isPending} />
 
-
         <div className="text-center text-sm text-gray-600">
-          Já possui conta?{" "}
-          <Link
-            href="/auth/sign-in"
-            className="font-medium underline"
-          >
+          Já possui conta?{' '}
+          <Link href="/auth/sign-in" className="font-medium underline">
             Fazer login
           </Link>
         </div>

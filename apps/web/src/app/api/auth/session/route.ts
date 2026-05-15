@@ -1,10 +1,11 @@
-import { getProfile } from "@/http/users/get-profile"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+
+import { getProfile } from '@/http/users/get-profile'
 
 export async function GET() {
   const cookiesStore = await cookies()
-  const token = cookiesStore.get("token")?.value
+  const token = cookiesStore.get('token')?.value
 
   if (!token) {
     return NextResponse.json({ isAuthenticated: false, isAdmin: false })
@@ -12,6 +13,6 @@ export async function GET() {
   const { user } = await getProfile()
   return NextResponse.json({
     isAuthenticated: true,
-    user: user
+    user,
   })
 }

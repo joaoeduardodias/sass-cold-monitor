@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 
 type TestNotificationEmailRequest = {
   org: string
@@ -17,4 +17,3 @@ export async function testNotificationEmail({
     })
     .json<{ sent: boolean }>()
 }
-

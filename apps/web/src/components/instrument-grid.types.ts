@@ -1,7 +1,15 @@
-export type OperationalStatus = "refrigerating" | "on-line" | "defrosting" | "draining" | "idle" | "alarm" | "fan-only" | "off"
+export type OperationalStatus =
+  | 'refrigerating'
+  | 'on-line'
+  | 'defrosting'
+  | 'draining'
+  | 'idle'
+  | 'alarm'
+  | 'fan-only'
+  | 'off'
 
-export type InstrumentStatus = "normal" | "warning" | "critical"
-export type InstrumentType = "TEMPERATURE" | "PRESSURE"
+export type InstrumentStatus = 'normal' | 'warning' | 'critical'
+export type InstrumentType = 'TEMPERATURE' | 'PRESSURE'
 
 export type Instrument = {
   id: string
@@ -62,21 +70,21 @@ type InstrumentUpdatePayload = {
 
 export type DashboardWsMessage =
   | {
-    type: "INSTRUMENT_VALUES"
-    payload: InstrumentValuesPayload[]
-  }
-  | {
-    type: "INSTRUMENT_UPDATE"
-    payload: InstrumentUpdatePayload
-  }
-  | {
-    type: "ALERT_NOTIFICATION"
-    payload: {
-      instrumentId: string
-      instrumentName: string
-      alertType: "warning" | "critical"
-      currentValue: number
-      limitValue: number
-      timestamp: string
+      type: 'INSTRUMENT_VALUES'
+      payload: InstrumentValuesPayload[]
     }
-  }
+  | {
+      type: 'INSTRUMENT_UPDATE'
+      payload: InstrumentUpdatePayload
+    }
+  | {
+      type: 'ALERT_NOTIFICATION'
+      payload: {
+        instrumentId: string
+        instrumentName: string
+        alertType: 'warning' | 'critical'
+        currentValue: number
+        limitValue: number
+        timestamp: string
+      }
+    }

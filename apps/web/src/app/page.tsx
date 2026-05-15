@@ -1,25 +1,25 @@
-import { getCurrentOrg, isAuthenticated } from "@/auth/auth"
-import { Header } from "@/components/header"
-import { redirect } from "next/navigation"
+import { redirect } from 'next/navigation'
+
+import { getCurrentOrg, isAuthenticated } from '@/auth/auth'
+import { Header } from '@/components/header'
 
 export default async function Home() {
   const authenticated = await isAuthenticated()
   if (!authenticated) {
-    redirect("/auth/sign-in")
+    redirect('/auth/sign-in')
   }
 
   const currentOrg = await getCurrentOrg()
   if (!currentOrg) {
-    redirect("/select-organization")
+    redirect('/select-organization')
   }
 
   return (
     <>
       <Header />
-      <main className="container mx-auto pt-4 mb-8 min-[1200px]:px-4">
+      <main className="container mx-auto mb-8 pt-4 min-[1200px]:px-4">
         Selecione uma empresa
       </main>
     </>
   )
 }
-

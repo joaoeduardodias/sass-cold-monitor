@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 
 interface GetInstrumentsBySlugResponse {
   instrument: {
@@ -10,7 +10,7 @@ interface GetInstrumentsBySlugResponse {
     maxValue: number
     minValue: number
     isActive: boolean
-    type: "TEMPERATURE" | "PRESSURE"
+    type: 'TEMPERATURE' | 'PRESSURE'
     idSitrad: number | null
     isFan?: boolean
     operationalStatus?: string

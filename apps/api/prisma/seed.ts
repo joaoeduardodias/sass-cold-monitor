@@ -9,11 +9,17 @@ const adapter = new PrismaPg({ connectionString: env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
 async function seed() {
+  await prisma.alertReadLog.deleteMany()
+  await prisma.collectorDevice.deleteMany()
+  await prisma.notificationSettings.deleteMany()
   await prisma.member.deleteMany()
+  await prisma.invite.deleteMany()
   await prisma.instrumentData.deleteMany()
   await prisma.joinInstrument.deleteMany()
   await prisma.instrument.deleteMany()
   await prisma.organization.deleteMany()
+  await prisma.token.deleteMany()
+  await prisma.account.deleteMany()
   await prisma.user.deleteMany()
 
   const passwordHash = await hash('123456', 1)

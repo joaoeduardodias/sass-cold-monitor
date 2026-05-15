@@ -1,27 +1,30 @@
-"use client"
+'use client'
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import type { Role } from '@cold-monitor/auth'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Textarea } from "@/components/ui/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import type { Role } from "@cold-monitor/auth"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Clock, Edit, Mail, Plus, RefreshCw, Search, Send, Shield, Trash2, UserCheck, UserPlus, UserX, X } from "lucide-react"
-import { useMemo, useState, type Dispatch, type SetStateAction, type ReactNode } from "react"
-import { toast } from "sonner"
+  Clock,
+  Edit,
+  Mail,
+  Plus,
+  RefreshCw,
+  Search,
+  Send,
+  Shield,
+  Trash2,
+  UserCheck,
+  UserPlus,
+  UserX,
+  X,
+} from 'lucide-react'
+import {
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useMemo,
+  useState,
+} from 'react'
+import { toast } from 'sonner'
 
 import {
   AlertDialog,
@@ -32,15 +35,50 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog"
-import { getMembers } from "@/http/members/get-members"
-import { createInvite } from "@/http/invites/create-invite"
-import { getInvites } from "@/http/invites/get-invites"
-import { revokeInvite } from "@/http/invites/revoke-invite"
-import { removeMember } from "@/http/members/remove-member"
-import { toggleStatusMember } from "@/http/members/toggle-status-member"
-import { updateMember } from "@/http/members/update-member"
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { createInvite } from '@/http/invites/create-invite'
+import { getInvites } from '@/http/invites/get-invites'
+import { revokeInvite } from '@/http/invites/revoke-invite'
+import { getMembers } from '@/http/members/get-members'
+import { removeMember } from '@/http/members/remove-member'
+import { toggleStatusMember } from '@/http/members/toggle-status-member'
+import { updateMember } from '@/http/members/update-member'
 
 type Member = {
   id: string
@@ -69,7 +107,7 @@ type Invite = {
   id: string
   email: string
   role: Role
-  status: "pending"
+  status: 'pending'
   sentAt: string
   expiresAt: string
   sentBy: string
@@ -77,17 +115,17 @@ type Invite = {
 }
 
 const roleLabels: Record<string, string> = {
-  admin: "Administrador",
-  operator: "Operador",
-  viewer: "Visualizador",
-  editor: "Editor",
+  admin: 'Administrador',
+  operator: 'Operador',
+  viewer: 'Visualizador',
+  editor: 'Editor',
 }
 
 const roleColors: Record<string, string> = {
-  admin: "bg-red-50 text-red-700 border-red-200",
-  operator: "bg-blue-50 text-blue-700 border-blue-200",
-  viewer: "bg-zinc-100 text-zinc-700 border-zinc-200",
-  editor: "bg-purple-50 text-purple-700 border-purple-200",
+  admin: 'bg-red-50 text-red-700 border-red-200',
+  operator: 'bg-blue-50 text-blue-700 border-blue-200',
+  viewer: 'bg-zinc-100 text-zinc-700 border-zinc-200',
+  editor: 'bg-purple-50 text-purple-700 border-purple-200',
 }
 
 export function UserManagement({ organizationSlug }: UserManagementProps) {
@@ -96,9 +134,13 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
   const [togglingMemberId, setTogglingMemberId] = useState<string | null>(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<User | null>(null)
-  const [editRole, setEditRole] = useState<Role>("VIEWER")
-  const { data: membersData, isLoading, error } = useQuery({
-    queryKey: ["members", organizationSlug],
+  const [editRole, setEditRole] = useState<Role>('VIEWER')
+  const {
+    data: membersData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['members', organizationSlug],
     queryFn: async () => {
       if (!organizationSlug) return []
       const { members } = await getMembers(organizationSlug)
@@ -114,11 +156,11 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     () =>
       (membersData || []).map((member: Member) => ({
         id: member.id,
-        name: member.name ?? "Sem nome",
+        name: member.name ?? 'Sem nome',
         email: member.email,
         role: member.role,
         isActive: member.isActive,
-        createdAt: "—",
+        createdAt: '—',
       })),
     [membersData],
   )
@@ -126,48 +168,50 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
   const [newUser, setNewUser] = useState<{
     name: string
     email: string
-    role: "admin" | "operator" | "viewer" | "editor"
+    role: 'admin' | 'operator' | 'viewer' | 'editor'
   }>({
-    name: "",
-    email: "",
-    role: "viewer",
+    name: '',
+    email: '',
+    role: 'viewer',
   })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [searchUser, setSearchUser] = useState("")
-  const [searchInvite, setSearchInvite] = useState("")
+  const [searchUser, setSearchUser] = useState('')
+  const [searchInvite, setSearchInvite] = useState('')
   const [isInviteOpen, setIsInviteOpen] = useState(false)
 
   const [inviteForm, setInviteForm] = useState({
-    emails: "",
-    role: "viewer" as "admin" | "operator" | "viewer" | "editor",
-    message: "",
+    emails: '',
+    role: 'viewer' as 'admin' | 'operator' | 'viewer' | 'editor',
+    message: '',
   })
 
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
-      toast.error("Preencha todos os campos")
+      toast.error('Preencha todos os campos')
       return
     }
 
-    toast.info("A criação de usuários reais ainda não está habilitada.")
-    setNewUser({ name: "", email: "", role: "viewer" })
+    toast.info('A criação de usuários reais ainda não está habilitada.')
+    setNewUser({ name: '', email: '', role: 'viewer' })
     setIsDialogOpen(false)
   }
 
   const { mutateAsync: removeMemberMutation } = useMutation({
     mutationFn: async (memberId: string) => {
       if (!organizationSlug) {
-        throw new Error("Slug da organização não informado")
+        throw new Error('Slug da organização não informado')
       }
       await removeMember({ org: organizationSlug, memberId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["members", organizationSlug] })
-      toast.success("Usuário removido!")
+      await queryClient.invalidateQueries({
+        queryKey: ['members', organizationSlug],
+      })
+      toast.success('Usuário removido!')
     },
     onError: () => {
-      toast.error("Não foi possível remover o usuário.")
+      toast.error('Não foi possível remover o usuário.')
     },
   })
 
@@ -180,39 +224,59 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     }
   }
 
-  const { mutateAsync: updateMemberMutation, isPending: isUpdatingMember } = useMutation({
-    mutationFn: async ({ memberId, role }: { memberId: string; role: Role }) => {
-      if (!organizationSlug) {
-        throw new Error("Slug da organização não informado")
-      }
-      await updateMember({ org: organizationSlug, memberId, role })
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["members", organizationSlug] })
-      toast.success("Membro atualizado!")
-    },
-    onError: () => {
-      toast.error("Não foi possível atualizar o membro.")
-    },
-  })
+  const { mutateAsync: updateMemberMutation, isPending: isUpdatingMember } =
+    useMutation({
+      mutationFn: async ({
+        memberId,
+        role,
+      }: {
+        memberId: string
+        role: Role
+      }) => {
+        if (!organizationSlug) {
+          throw new Error('Slug da organização não informado')
+        }
+        await updateMember({ org: organizationSlug, memberId, role })
+      },
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ['members', organizationSlug],
+        })
+        toast.success('Membro atualizado!')
+      },
+      onError: () => {
+        toast.error('Não foi possível atualizar o membro.')
+      },
+    })
 
   const { mutateAsync: toggleMemberStatusMutation } = useMutation({
-    mutationFn: async ({ memberId, status }: { memberId: string; status: "active" | "inactive" }) => {
+    mutationFn: async ({
+      memberId,
+      status,
+    }: {
+      memberId: string
+      status: 'active' | 'inactive'
+    }) => {
       if (!organizationSlug) {
-        throw new Error("Slug da organização não informado")
+        throw new Error('Slug da organização não informado')
       }
       await toggleStatusMember({ org: organizationSlug, memberId, status })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["members", organizationSlug] })
-      toast.success("Status do usuário alterado!")
+      await queryClient.invalidateQueries({
+        queryKey: ['members', organizationSlug],
+      })
+      toast.success('Status do usuário alterado!')
     },
     onError: () => {
-      toast.error("Não foi possível alterar o status do usuário.")
+      toast.error('Não foi possível alterar o status do usuário.')
     },
   })
 
-  const toggleUserStatus = async (id: string, status: "active" | "inactive") => {
+  const toggleUserStatus = async (
+    id: string,
+    status: 'active' | 'inactive',
+  ) => {
     try {
       setTogglingMemberId(id)
       await toggleMemberStatusMutation({ memberId: id, status })
@@ -235,14 +299,20 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
 
   const getRoleBadge = (role: Role) => {
     switch (role) {
-      case "ADMIN":
-        return <Badge className="bg-red-500 hover:bg-red-500">Administrador</Badge>
-      case "OPERATOR":
+      case 'ADMIN':
+        return (
+          <Badge className="bg-red-500 hover:bg-red-500">Administrador</Badge>
+        )
+      case 'OPERATOR':
         return <Badge className="bg-blue-500 hover:bg-blue-500">Operador</Badge>
-      case "VIEWER":
-        return <Badge className="bg-gray-500 hover:bg-gray-500">Visualizador</Badge>
-      case "EDITOR":
-        return <Badge className="bg-purple-500 hover:bg-purple-500">Editor</Badge>
+      case 'VIEWER':
+        return (
+          <Badge className="bg-gray-500 hover:bg-gray-500">Visualizador</Badge>
+        )
+      case 'EDITOR':
+        return (
+          <Badge className="bg-purple-500 hover:bg-purple-500">Editor</Badge>
+        )
       default:
         return <Badge>Desconhecido</Badge>
     }
@@ -256,8 +326,12 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     )
   }
 
-  const { data: invitesData, isLoading: isInvitesLoading, error: invitesError } = useQuery({
-    queryKey: ["invites", organizationSlug],
+  const {
+    data: invitesData,
+    isLoading: isInvitesLoading,
+    error: invitesError,
+  } = useQuery({
+    queryKey: ['invites', organizationSlug],
     queryFn: async () => {
       if (!organizationSlug) return []
       const { invites } = await getInvites(organizationSlug)
@@ -269,8 +343,10 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
     refetchOnWindowFocus: false,
   })
 
-  const roleToApi = (role: "admin" | "operator" | "viewer" | "editor") => role.toUpperCase() as Role
-  const roleToLabelKey = (role: Role) => role.toLowerCase() as keyof typeof roleLabels
+  const roleToApi = (role: 'admin' | 'operator' | 'viewer' | 'editor') =>
+    role.toUpperCase() as Role
+  const roleToLabelKey = (role: Role) =>
+    role.toLowerCase() as keyof typeof roleLabels
 
   const filteredUsers = users.filter(
     (u) =>
@@ -287,30 +363,32 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
         id: invite.id,
         email: invite.email,
         role: invite.role,
-        status: "pending",
-        sentAt: createdAt.toLocaleString("pt-BR"),
-        expiresAt: expiresAt.toLocaleString("pt-BR"),
-        sentBy: invite.author?.name ?? "Sistema",
+        status: 'pending',
+        sentAt: createdAt.toLocaleString('pt-BR'),
+        expiresAt: expiresAt.toLocaleString('pt-BR'),
+        sentBy: invite.author?.name ?? 'Sistema',
       }
     })
   }, [invitesData])
 
-  const filteredInvites = invites.filter((i) => i.email.toLowerCase().includes(searchInvite.toLowerCase()))
-  const pendingInvites = filteredInvites.filter((i) => i.status === "pending")
+  const filteredInvites = invites.filter((i) =>
+    i.email.toLowerCase().includes(searchInvite.toLowerCase()),
+  )
+  const pendingInvites = filteredInvites.filter((i) => i.status === 'pending')
 
   const handleSendInvites = async () => {
     const emails = inviteForm.emails
       .split(/[\n,;]/)
       .map((e) => e.trim())
-      .filter((e) => e.length > 0 && e.includes("@"))
+      .filter((e) => e.length > 0 && e.includes('@'))
 
     if (emails.length === 0) {
-      toast.error("Insira pelo menos um email válido")
+      toast.error('Insira pelo menos um email válido')
       return
     }
 
     if (!organizationSlug) {
-      toast.error("Slug da organização não informado")
+      toast.error('Slug da organização não informado')
       return
     }
 
@@ -324,14 +402,18 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
       ),
     )
 
-    const successCount = results.filter((result) => result.status === "fulfilled").length
+    const successCount = results.filter(
+      (result) => result.status === 'fulfilled',
+    ).length
     const errorCount = results.length - successCount
 
-    setInviteForm({ emails: "", role: "viewer", message: "" })
+    setInviteForm({ emails: '', role: 'viewer', message: '' })
     setIsInviteOpen(false)
 
     if (successCount > 0) {
-      await queryClient.invalidateQueries({ queryKey: ["invites", organizationSlug] })
+      await queryClient.invalidateQueries({
+        queryKey: ['invites', organizationSlug],
+      })
       toast.success(`${successCount} convite(s) enviado(s)`)
     }
     if (errorCount > 0) {
@@ -341,7 +423,7 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
 
   const resendInvite = async (invite: Invite) => {
     if (!organizationSlug) {
-      toast.error("Slug da organização não informado")
+      toast.error('Slug da organização não informado')
       return
     }
 
@@ -352,24 +434,28 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
         email: invite.email,
         role: invite.role,
       })
-      await queryClient.invalidateQueries({ queryKey: ["invites", organizationSlug] })
-      toast.success("Convite reenviado")
+      await queryClient.invalidateQueries({
+        queryKey: ['invites', organizationSlug],
+      })
+      toast.success('Convite reenviado')
     } catch {
-      toast.error("Não foi possível reenviar o convite")
+      toast.error('Não foi possível reenviar o convite')
     }
   }
 
   const revokeInviteAction = async (inviteId: string) => {
     if (!organizationSlug) {
-      toast.error("Slug da organização não informado")
+      toast.error('Slug da organização não informado')
       return
     }
     try {
       await revokeInvite({ org: organizationSlug, inviteId })
-      await queryClient.invalidateQueries({ queryKey: ["invites", organizationSlug] })
-      toast.success("Convite revogado")
+      await queryClient.invalidateQueries({
+        queryKey: ['invites', organizationSlug],
+      })
+      toast.success('Convite revogado')
     } catch {
-      toast.error("Não foi possível revogar o convite")
+      toast.error('Não foi possível revogar o convite')
     }
   }
 
@@ -380,8 +466,8 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
       Number.parseInt(parts[2]),
       Number.parseInt(parts[1]) - 1,
       Number.parseInt(parts[0]),
-      Number.parseInt(parts[3] || "0"),
-      Number.parseInt(parts[4] || "0"),
+      Number.parseInt(parts[3] || '0'),
+      Number.parseInt(parts[4] || '0'),
     )
     const diff = expiry.getTime() - now.getTime()
     if (diff <= 0) return null
@@ -403,7 +489,10 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
             <TabsList>
               <TabsTrigger value="users" className="gap-2">
                 Usuários
-                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+                <Badge
+                  variant="secondary"
+                  className="ml-1 h-5 px-1.5 text-[10px]"
+                >
                   {filteredUsers.length}
                 </Badge>
               </TabsTrigger>
@@ -411,7 +500,7 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
                 <Mail className="h-4 w-4" />
                 Convites
                 {pendingInvites.length > 0 && (
-                  <Badge className="ml-1 h-5 px-1.5 text-[10px] bg-amber-500 hover:bg-amber-500 text-white">
+                  <Badge className="ml-1 h-5 bg-amber-500 px-1.5 text-[10px] text-white hover:bg-amber-500">
                     {pendingInvites.length}
                   </Badge>
                 )}
@@ -478,12 +567,12 @@ export function UserManagement({ organizationSlug }: UserManagementProps) {
 type NewUserForm = {
   name: string
   email: string
-  role: "admin" | "operator" | "viewer" | "editor"
+  role: 'admin' | 'operator' | 'viewer' | 'editor'
 }
 
 type InviteForm = {
   emails: string
-  role: "admin" | "operator" | "viewer" | "editor"
+  role: 'admin' | 'operator' | 'viewer' | 'editor'
   message: string
 }
 
@@ -502,7 +591,7 @@ type UsersTabProps = {
   filteredUsers: User[]
   deletingMemberId: string | null
   togglingMemberId: string | null
-  onToggleStatus: (id: string, status: "active" | "inactive") => void
+  onToggleStatus: (id: string, status: 'active' | 'inactive') => void
   onDelete: (id: string) => void
   onEdit: (user: User) => void
   getRoleBadge: (role: Role) => ReactNode
@@ -531,15 +620,15 @@ function UsersTab({
   getStatusBadge,
 }: UsersTabProps) {
   return (
-    <TabsContent value="users" className="space-y-4 mt-0">
+    <TabsContent value="users" className="mt-0 space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Buscar usuário..."
             value={searchUser}
             onChange={(e) => setSearchUser(e.target.value)}
-            className="pl-9 h-9"
+            className="h-9 pl-9"
           />
         </div>
 
@@ -553,7 +642,9 @@ function UsersTab({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar Novo Usuário</DialogTitle>
-              <DialogDescription>Preencha as informações do novo usuário</DialogDescription>
+              <DialogDescription>
+                Preencha as informações do novo usuário
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -561,7 +652,9 @@ function UsersTab({
                 <Input
                   id="user-name"
                   value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, name: e.target.value })
+                  }
                   placeholder="Digite o nome completo"
                 />
               </div>
@@ -572,14 +665,21 @@ function UsersTab({
                   id="user-email"
                   type="email"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
                   placeholder="Digite o email"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="user-role">Função</Label>
-                <Select value={newUser.role} onValueChange={(value: "viewer" | "operator" | "admin" | "editor") => setNewUser({ ...newUser, role: value })}>
+                <Select
+                  value={newUser.role}
+                  onValueChange={(
+                    value: 'viewer' | 'operator' | 'admin' | 'editor',
+                  ) => setNewUser({ ...newUser, role: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -593,7 +693,10 @@ function UsersTab({
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
                 <Button onClick={handleAddUser}>Adicionar Usuário</Button>
@@ -617,27 +720,36 @@ function UsersTab({
           <TableBody>
             {canFetch && isLoading && !hasData && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-muted-foreground text-center text-sm"
+                >
                   Carregando usuários...
                 </TableCell>
               </TableRow>
             )}
             {canFetch && hasError && !hasData && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-muted-foreground text-center text-sm"
+                >
                   Não foi possível carregar os usuários.
                 </TableCell>
               </TableRow>
             )}
             {canFetch && !isLoading && !hasData && !hasError && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-muted-foreground text-center text-sm"
+                >
                   Nenhum usuário encontrado.
                 </TableCell>
               </TableRow>
             )}
             {filteredUsers.map((user) => {
-              const nextStatus = user.isActive ? "inactive" : "active"
+              const nextStatus = user.isActive ? 'inactive' : 'active'
               const isToggling = togglingMemberId === user.id
               return (
                 <TableRow key={user.id}>
@@ -651,27 +763,45 @@ function UsersTab({
                         <AlertDialogTrigger asChild>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="outline" size="sm" disabled={isToggling}>
-                                {user.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={isToggling}
+                              >
+                                {user.isActive ? (
+                                  <UserX className="size-4" />
+                                ) : (
+                                  <UserCheck className="size-4" />
+                                )}
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {user.isActive ? "Inativar usuário" : "Ativar usuário"}
+                              {user.isActive
+                                ? 'Inativar usuário'
+                                : 'Ativar usuário'}
                             </TooltipContent>
                           </Tooltip>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              {user.isActive ? "Inativar usuário" : "Ativar usuário"}
+                              {user.isActive
+                                ? 'Inativar usuário'
+                                : 'Ativar usuário'}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tem certeza que deseja {user.isActive ? "inativar" : "ativar"} este usuário?
+                              Tem certeza que deseja{' '}
+                              {user.isActive ? 'inativar' : 'ativar'} este
+                              usuário?
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onToggleStatus(user.id, nextStatus)}>
+                            <AlertDialogAction
+                              onClick={() =>
+                                onToggleStatus(user.id, nextStatus)
+                              }
+                            >
                               Confirmar
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -680,7 +810,11 @@ function UsersTab({
 
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onEdit(user)}
+                          >
                             <Edit className="size-4" />
                           </Button>
                         </TooltipTrigger>
@@ -707,12 +841,15 @@ function UsersTab({
                           <AlertDialogHeader>
                             <AlertDialogTitle>Remover usuário</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tem certeza que deseja remover este usuário da organização?
+                              Tem certeza que deseja remover este usuário da
+                              organização?
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onDelete(user.id)}>
+                            <AlertDialogAction
+                              onClick={() => onDelete(user.id)}
+                            >
                               Remover
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -729,21 +866,25 @@ function UsersTab({
 
       <div className="rounded-lg bg-blue-50 p-4">
         <div className="flex items-start gap-3">
-          <Shield className="size-5 text-blue-600 mt-0.5" />
+          <Shield className="mt-0.5 size-5 text-blue-600" />
           <div>
             <h4 className="font-medium text-blue-900">Níveis de Permissão</h4>
             <div className="mt-2 space-y-1 text-sm text-blue-800">
               <p>
-                <strong>Administrador:</strong> Acesso completo ao sistema, incluindo configurações
+                <strong>Administrador:</strong> Acesso completo ao sistema,
+                incluindo configurações
               </p>
               <p>
-                <strong>Operador:</strong> Acessa somente o tempo real e os controles operacionais do instrumento
+                <strong>Operador:</strong> Acessa somente o tempo real e os
+                controles operacionais do instrumento
               </p>
               <p>
-                <strong>Visualizador:</strong> Visualiza instrumentos e histórico, sem editar ou gerar dados
+                <strong>Visualizador:</strong> Visualiza instrumentos e
+                histórico, sem editar ou gerar dados
               </p>
               <p>
-                <strong>Editor:</strong> Visualiza instrumentos e histórico, além de editar e gerar dados históricos
+                <strong>Editor:</strong> Visualiza instrumentos e histórico,
+                além de editar e gerar dados históricos
               </p>
             </div>
           </div>
@@ -791,15 +932,15 @@ function InvitesTab({
   revokeInviteAction,
 }: InvitesTabProps) {
   return (
-    <TabsContent value="invites" className="space-y-4 mt-0">
+    <TabsContent value="invites" className="mt-0 space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Buscar por email..."
             value={searchInvite}
             onChange={(e) => setSearchInvite(e.target.value)}
-            className="pl-9 h-9"
+            className="h-9 pl-9"
           />
         </div>
         <div className="flex gap-2">
@@ -822,20 +963,27 @@ function InvitesTab({
                   <Label>Emails</Label>
                   <Textarea
                     value={inviteForm.emails}
-                    onChange={(e) => setInviteForm({ ...inviteForm, emails: e.target.value })}
-                    placeholder={"email1@exemplo.com\nemail2@exemplo.com\nemail3@exemplo.com"}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, emails: e.target.value })
+                    }
+                    placeholder={
+                      'email1@exemplo.com\nemail2@exemplo.com\nemail3@exemplo.com'
+                    }
                     rows={4}
                     className="resize-none font-mono text-sm"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Separe múltiplos emails por linha, vírgula ou ponto e vírgula
+                  <p className="text-muted-foreground text-xs">
+                    Separe múltiplos emails por linha, vírgula ou ponto e
+                    vírgula
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Função</Label>
                   <Select
                     value={inviteForm.role}
-                    onValueChange={(v: any) => setInviteForm({ ...inviteForm, role: v })}
+                    onValueChange={(v: InviteForm['role']) =>
+                      setInviteForm({ ...inviteForm, role: v })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -850,18 +998,26 @@ function InvitesTab({
                 </div>
                 <div className="space-y-2">
                   <Label>
-                    Mensagem <span className="text-muted-foreground font-normal">(opcional)</span>
+                    Mensagem{' '}
+                    <span className="text-muted-foreground font-normal">
+                      (opcional)
+                    </span>
                   </Label>
                   <Textarea
                     value={inviteForm.message}
-                    onChange={(e) => setInviteForm({ ...inviteForm, message: e.target.value })}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, message: e.target.value })
+                    }
                     placeholder="Escreva uma mensagem personalizada para o convite..."
                     rows={3}
                     className="resize-none"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsInviteOpen(false)}
+                  >
                     Cancelar
                   </Button>
                   <Button onClick={handleSendInvites}>
@@ -876,51 +1032,63 @@ function InvitesTab({
       </div>
 
       {isInvitesLoading && pendingInvites.length === 0 && (
-        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center justify-center py-10 text-sm">
           Carregando convites...
         </div>
       )}
 
       {invitesError && pendingInvites.length === 0 && (
-        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center justify-center py-10 text-sm">
           Não foi possível carregar os convites.
         </div>
       )}
 
       {pendingInvites.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">Pendentes ({pendingInvites.length})</p>
-          <div className="rounded-lg border divide-y">
+          <p className="text-muted-foreground text-sm font-medium">
+            Pendentes ({pendingInvites.length})
+          </p>
+          <div className="divide-y rounded-lg border">
             {pendingInvites.map((invite) => {
               const remaining = getTimeRemaining(invite.expiresAt)
               const roleKey = roleToLabelKey(invite.role)
               return (
-                <div key={invite.id} className="flex items-center justify-between gap-4 p-3 group">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-50 shrink-0">
+                <div
+                  key={invite.id}
+                  className="group flex items-center justify-between gap-4 p-3"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50">
                       <Mail className="h-4 w-4 text-amber-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{invite.email}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <p className="truncate text-sm font-medium">
+                        {invite.email}
+                      </p>
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
                         <span>Enviado por {invite.sentBy}</span>
                         <span>/</span>
                         <span>{invite.sentAt}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2">
                     <Badge variant="outline" className={roleColors[roleKey]}>
                       {roleLabels[roleKey]}
                     </Badge>
                     {remaining && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center gap-1 text-xs">
                         <Clock className="h-3 w-3" />
                         <span>{remaining}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => resendInvite(invite)}>
+                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => resendInvite(invite)}
+                      >
                         <RefreshCw className="h-3.5 w-3.5" />
                       </Button>
                       <Button
@@ -942,11 +1110,13 @@ function InvitesTab({
 
       {pendingInvites.length === 0 && !isInvitesLoading && !invitesError && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-            <Mail className="h-5 w-5 text-muted-foreground" />
+          <div className="bg-muted mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+            <Mail className="text-muted-foreground h-5 w-5" />
           </div>
           <p className="text-sm font-medium">Nenhum convite encontrado</p>
-          <p className="text-xs text-muted-foreground mt-1">Envie convites para adicionar novos membros</p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            Envie convites para adicionar novos membros
+          </p>
         </div>
       )}
     </TabsContent>
@@ -977,16 +1147,23 @@ function EditMemberDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar membro</DialogTitle>
-          <DialogDescription>Atualize a função do membro na organização.</DialogDescription>
+          <DialogDescription>
+            Atualize a função do membro na organização.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1">
-            <p className="text-sm font-medium">{member?.name ?? "Sem nome"}</p>
-            <p className="text-xs text-muted-foreground">{member?.email ?? "—"}</p>
+            <p className="text-sm font-medium">{member?.name ?? 'Sem nome'}</p>
+            <p className="text-muted-foreground text-xs">
+              {member?.email ?? '—'}
+            </p>
           </div>
           <div className="space-y-2">
             <Label>Função</Label>
-            <Select value={role} onValueChange={(value) => onRoleChange(value as Role)}>
+            <Select
+              value={role}
+              onValueChange={(value) => onRoleChange(value as Role)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -1003,7 +1180,7 @@ function EditMemberDialog({
               Cancelar
             </Button>
             <Button onClick={onSave} disabled={!member || isSaving}>
-              {isSaving ? "Salvando..." : "Salvar"}
+              {isSaving ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
         </div>

@@ -1,19 +1,27 @@
-import { ability } from "@/auth/auth"
-import Link from "next/link"
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
-import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getInstrumentData } from "@/http/instruments/get-instrument-data"
-import { getInstrumentsBySlug } from "@/http/instruments/get-instruments-by-slug"
-import { getOrganization } from "@/http/organizations/get-organization"
-import { getOperationalStatusBadge, mapOperationalStatus } from "@/utils/get-operational-status-badge"
+import { ability } from '@/auth/auth'
+import { Header } from '@/components/header'
+import { Button } from '@/components/ui/button'
 import {
-  ArrowLeft,
-} from "lucide-react"
-import { HistoryTable } from "../components/history-table"
-import { InstrumentPageTabs } from "../components/instrument-page-tabs"
-import { RealtimeGauges } from "../components/realtime-gauges"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { getInstrumentData } from '@/http/instruments/get-instrument-data'
+import { getInstrumentsBySlug } from '@/http/instruments/get-instruments-by-slug'
+import { getOrganization } from '@/http/organizations/get-organization'
+import {
+  getOperationalStatusBadge,
+  mapOperationalStatus,
+} from '@/utils/get-operational-status-badge'
+
+import { HistoryTable } from '../components/history-table'
+import { InstrumentPageTabs } from '../components/instrument-page-tabs'
+import { RealtimeGauges } from '../components/realtime-gauges'
 
 function toDateMs(input: string | Date) {
   return input instanceof Date ? input.getTime() : new Date(input).getTime()
@@ -22,15 +30,27 @@ function toDateMs(input: string | Date) {
 export default async function InstrumentPage({
   params,
 }: {
-  params: Promise<{ slug: string, instrumentSlug: string }>
+  params: Promise<{ slug: string; instrumentSlug: string }>
 }) {
   const { slug, instrumentSlug } = await params
   const initialNowIso = new Date().toISOString()
   const permissions = await ability(slug)
-  const canControlInstrument = Boolean(permissions?.can("manage", "all") || permissions?.can("update", "Instrument"))
-  const canReadHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("read", "InstrumentData"))
-  const canGenerateHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("create", "InstrumentData"))
-  const canEditHistory = Boolean(permissions?.can("manage", "all") || permissions?.can("update", "InstrumentData"))
+  const canControlInstrument = Boolean(
+    permissions?.can('manage', 'all') ||
+      permissions?.can('update', 'Instrument'),
+  )
+  const canReadHistory = Boolean(
+    permissions?.can('manage', 'all') ||
+      permissions?.can('read', 'InstrumentData'),
+  )
+  const canGenerateHistory = Boolean(
+    permissions?.can('manage', 'all') ||
+      permissions?.can('create', 'InstrumentData'),
+  )
+  const canEditHistory = Boolean(
+    permissions?.can('manage', 'all') ||
+      permissions?.can('update', 'InstrumentData'),
+  )
 
   const [{ organization }, { instrument }] = await Promise.all([
     getOrganization(slug),
@@ -38,20 +58,22 @@ export default async function InstrumentPage({
   ])
 
   const data = canReadHistory
-    ? (await getInstrumentData({
-      orgSlug: slug,
-      instrumentSlug,
-      startDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      endDate: new Date(),
-      chartVariation: 10,
-      tableVariation: 10,
-    })).data
+    ? (
+        await getInstrumentData({
+          orgSlug: slug,
+          instrumentSlug,
+          startDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          endDate: new Date(),
+          chartVariation: 10,
+          tableVariation: 10,
+        })
+      ).data
     : {
-      tableDataTemperature: [],
-      tableDataPressure: [],
-      chartDataTemperature: [],
-      chartDataPressure: [],
-    }
+        tableDataTemperature: [],
+        tableDataPressure: [],
+        chartDataTemperature: [],
+        chartDataPressure: [],
+      }
 
   const latestDataPoint = [
     ...data.tableDataTemperature,
@@ -61,11 +83,17 @@ export default async function InstrumentPage({
   ].sort((a, b) => toDateMs(b.createdAt) - toDateMs(a.createdAt))[0]
 
   const currentValue = latestDataPoint?.data ?? null
-  const lastUpdated = latestDataPoint ? new Date(latestDataPoint.createdAt).toISOString() : null
-  const initialSetpoint = instrument.minValue + (instrument.maxValue - instrument.minValue) / 2
-  const initialDifferential = Math.max(0.5, Number(((instrument.maxValue - instrument.minValue) / 6).toFixed(1)))
+  const lastUpdated = latestDataPoint
+    ? new Date(latestDataPoint.createdAt).toISOString()
+    : null
+  const initialSetpoint =
+    instrument.minValue + (instrument.maxValue - instrument.minValue) / 2
+  const initialDifferential = Math.max(
+    0.5,
+    Number(((instrument.maxValue - instrument.minValue) / 6).toFixed(1)),
+  )
   const operationalStatus = mapOperationalStatus(
-    instrument.operationalStatus ?? (instrument.isActive ? "on-line" : "off"),
+    instrument.operationalStatus ?? (instrument.isActive ? 'on-line' : 'off'),
   )
 
   return (
@@ -84,18 +112,21 @@ export default async function InstrumentPage({
           </div>
         </div>
 
-
         <div className="mt-6">
           <InstrumentPageTabs
             showHistoryTab={canReadHistory}
-            realtime={(
+            realtime={
               <Card>
                 <CardHeader>
-                  <CardTitle>{canControlInstrument ? "Monitoramento e Controle em Tempo Real" : "Monitoramento em Tempo Real"}</CardTitle>
+                  <CardTitle>
+                    {canControlInstrument
+                      ? 'Monitoramento e Controle em Tempo Real'
+                      : 'Monitoramento em Tempo Real'}
+                  </CardTitle>
                   <CardDescription>
                     {canControlInstrument
-                      ? "Visualização dos sensores e controles operacionais"
-                      : "Visualização dos sensores e status operacionais"}
+                      ? 'Visualização dos sensores e controles operacionais'
+                      : 'Visualização dos sensores e status operacionais'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -111,15 +142,15 @@ export default async function InstrumentPage({
                     initialLastUpdated={lastUpdated}
                     initialSetpoint={initialSetpoint}
                     initialDifferential={initialDifferential}
-                    initialDefrost={operationalStatus === "defrosting"}
+                    initialDefrost={operationalStatus === 'defrosting'}
                     initialFan={Boolean(instrument.isFan)}
                     operationalStatus={operationalStatus}
                     canControlInstrument={canControlInstrument}
                   />
                 </CardContent>
               </Card>
-            )}
-            history={(
+            }
+            history={
               <Card>
                 <CardHeader>
                   <CardTitle>Histórico de Leituras</CardTitle>
@@ -139,7 +170,7 @@ export default async function InstrumentPage({
                   />
                 </CardContent>
               </Card>
-            )}
+            }
           />
         </div>
       </div>

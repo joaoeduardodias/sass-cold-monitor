@@ -1,41 +1,56 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { Monitor, Moon, Palette, Save, Smartphone, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Monitor, Moon, Palette, Save, Smartphone, Sun } from "lucide-react"
-import { toast } from "sonner"
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 
 export function AppearanceSettings() {
   const [settings, setSettings] = useState({
-    theme: "system",
-    primaryColor: "blue",
+    theme: 'system',
+    primaryColor: 'blue',
 
     sidebarCollapsed: false,
     compactMode: false,
     showAnimations: true,
 
-    cardsPerRow: "4",
+    cardsPerRow: '4',
     showMiniCharts: true,
     autoRefreshVisual: true,
 
-    chartTheme: "modern",
+    chartTheme: 'modern',
     showGridLines: true,
     animatedCharts: true,
     chartHeight: [300],
 
-    density: "comfortable",
-    fontSize: "medium",
+    density: 'comfortable',
+    fontSize: 'medium',
   })
 
   const [loading, setLoading] = useState(false)
 
-  const handleInputChange = (field: string, value: string | boolean | number[]) => {
+  const handleInputChange = (
+    field: string,
+    value: string | boolean | number[],
+  ) => {
     setSettings((prev) => ({
       ...prev,
       [field]: value,
@@ -48,17 +63,17 @@ export function AppearanceSettings() {
     // Simular salvamento
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast.success("Configurações de aparência salvas!")
+    toast.success('Configurações de aparência salvas!')
     setLoading(false)
   }
 
   const colorOptions = [
-    { value: "blue", label: "Azul", color: "bg-blue-500" },
-    { value: "green", label: "Verde", color: "bg-green-500" },
-    { value: "purple", label: "Roxo", color: "bg-purple-500" },
-    { value: "orange", label: "Laranja", color: "bg-orange-500" },
-    { value: "red", label: "Vermelho", color: "bg-red-500" },
-    { value: "teal", label: "Teal", color: "bg-teal-500" },
+    { value: 'blue', label: 'Azul', color: 'bg-blue-500' },
+    { value: 'green', label: 'Verde', color: 'bg-green-500' },
+    { value: 'purple', label: 'Roxo', color: 'bg-purple-500' },
+    { value: 'orange', label: 'Laranja', color: 'bg-orange-500' },
+    { value: 'red', label: 'Vermelho', color: 'bg-red-500' },
+    { value: 'teal', label: 'Teal', color: 'bg-teal-500' },
   ]
 
   return (
@@ -69,12 +84,17 @@ export function AppearanceSettings() {
             <Palette className="h-5 w-5 text-blue-600" />
             Tema e Cores
           </CardTitle>
-          <CardDescription>Personalize a aparência geral do sistema</CardDescription>
+          <CardDescription>
+            Personalize a aparência geral do sistema
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="theme">Tema</Label>
-            <Select value={settings.theme} onValueChange={(value) => handleInputChange("theme", value)}>
+            <Select
+              value={settings.theme}
+              onValueChange={(value) => handleInputChange('theme', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -109,13 +129,14 @@ export function AppearanceSettings() {
                   key={color.value}
                   type="button"
                   variant="outline"
-                  onClick={() => handleInputChange("primaryColor", color.value)}
-                  className={`h-auto justify-start gap-2 p-2 transition-colors ${settings.primaryColor === color.value
-                    ? "border-blue-500 bg-blue-50 hover:bg-blue-100"
-                    : "border-gray-200 hover:bg-gray-50"
-                    }`}
+                  onClick={() => handleInputChange('primaryColor', color.value)}
+                  className={`h-auto justify-start gap-2 p-2 transition-colors ${
+                    settings.primaryColor === color.value
+                      ? 'border-blue-500 bg-blue-50 hover:bg-blue-100'
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
                 >
-                  <div className={`w-4 h-4 rounded-full ${color.color}`} />
+                  <div className={`h-4 w-4 rounded-full ${color.color}`} />
                   <span className="text-sm">{color.label}</span>
                 </Button>
               ))}
@@ -127,45 +148,62 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Layout e Navegação</CardTitle>
-          <CardDescription>Configure a disposição dos elementos na tela</CardDescription>
+          <CardDescription>
+            Configure a disposição dos elementos na tela
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Barra Lateral Recolhida</Label>
-              <p className="text-sm text-muted-foreground">Iniciar com sidebar minimizada</p>
+              <p className="text-muted-foreground text-sm">
+                Iniciar com sidebar minimizada
+              </p>
             </div>
             <Switch
               checked={settings.sidebarCollapsed}
-              onCheckedChange={(checked) => handleInputChange("sidebarCollapsed", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('sidebarCollapsed', checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Modo Compacto</Label>
-              <p className="text-sm text-muted-foreground">Reduzir espaçamentos e margens</p>
+              <p className="text-muted-foreground text-sm">
+                Reduzir espaçamentos e margens
+              </p>
             </div>
             <Switch
               checked={settings.compactMode}
-              onCheckedChange={(checked) => handleInputChange("compactMode", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('compactMode', checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Animações</Label>
-              <p className="text-sm text-muted-foreground">Habilitar transições e animações</p>
+              <p className="text-muted-foreground text-sm">
+                Habilitar transições e animações
+              </p>
             </div>
             <Switch
               checked={settings.showAnimations}
-              onCheckedChange={(checked) => handleInputChange("showAnimations", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('showAnimations', checked)
+              }
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="density">Densidade da Interface</Label>
-            <Select value={settings.density} onValueChange={(value) => handleInputChange("density", value)}>
+            <Select
+              value={settings.density}
+              onValueChange={(value) => handleInputChange('density', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -179,7 +217,10 @@ export function AppearanceSettings() {
 
           <div className="space-y-2">
             <Label htmlFor="font-size">Tamanho da Fonte</Label>
-            <Select value={settings.fontSize} onValueChange={(value) => handleInputChange("fontSize", value)}>
+            <Select
+              value={settings.fontSize}
+              onValueChange={(value) => handleInputChange('fontSize', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -196,12 +237,17 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Dashboard</CardTitle>
-          <CardDescription>Configure a visualização da página principal</CardDescription>
+          <CardDescription>
+            Configure a visualização da página principal
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="cards-per-row">Cards por Linha</Label>
-            <Select value={settings.cardsPerRow} onValueChange={(value) => handleInputChange("cardsPerRow", value)}>
+            <Select
+              value={settings.cardsPerRow}
+              onValueChange={(value) => handleInputChange('cardsPerRow', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -217,22 +263,30 @@ export function AppearanceSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Mini Gráficos</Label>
-              <p className="text-sm text-muted-foreground">Mostrar gráficos pequenos nos cards</p>
+              <p className="text-muted-foreground text-sm">
+                Mostrar gráficos pequenos nos cards
+              </p>
             </div>
             <Switch
               checked={settings.showMiniCharts}
-              onCheckedChange={(checked) => handleInputChange("showMiniCharts", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('showMiniCharts', checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Atualização Visual</Label>
-              <p className="text-sm text-muted-foreground">Destacar dados quando atualizados</p>
+              <p className="text-muted-foreground text-sm">
+                Destacar dados quando atualizados
+              </p>
             </div>
             <Switch
               checked={settings.autoRefreshVisual}
-              onCheckedChange={(checked) => handleInputChange("autoRefreshVisual", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('autoRefreshVisual', checked)
+              }
             />
           </div>
         </CardContent>
@@ -241,12 +295,17 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Gráficos e Visualizações</CardTitle>
-          <CardDescription>Personalize a aparência dos gráficos</CardDescription>
+          <CardDescription>
+            Personalize a aparência dos gráficos
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="chart-theme">Tema dos Gráficos</Label>
-            <Select value={settings.chartTheme} onValueChange={(value) => handleInputChange("chartTheme", value)}>
+            <Select
+              value={settings.chartTheme}
+              onValueChange={(value) => handleInputChange('chartTheme', value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -262,28 +321,38 @@ export function AppearanceSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Linhas de Grade</Label>
-              <p className="text-sm text-muted-foreground">Mostrar grade nos gráficos</p>
+              <p className="text-muted-foreground text-sm">
+                Mostrar grade nos gráficos
+              </p>
             </div>
             <Switch
               checked={settings.showGridLines}
-              onCheckedChange={(checked) => handleInputChange("showGridLines", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('showGridLines', checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Gráficos Animados</Label>
-              <p className="text-sm text-muted-foreground">Animar entrada dos dados</p>
+              <p className="text-muted-foreground text-sm">
+                Animar entrada dos dados
+              </p>
             </div>
             <Switch
               checked={settings.animatedCharts}
-              onCheckedChange={(checked) => handleInputChange("animatedCharts", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('animatedCharts', checked)
+              }
             />
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="chart-height">Altura dos Gráficos: {settings.chartHeight[0]}px</Label>
+              <Label htmlFor="chart-height">
+                Altura dos Gráficos: {settings.chartHeight[0]}px
+              </Label>
             </div>
             <Slider
               id="chart-height"
@@ -291,7 +360,7 @@ export function AppearanceSettings() {
               max={600}
               step={50}
               value={settings.chartHeight}
-              onValueChange={(value) => handleInputChange("chartHeight", value)}
+              onValueChange={(value) => handleInputChange('chartHeight', value)}
               className="py-4"
             />
           </div>
@@ -301,12 +370,16 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Pré-visualização</CardTitle>
-          <CardDescription>Veja como ficará a interface com suas configurações</CardDescription>
+          <CardDescription>
+            Veja como ficará a interface com suas configurações
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-            <Smartphone className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-500">Pré-visualização será implementada em breve</p>
+            <Smartphone className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <p className="text-gray-500">
+              Pré-visualização será implementada em breve
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -314,7 +387,7 @@ export function AppearanceSettings() {
       <div className="flex justify-end pt-4">
         <Button onClick={handleSave} disabled={loading}>
           {loading ? (
-            <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}

@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import type { Instrument } from "@/components/instrument-grid.types"
-import { useInstrumentGrid } from "@/hooks/use-instrument-grid"
-import { InstrumentCard } from "./instrument-card"
+import type { Instrument } from '@/components/instrument-grid.types'
+import { useInstrumentGrid } from '@/hooks/use-instrument-grid'
+
+import { InstrumentCard } from './instrument-card'
 
 type InstrumentGridProps = {
   organizationId: string
@@ -32,11 +33,12 @@ export function InstrumentGridContent({
     <div className="space-y-4">
       {hasCommunicationFailures && (
         <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Falha de comunicação com o Coletor. Os instrumentos estão sem leitura em tempo real.
+          Falha de comunicação com o Coletor. Os instrumentos estão sem leitura
+          em tempo real.
         </div>
       )}
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 min-w-72">
+      <div className="grid min-w-72 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {instruments.map((instrument) => (
           <InstrumentCard
             key={instrument.id}
@@ -50,8 +52,16 @@ export function InstrumentGridContent({
   )
 }
 
-export function InstrumentGrid({ organizationId, organizationSlug }: InstrumentGridProps) {
-  const { instruments, loading, hasCommunicationFailures, isCommunicationFailure } = useInstrumentGrid({
+export function InstrumentGrid({
+  organizationId,
+  organizationSlug,
+}: InstrumentGridProps) {
+  const {
+    instruments,
+    loading,
+    hasCommunicationFailures,
+    isCommunicationFailure,
+  } = useInstrumentGrid({
     organizationId,
     organizationSlug,
   })

@@ -1,35 +1,56 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Calendar, Database, Download, HardDrive, Save, Trash2, Upload } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
+import {
+  Calendar,
+  Database,
+  Download,
+  HardDrive,
+  Save,
+  Trash2,
+  Upload,
+} from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
 
 export function DatabaseSettings() {
   const [settings, setSettings] = useState({
     // Retenção de dados
-    dataRetention: "365", // dias
+    dataRetention: '365', // dias
     autoCleanup: true,
 
     // Backup
     autoBackup: true,
-    backupFrequency: "daily",
-    backupRetention: "30", // dias
-    backupLocation: "/backups/coldmonitor",
+    backupFrequency: 'daily',
+    backupRetention: '30', // dias
+    backupLocation: '/backups/coldmonitor',
 
     // Compressão
     enableCompression: true,
-    compressionLevel: "medium",
+    compressionLevel: 'medium',
 
     // Exportação
-    exportFormat: "csv",
+    exportFormat: 'csv',
     includeCharts: true,
   })
 
@@ -49,12 +70,12 @@ export function DatabaseSettings() {
     // Simular salvamento
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast.success("Configurações de dados salvas!")
+    toast.success('Configurações de dados salvas!')
     setLoading(false)
   }
 
   const createBackup = async () => {
-    toast.info("Iniciando backup manual...")
+    toast.info('Iniciando backup manual...')
     setBackupProgress(0)
 
     // Simular progresso do backup
@@ -62,7 +83,7 @@ export function DatabaseSettings() {
       setBackupProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval)
-          toast.success("Backup criado com sucesso!")
+          toast.success('Backup criado com sucesso!')
           return 100
         }
         return prev + 10
@@ -71,21 +92,21 @@ export function DatabaseSettings() {
   }
 
   const exportData = async () => {
-    toast.info("Preparando exportação de dados...")
+    toast.info('Preparando exportação de dados...')
 
     // Simular exportação
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    toast.success("Dados exportados com sucesso!")
+    toast.success('Dados exportados com sucesso!')
   }
 
   const cleanupOldData = async () => {
-    toast.info("Iniciando limpeza de dados antigos...")
+    toast.info('Iniciando limpeza de dados antigos...')
 
     // Simular limpeza
     await new Promise((resolve) => setTimeout(resolve, 3000))
 
-    toast.success("Limpeza concluída! 1.2GB liberados.")
+    toast.success('Limpeza concluída! 1.2GB liberados.')
   }
 
   return (
@@ -101,15 +122,15 @@ export function DatabaseSettings() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">2.4 GB</div>
-              <div className="text-sm text-muted-foreground">Tamanho Total</div>
+              <div className="text-muted-foreground text-sm">Tamanho Total</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">1.2M</div>
-              <div className="text-sm text-muted-foreground">Registros</div>
+              <div className="text-muted-foreground text-sm">Registros</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">365</div>
-              <div className="text-sm text-muted-foreground">Dias de Dados</div>
+              <div className="text-muted-foreground text-sm">Dias de Dados</div>
             </div>
           </div>
         </CardContent>
@@ -121,12 +142,19 @@ export function DatabaseSettings() {
             <Calendar className="size-5 text-blue-600" />
             Retenção de Dados
           </CardTitle>
-          <CardDescription>Configure por quanto tempo manter os dados históricos</CardDescription>
+          <CardDescription>
+            Configure por quanto tempo manter os dados históricos
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="data-retention">Período de Retenção</Label>
-            <Select value={settings.dataRetention} onValueChange={(value) => handleInputChange("dataRetention", value)}>
+            <Select
+              value={settings.dataRetention}
+              onValueChange={(value) =>
+                handleInputChange('dataRetention', value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -145,11 +173,15 @@ export function DatabaseSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Limpeza Automática</Label>
-              <p className="text-sm text-muted-foreground">Excluir dados antigos automaticamente</p>
+              <p className="text-muted-foreground text-sm">
+                Excluir dados antigos automaticamente
+              </p>
             </div>
             <Switch
               checked={settings.autoCleanup}
-              onCheckedChange={(checked) => handleInputChange("autoCleanup", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('autoCleanup', checked)
+              }
             />
           </div>
 
@@ -168,17 +200,23 @@ export function DatabaseSettings() {
             <HardDrive className="size-5 text-blue-600" />
             Configurações de Backup
           </CardTitle>
-          <CardDescription>Configure backups automáticos e manuais</CardDescription>
+          <CardDescription>
+            Configure backups automáticos e manuais
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Backup Automático</Label>
-              <p className="text-sm text-muted-foreground">Criar backups automaticamente</p>
+              <p className="text-muted-foreground text-sm">
+                Criar backups automaticamente
+              </p>
             </div>
             <Switch
               checked={settings.autoBackup}
-              onCheckedChange={(checked) => handleInputChange("autoBackup", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('autoBackup', checked)
+              }
             />
           </div>
 
@@ -189,7 +227,9 @@ export function DatabaseSettings() {
                   <Label htmlFor="backup-frequency">Frequência</Label>
                   <Select
                     value={settings.backupFrequency}
-                    onValueChange={(value) => handleInputChange("backupFrequency", value)}
+                    onValueChange={(value) =>
+                      handleInputChange('backupFrequency', value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -207,7 +247,9 @@ export function DatabaseSettings() {
                   <Label htmlFor="backup-retention">Retenção de Backups</Label>
                   <Select
                     value={settings.backupRetention}
-                    onValueChange={(value) => handleInputChange("backupRetention", value)}
+                    onValueChange={(value) =>
+                      handleInputChange('backupRetention', value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -227,7 +269,9 @@ export function DatabaseSettings() {
                 <Input
                   id="backup-location"
                   value={settings.backupLocation}
-                  onChange={(e) => handleInputChange("backupLocation", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('backupLocation', e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -239,9 +283,14 @@ export function DatabaseSettings() {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium">Backup Manual</h4>
-                <p className="text-sm text-muted-foreground">Criar backup imediatamente</p>
+                <p className="text-muted-foreground text-sm">
+                  Criar backup imediatamente
+                </p>
               </div>
-              <Button onClick={createBackup} disabled={backupProgress > 0 && backupProgress < 100}>
+              <Button
+                onClick={createBackup}
+                disabled={backupProgress > 0 && backupProgress < 100}
+              >
                 <Download className="mr-2 size-4" />
                 Criar Backup
               </Button>
@@ -263,17 +312,23 @@ export function DatabaseSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Compressão de Dados</CardTitle>
-          <CardDescription>Configure a compressão para economizar espaço</CardDescription>
+          <CardDescription>
+            Configure a compressão para economizar espaço
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Habilitar Compressão</Label>
-              <p className="text-sm text-muted-foreground">Comprimir dados históricos</p>
+              <p className="text-muted-foreground text-sm">
+                Comprimir dados históricos
+              </p>
             </div>
             <Switch
               checked={settings.enableCompression}
-              onCheckedChange={(checked) => handleInputChange("enableCompression", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('enableCompression', checked)
+              }
             />
           </div>
 
@@ -282,7 +337,9 @@ export function DatabaseSettings() {
               <Label htmlFor="compression-level">Nível de Compressão</Label>
               <Select
                 value={settings.compressionLevel}
-                onValueChange={(value) => handleInputChange("compressionLevel", value)}
+                onValueChange={(value) =>
+                  handleInputChange('compressionLevel', value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -301,13 +358,20 @@ export function DatabaseSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Exportação de Dados</CardTitle>
-          <CardDescription>Configure opções de exportação de relatórios</CardDescription>
+          <CardDescription>
+            Configure opções de exportação de relatórios
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="export-format">Formato Padrão</Label>
-              <Select value={settings.exportFormat} onValueChange={(value) => handleInputChange("exportFormat", value)}>
+              <Select
+                value={settings.exportFormat}
+                onValueChange={(value) =>
+                  handleInputChange('exportFormat', value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -324,11 +388,15 @@ export function DatabaseSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Incluir Gráficos</Label>
-              <p className="text-sm text-muted-foreground">Incluir gráficos nas exportações</p>
+              <p className="text-muted-foreground text-sm">
+                Incluir gráficos nas exportações
+              </p>
             </div>
             <Switch
               checked={settings.includeCharts}
-              onCheckedChange={(checked) => handleInputChange("includeCharts", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('includeCharts', checked)
+              }
             />
           </div>
 
@@ -344,7 +412,7 @@ export function DatabaseSettings() {
       <div className="flex justify-end pt-4">
         <Button onClick={handleSave} disabled={loading}>
           {loading ? (
-            <div className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
+            <div className="mr-2 size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
             <Save className="mr-2 size-4" />
           )}

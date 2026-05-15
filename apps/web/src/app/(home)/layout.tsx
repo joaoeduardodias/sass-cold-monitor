@@ -1,5 +1,6 @@
-import { isAuthenticated } from '@/auth/auth'
 import { redirect } from 'next/navigation'
+
+import { isAuthenticated } from '@/auth/auth'
 
 export default async function HomeLayout({
   children,
@@ -12,9 +13,5 @@ export default async function HomeLayout({
     redirect('/auth/sign-in')
   }
 
-  return (
-    <div>
-      {children}
-    </div>
-  )
+  return <div>{children}</div>
 }

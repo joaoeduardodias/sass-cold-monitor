@@ -1,14 +1,15 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bell, Gauge, Mail, Phone, Thermometer } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
+import { Bell, Gauge, Mail, Phone, Thermometer } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function AlertSettings({ id }: { id: string }) {
   const [settings, setSettings] = useState({
@@ -30,8 +31,8 @@ export function AlertSettings({ id }: { id: string }) {
       email: true,
       sms: false,
       push: true,
-      emailAddress: "admin@example.com",
-      phoneNumber: "+55 11 98765-4321",
+      emailAddress: 'admin@example.com',
+      phoneNumber: '+55 11 98765-4321',
     },
   })
 
@@ -67,11 +68,11 @@ export function AlertSettings({ id }: { id: string }) {
 
   const handleSave = () => {
     // Aqui seria feita a chamada para salvar as configurações
-    toast.success("Configurações salvas com sucesso!")
+    toast.success('Configurações salvas com sucesso!')
   }
 
   return (
-    <Tabs defaultValue="temperature">
+    <Tabs defaultValue="temperature" data-instrument-id={id}>
       <TabsList className="mb-4">
         <TabsTrigger value="temperature" className="flex items-center gap-2">
           <Thermometer className="h-4 w-4" />
@@ -96,7 +97,9 @@ export function AlertSettings({ id }: { id: string }) {
             <Switch
               id="temp-enabled"
               checked={settings.temperature.enabled}
-              onCheckedChange={(checked) => handleTemperatureChange("enabled", checked)}
+              onCheckedChange={(checked) =>
+                handleTemperatureChange('enabled', checked)
+              }
             />
           </div>
 
@@ -109,7 +112,12 @@ export function AlertSettings({ id }: { id: string }) {
                 id="temp-min"
                 type="number"
                 value={settings.temperature.min}
-                onChange={(e) => handleTemperatureChange("min", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handleTemperatureChange(
+                    'min',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.temperature.enabled}
               />
             </div>
@@ -120,7 +128,12 @@ export function AlertSettings({ id }: { id: string }) {
                 id="temp-max"
                 type="number"
                 value={settings.temperature.max}
-                onChange={(e) => handleTemperatureChange("max", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handleTemperatureChange(
+                    'max',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.temperature.enabled}
               />
             </div>
@@ -128,23 +141,37 @@ export function AlertSettings({ id }: { id: string }) {
             <Separator />
 
             <div className="grid gap-2">
-              <Label htmlFor="temp-critical-min">Temperatura Mínima (Crítico)</Label>
+              <Label htmlFor="temp-critical-min">
+                Temperatura Mínima (Crítico)
+              </Label>
               <Input
                 id="temp-critical-min"
                 type="number"
                 value={settings.temperature.criticalMin}
-                onChange={(e) => handleTemperatureChange("criticalMin", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handleTemperatureChange(
+                    'criticalMin',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.temperature.enabled}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="temp-critical-max">Temperatura Máxima (Crítico)</Label>
+              <Label htmlFor="temp-critical-max">
+                Temperatura Máxima (Crítico)
+              </Label>
               <Input
                 id="temp-critical-max"
                 type="number"
                 value={settings.temperature.criticalMax}
-                onChange={(e) => handleTemperatureChange("criticalMax", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handleTemperatureChange(
+                    'criticalMax',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.temperature.enabled}
               />
             </div>
@@ -161,7 +188,9 @@ export function AlertSettings({ id }: { id: string }) {
             <Switch
               id="pressure-enabled"
               checked={settings.pressure.enabled}
-              onCheckedChange={(checked) => handlePressureChange("enabled", checked)}
+              onCheckedChange={(checked) =>
+                handlePressureChange('enabled', checked)
+              }
             />
           </div>
 
@@ -174,7 +203,9 @@ export function AlertSettings({ id }: { id: string }) {
                 id="pressure-min"
                 type="number"
                 value={settings.pressure.min}
-                onChange={(e) => handlePressureChange("min", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handlePressureChange('min', Number.parseFloat(e.target.value))
+                }
                 disabled={!settings.pressure.enabled}
               />
             </div>
@@ -185,7 +216,9 @@ export function AlertSettings({ id }: { id: string }) {
                 id="pressure-max"
                 type="number"
                 value={settings.pressure.max}
-                onChange={(e) => handlePressureChange("max", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handlePressureChange('max', Number.parseFloat(e.target.value))
+                }
                 disabled={!settings.pressure.enabled}
               />
             </div>
@@ -193,23 +226,37 @@ export function AlertSettings({ id }: { id: string }) {
             <Separator />
 
             <div className="grid gap-2">
-              <Label htmlFor="pressure-critical-min">Pressão Mínima (Crítico)</Label>
+              <Label htmlFor="pressure-critical-min">
+                Pressão Mínima (Crítico)
+              </Label>
               <Input
                 id="pressure-critical-min"
                 type="number"
                 value={settings.pressure.criticalMin}
-                onChange={(e) => handlePressureChange("criticalMin", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handlePressureChange(
+                    'criticalMin',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.pressure.enabled}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="pressure-critical-max">Pressão Máxima (Crítico)</Label>
+              <Label htmlFor="pressure-critical-max">
+                Pressão Máxima (Crítico)
+              </Label>
               <Input
                 id="pressure-critical-max"
                 type="number"
                 value={settings.pressure.criticalMax}
-                onChange={(e) => handlePressureChange("criticalMax", Number.parseFloat(e.target.value))}
+                onChange={(e) =>
+                  handlePressureChange(
+                    'criticalMax',
+                    Number.parseFloat(e.target.value),
+                  )
+                }
                 disabled={!settings.pressure.enabled}
               />
             </div>
@@ -230,7 +277,9 @@ export function AlertSettings({ id }: { id: string }) {
               <Switch
                 id="email-notify"
                 checked={settings.notifications.email}
-                onCheckedChange={(checked) => handleNotificationChange("email", checked)}
+                onCheckedChange={(checked) =>
+                  handleNotificationChange('email', checked)
+                }
               />
             </div>
 
@@ -241,7 +290,9 @@ export function AlertSettings({ id }: { id: string }) {
                   id="email-address"
                   type="email"
                   value={settings.notifications.emailAddress}
-                  onChange={(e) => handleNotificationChange("emailAddress", e.target.value)}
+                  onChange={(e) =>
+                    handleNotificationChange('emailAddress', e.target.value)
+                  }
                 />
               </div>
             )}
@@ -254,7 +305,9 @@ export function AlertSettings({ id }: { id: string }) {
               <Switch
                 id="sms-notify"
                 checked={settings.notifications.sms}
-                onCheckedChange={(checked) => handleNotificationChange("sms", checked)}
+                onCheckedChange={(checked) =>
+                  handleNotificationChange('sms', checked)
+                }
               />
             </div>
 
@@ -265,7 +318,9 @@ export function AlertSettings({ id }: { id: string }) {
                   id="phone-number"
                   type="tel"
                   value={settings.notifications.phoneNumber}
-                  onChange={(e) => handleNotificationChange("phoneNumber", e.target.value)}
+                  onChange={(e) =>
+                    handleNotificationChange('phoneNumber', e.target.value)
+                  }
                 />
               </div>
             )}
@@ -278,7 +333,9 @@ export function AlertSettings({ id }: { id: string }) {
               <Switch
                 id="push-notify"
                 checked={settings.notifications.push}
-                onCheckedChange={(checked) => handleNotificationChange("push", checked)}
+                onCheckedChange={(checked) =>
+                  handleNotificationChange('push', checked)
+                }
               />
             </div>
           </div>

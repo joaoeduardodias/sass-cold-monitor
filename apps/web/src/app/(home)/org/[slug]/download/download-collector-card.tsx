@@ -1,10 +1,11 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { api } from '@/http/api'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { api } from '@/http/api'
 
 type DownloadCollectorCardProps = {
   organizationId: string
@@ -25,7 +26,9 @@ type LatestCollectorResponse = {
 
 const defaultDownloadUrl = '/downloads/coldmonitor-collector-setup.exe'
 
-export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardProps) {
+export function DownloadCollectorCard({
+  organizationId,
+}: DownloadCollectorCardProps) {
   const [setupToken, setSetupToken] = useState('')
   const [stopPassword, setStopPassword] = useState('')
   const [latestToken, setLatestToken] = useState('')
@@ -33,11 +36,14 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
   const [isLoadingToken, setIsLoadingToken] = useState(false)
   const [isLoadingLatest, setIsLoadingLatest] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [latestErrorMessage, setLatestErrorMessage] = useState<string | null>(null)
+  const [latestErrorMessage, setLatestErrorMessage] = useState<string | null>(
+    null,
+  )
   const [copiedSetupToken, setCopiedSetupToken] = useState(false)
   const [copiedStopPassword, setCopiedStopPassword] = useState(false)
 
-  const collectorDownloadUrl = process.env.NEXT_PUBLIC_COLLECTOR_DOWNLOAD_URL ?? defaultDownloadUrl
+  const collectorDownloadUrl =
+    process.env.NEXT_PUBLIC_COLLECTOR_DOWNLOAD_URL ?? defaultDownloadUrl
 
   async function loadLatestCredentials() {
     setLatestErrorMessage(null)
@@ -55,16 +61,17 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
       setLatestToken(response.latest?.setupToken ?? '')
       setLatestStopPassword(response.latest?.stopPassword ?? '')
     } catch {
-      setLatestErrorMessage('Não foi possível carregar o último token e senha agora.')
+      setLatestErrorMessage(
+        'Não foi possível carregar o último token e senha agora.',
+      )
     } finally {
       setIsLoadingLatest(false)
     }
   }
 
   useEffect(() => {
-    void loadLatestCredentials()
+    loadLatestCredentials()
   }, [organizationId])
-
 
   async function handleGenerateSetupToken() {
     setErrorMessage(null)
@@ -75,11 +82,13 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
     setIsLoadingToken(true)
 
     try {
-      const response = await api.post('devices/auth/bootstrap', {
-        json: {
-          organizationId,
-        },
-      }).json<BootstrapResponse>()
+      const response = await api
+        .post('devices/auth/bootstrap', {
+          json: {
+            organizationId,
+          },
+        })
+        .json<BootstrapResponse>()
 
       setSetupToken(response.setupToken)
       setStopPassword(response.stopPassword)
@@ -106,10 +115,11 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
+    <section className="border-border bg-card rounded-xl border p-6">
       <h2 className="text-xl font-semibold">App Coletor para Windows</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Baixe o instalador, gere o token de ativação e use esse token no primeiro acesso do aplicativo.
+      <p className="text-muted-foreground mt-2 text-sm">
+        Baixe o instalador, gere o token de ativação e use esse token no
+        primeiro acesso do aplicativo.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -142,9 +152,9 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
       )}
 
       {setupToken && (
-        <div className="mt-4 rounded-md bg-muted p-4">
+        <div className="bg-muted mt-4 rounded-md p-4">
           <p className="text-sm font-medium">Token de ativação</p>
-          <p className="mt-2 break-all font-mono text-xs">{setupToken}</p>
+          <p className="mt-2 font-mono text-xs break-all">{setupToken}</p>
           <Button
             type="button"
             onClick={handleCopyToken}
@@ -155,8 +165,10 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
             {copiedSetupToken ? 'Copiado' : 'Copiar token'}
           </Button>
 
-          <p className="mt-4 text-sm font-medium">Senha de parada (stopPassword)</p>
-          <p className="mt-2 break-all font-mono text-xs">{stopPassword}</p>
+          <p className="mt-4 text-sm font-medium">
+            Senha de parada (stopPassword)
+          </p>
+          <p className="mt-2 font-mono text-xs break-all">{stopPassword}</p>
           <Button
             type="button"
             onClick={handleCopyStopPassword}
@@ -169,11 +181,11 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
         </div>
       )}
 
-      <div className="mt-4 rounded-md bg-muted p-4">
+      <div className="bg-muted mt-4 rounded-md p-4">
         <p className="text-sm font-medium">Último token e senha gerados</p>
 
         {isLoadingLatest && (
-          <p className="mt-2 text-xs text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground mt-2 text-xs">Carregando...</p>
         )}
 
         {latestErrorMessage && (
@@ -181,7 +193,7 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
         )}
 
         {!isLoadingLatest && !latestErrorMessage && !latestToken && (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-xs">
             Nenhum token foi gerado para esta organização ainda.
           </p>
         )}
@@ -189,10 +201,12 @@ export function DownloadCollectorCard({ organizationId }: DownloadCollectorCardP
         {!isLoadingLatest && !latestErrorMessage && latestToken && (
           <>
             <p className="mt-3 text-xs font-medium">Token</p>
-            <p className="mt-1 break-all font-mono text-xs">{latestToken}</p>
+            <p className="mt-1 font-mono text-xs break-all">{latestToken}</p>
 
             <p className="mt-3 text-xs font-medium">Senha (stopPassword)</p>
-            <p className="mt-1 break-all font-mono text-xs">{latestStopPassword}</p>
+            <p className="mt-1 font-mono text-xs break-all">
+              {latestStopPassword}
+            </p>
           </>
         )}
       </div>

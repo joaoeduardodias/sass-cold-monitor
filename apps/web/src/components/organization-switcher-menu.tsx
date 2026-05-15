@@ -1,24 +1,30 @@
-"use client"
+'use client'
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { Check, ChevronDown, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
-import { Check, ChevronDown, Plus } from "lucide-react"
-import Link from "next/link"
+import { OrganizationForm } from '@/app/(home)/org/organization-form'
+import { getInitials } from '@/utils/get-initials'
 
-import { OrganizationForm } from "@/app/(home)/org/organization-form"
-import { getInitials } from "@/utils/get-initials"
-import { Avatar, AvatarFallback } from "./ui/avatar"
-import { Button } from "./ui/button"
-import { Command, CommandGroup, CommandItem, CommandList, CommandSeparator } from "./ui/command"
+import { Avatar, AvatarFallback } from './ui/avatar'
+import { Button } from './ui/button'
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from './ui/command'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+} from './ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 type OrganizationSwitcherMenuProps = {
   currentOrganization?: {
@@ -42,7 +48,8 @@ export function OrganizationSwitcherMenu({
 }: OrganizationSwitcherMenuProps) {
   const router = useRouter()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [isCreateOrganizationOpen, setIsCreateOrganizationOpen] = useState(false)
+  const [isCreateOrganizationOpen, setIsCreateOrganizationOpen] =
+    useState(false)
 
   async function handleOrganizationCreated() {
     setIsCreateOrganizationOpen(false)
@@ -58,19 +65,19 @@ export function OrganizationSwitcherMenu({
             variant="ghost"
             size="sm"
             role="combobox"
-            className="justify-between gap-2 px-2 hover:bg-muted/50"
+            className="hover:bg-muted/50 justify-between gap-2 px-2"
           >
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6 rounded-md">
                 <AvatarFallback className="rounded-md bg-linear-to-br from-blue-500 to-blue-600 text-[10px] font-medium text-white">
-                  {getInitials(currentOrganization?.name || "Org")}
+                  {getInitials(currentOrganization?.name || 'Org')}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden max-w-[120px] truncate text-sm font-medium sm:inline-block">
                 {currentOrganization?.name}
               </span>
             </div>
-            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0" />
           </Button>
         </PopoverTrigger>
 
@@ -96,9 +103,11 @@ export function OrganizationSwitcherMenu({
                       </Avatar>
 
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{organization.name}</div>
+                        <div className="truncate text-sm font-medium">
+                          {organization.name}
+                        </div>
                         {currentRoleLabel && (
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-muted-foreground text-xs">
                             {currentRoleLabel}
                           </div>
                         )}
@@ -128,7 +137,7 @@ export function OrganizationSwitcherMenu({
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">Adicionar empresa</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-muted-foreground text-xs">
                       Criar nova empresa
                     </div>
                   </div>
@@ -139,12 +148,16 @@ export function OrganizationSwitcherMenu({
         </PopoverContent>
       </Popover>
 
-      <Dialog open={isCreateOrganizationOpen} onOpenChange={setIsCreateOrganizationOpen}>
+      <Dialog
+        open={isCreateOrganizationOpen}
+        onOpenChange={setIsCreateOrganizationOpen}
+      >
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Criar Empresa</DialogTitle>
             <DialogDescription>
-              Preencha os dados abaixo para adicionar uma nova empresa ao sistema.
+              Preencha os dados abaixo para adicionar uma nova empresa ao
+              sistema.
             </DialogDescription>
           </DialogHeader>
 

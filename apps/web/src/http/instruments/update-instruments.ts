@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 
 interface UpdateInstrumentsRequest {
   org: string
@@ -10,12 +10,15 @@ interface UpdateInstrumentsRequest {
     maxValue: number
     minValue: number
     isActive: boolean
-    type: "TEMPERATURE" | "PRESSURE"
+    type: 'TEMPERATURE' | 'PRESSURE'
     idSitrad: number | null
   }[]
 }
 
-export async function updateInstruments({ org, instruments }: UpdateInstrumentsRequest) {
+export async function updateInstruments({
+  org,
+  instruments,
+}: UpdateInstrumentsRequest) {
   await api.put(`organizations/${org}/instruments`, {
     json: { instruments },
   })

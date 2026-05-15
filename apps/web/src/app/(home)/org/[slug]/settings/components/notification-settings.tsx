@@ -1,18 +1,25 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import { getNotificationSettings } from "@/http/notifications/get-notification-settings"
-import { testNotificationEmail } from "@/http/notifications/test-notification-email"
-import { updateNotificationSettings } from "@/http/notifications/update-notification-settings"
-import { Bell, Mail, Save } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
-import { toast } from "sonner"
+import { Bell, Mail, Save } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { getNotificationSettings } from '@/http/notifications/get-notification-settings'
+import { testNotificationEmail } from '@/http/notifications/test-notification-email'
+import { updateNotificationSettings } from '@/http/notifications/update-notification-settings'
 
 type NotificationSettingsState = {
   emailEnabled: boolean
@@ -25,7 +32,7 @@ type NotificationSettingsState = {
 
 const DEFAULT_SETTINGS: NotificationSettingsState = {
   emailEnabled: true,
-  emailRecipients: "",
+  emailRecipients: '',
   pushEnabled: true,
   criticalAlerts: true,
   warningAlerts: true,
@@ -40,11 +47,11 @@ Data/Hora: {timestamp}
 Verifique o sistema imediatamente.`,
 }
 
-const STORAGE_KEY_PREFIX = "cold-monitor:notification-settings"
+const STORAGE_KEY_PREFIX = 'cold-monitor:notification-settings'
 
 const getStorageKey = (pathname: string) => {
   const matched = pathname.match(/\/org\/([^/]+)\//)
-  const scope = matched?.[1] ?? "global"
+  const scope = matched?.[1] ?? 'global'
   return `${STORAGE_KEY_PREFIX}:${scope}`
 }
 
@@ -52,11 +59,15 @@ type NotificationSettingsProps = {
   organizationSlug?: string
 }
 
-export function NotificationSettings({ organizationSlug }: NotificationSettingsProps) {
+export function NotificationSettings({
+  organizationSlug,
+}: NotificationSettingsProps) {
   const pathname = usePathname()
   const storageKey = useMemo(() => getStorageKey(pathname), [pathname])
-  const [settings, setSettings] = useState<NotificationSettingsState>(DEFAULT_SETTINGS)
-  const [savedSettings, setSavedSettings] = useState<NotificationSettingsState>(DEFAULT_SETTINGS)
+  const [settings, setSettings] =
+    useState<NotificationSettingsState>(DEFAULT_SETTINGS)
+  const [savedSettings, setSavedSettings] =
+    useState<NotificationSettingsState>(DEFAULT_SETTINGS)
 
   const [loading, setLoading] = useState(false)
   const [testingEmail, setTestingEmail] = useState(false)
@@ -68,7 +79,8 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
       .filter(Boolean)
   }
 
-  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
   useEffect(() => {
     let cancelled = false
@@ -78,18 +90,19 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
         const raw = localStorage.getItem(storageKey)
         const localSettings: NotificationSettingsState = raw
           ? {
-            ...DEFAULT_SETTINGS,
-            ...(JSON.parse(raw) || {}),
-          }
+              ...DEFAULT_SETTINGS,
+              ...(JSON.parse(raw) || {}),
+            }
           : DEFAULT_SETTINGS
 
         let nextSettings = localSettings
         if (organizationSlug) {
-          const { settings: apiSettings } = await getNotificationSettings(organizationSlug)
+          const { settings: apiSettings } =
+            await getNotificationSettings(organizationSlug)
           nextSettings = {
             ...localSettings,
             emailEnabled: apiSettings.emailEnabled,
-            emailRecipients: apiSettings.emailRecipients.join("\n"),
+            emailRecipients: apiSettings.emailRecipients.join('\n'),
             pushEnabled: apiSettings.pushEnabled,
             criticalAlerts: apiSettings.criticalAlerts,
             warningAlerts: apiSettings.warningAlerts,
@@ -103,14 +116,16 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
         }
       } catch {
         if (!cancelled) {
-          toast.error("Não foi possível carregar as configurações de notificação.")
+          toast.error(
+            'Não foi possível carregar as configurações de notificação.',
+          )
           setSettings(DEFAULT_SETTINGS)
           setSavedSettings(DEFAULT_SETTINGS)
         }
       }
     }
 
-    void loadSettings()
+    loadSettings()
 
     return () => {
       cancelled = true
@@ -136,11 +151,11 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
     if (settings.emailEnabled) {
       const recipients = parseRecipientEmails(settings.emailRecipients)
       if (recipients.length === 0) {
-        toast.error("Cadastre pelo menos um e-mail destinatário.")
+        toast.error('Cadastre pelo menos um e-mail destinatário.')
         return false
       }
       if (recipients.some((email) => !isValidEmail(email))) {
-        toast.error("Existe e-mail destinatário inválido na lista.")
+        toast.error('Existe e-mail destinatário inválido na lista.')
         return false
       }
     }
@@ -167,9 +182,9 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
 
       localStorage.setItem(storageKey, JSON.stringify(settings))
       setSavedSettings(settings)
-      toast.success("Configurações de notificação salvas!")
+      toast.success('Configurações de notificação salvas!')
     } catch {
-      toast.error("Não foi possível salvar as configurações.")
+      toast.error('Não foi possível salvar as configurações.')
     } finally {
       setLoading(false)
     }
@@ -177,21 +192,21 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
 
   const handleTestEmail = async () => {
     if (!organizationSlug) {
-      toast.error("Organização não identificada para teste de e-mail.")
+      toast.error('Organização não identificada para teste de e-mail.')
       return
     }
     if (!settings.emailEnabled) {
-      toast.error("Habilite o envio de e-mail para testar.")
+      toast.error('Habilite o envio de e-mail para testar.')
       return
     }
 
     const recipients = parseRecipientEmails(settings.emailRecipients)
     if (recipients.length === 0) {
-      toast.error("Cadastre pelo menos um e-mail destinatário para testar.")
+      toast.error('Cadastre pelo menos um e-mail destinatário para testar.')
       return
     }
     if (recipients.some((email) => !isValidEmail(email))) {
-      toast.error("Existe e-mail destinatário inválido na lista.")
+      toast.error('Existe e-mail destinatário inválido na lista.')
       return
     }
 
@@ -201,9 +216,9 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
         org: organizationSlug,
         recipients,
       })
-      toast.success("E-mail de teste enviado com sucesso!")
+      toast.success('E-mail de teste enviado com sucesso!')
     } catch {
-      toast.error("Não foi possível enviar o e-mail de teste.")
+      toast.error('Não foi possível enviar o e-mail de teste.')
     } finally {
       setTestingEmail(false)
     }
@@ -217,17 +232,23 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
             <Mail className="h-5 w-5 text-blue-600" />
             Notificações por Email
           </CardTitle>
-          <CardDescription>Cadastre os destinatários que devem receber alertas por email</CardDescription>
+          <CardDescription>
+            Cadastre os destinatários que devem receber alertas por email
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Habilitar Email</Label>
-              <p className="text-sm text-muted-foreground">Enviar alertas por email</p>
+              <p className="text-muted-foreground text-sm">
+                Enviar alertas por email
+              </p>
             </div>
             <Switch
               checked={settings.emailEnabled}
-              onCheckedChange={(checked) => handleInputChange("emailEnabled", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('emailEnabled', checked)
+              }
             />
           </div>
 
@@ -237,16 +258,22 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
               <Textarea
                 id="email-recipients"
                 value={settings.emailRecipients}
-                onChange={(e) => handleInputChange("emailRecipients", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange('emailRecipients', e.target.value)
+                }
                 rows={4}
-                placeholder={"exemplo@empresa.com\nsuporte@empresa.com"}
+                placeholder={'exemplo@empresa.com\nsuporte@empresa.com'}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Informe um email por linha, ou separe por vírgula.
               </p>
               <div className="flex justify-end">
-                <Button variant="outline" onClick={handleTestEmail} disabled={testingEmail}>
-                  {testingEmail ? "Enviando..." : "Testar Email"}
+                <Button
+                  variant="outline"
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                >
+                  {testingEmail ? 'Enviando...' : 'Testar Email'}
                 </Button>
               </div>
             </div>
@@ -260,17 +287,23 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
             <Bell className="h-5 w-5 text-blue-600" />
             Notificações Push
           </CardTitle>
-          <CardDescription>Notificações no navegador e aplicativo móvel</CardDescription>
+          <CardDescription>
+            Notificações no navegador e aplicativo móvel
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Habilitar Push</Label>
-              <p className="text-sm text-muted-foreground">Notificações em tempo real</p>
+              <p className="text-muted-foreground text-sm">
+                Notificações em tempo real
+              </p>
             </div>
             <Switch
               checked={settings.pushEnabled}
-              onCheckedChange={(checked) => handleInputChange("pushEnabled", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('pushEnabled', checked)
+              }
             />
           </div>
         </CardContent>
@@ -285,27 +318,33 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Alertas Críticos</Label>
-              <p className="text-sm text-muted-foreground">Temperaturas fora dos limites críticos</p>
+              <p className="text-muted-foreground text-sm">
+                Temperaturas fora dos limites críticos
+              </p>
             </div>
             <Switch
               checked={settings.criticalAlerts}
-              onCheckedChange={(checked) => handleInputChange("criticalAlerts", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('criticalAlerts', checked)
+              }
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Alertas de Atenção</Label>
-              <p className="text-sm text-muted-foreground">Temperaturas próximas aos limites</p>
+              <p className="text-muted-foreground text-sm">
+                Temperaturas próximas aos limites
+              </p>
             </div>
             <Switch
               checked={settings.warningAlerts}
-              onCheckedChange={(checked) => handleInputChange("warningAlerts", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange('warningAlerts', checked)
+              }
             />
           </div>
-
         </div>
-
       </div>
 
       <Separator />
@@ -313,7 +352,7 @@ export function NotificationSettings({ organizationSlug }: NotificationSettingsP
       <div className="flex justify-end pt-4">
         <Button onClick={handleSave} disabled={loading || !hasChanges}>
           {loading ? (
-            <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}

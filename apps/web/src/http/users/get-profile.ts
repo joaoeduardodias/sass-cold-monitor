@@ -1,5 +1,4 @@
-import { api } from "../api";
-
+import { api } from '../api'
 
 interface GetProfileResponse {
   user: {
@@ -11,7 +10,7 @@ interface GetProfileResponse {
     updatedAt: string
     memberships: {
       id: string
-      role: "ADMIN" | "EDITOR" | "OPERATOR" | "VIEWER"
+      role: 'ADMIN' | 'EDITOR' | 'OPERATOR' | 'VIEWER'
       isActive: boolean
       joinedAt: string
       organization: {

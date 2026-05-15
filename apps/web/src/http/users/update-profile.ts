@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 
 type UpdateProfileRequest = {
   name: string
@@ -15,12 +15,18 @@ type UpdateProfileResponse = {
   }
 }
 
-export async function updateProfile({ name, email, avatarUrl }: UpdateProfileRequest) {
-  return api.put("profile", {
-    json: {
-      name,
-      email,
-      avatarUrl,
-    },
-  }).json<UpdateProfileResponse>()
+export async function updateProfile({
+  name,
+  email,
+  avatarUrl,
+}: UpdateProfileRequest) {
+  return api
+    .put('profile', {
+      json: {
+        name,
+        email,
+        avatarUrl,
+      },
+    })
+    .json<UpdateProfileResponse>()
 }

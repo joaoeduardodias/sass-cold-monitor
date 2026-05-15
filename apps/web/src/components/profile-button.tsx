@@ -1,9 +1,9 @@
 import { ChevronDown, LogOut, Settings, User } from 'lucide-react'
+import Link from 'next/link'
 
 import { ability, auth, getCurrentOrg } from '@/auth/auth'
-
 import { getInitials } from '@/utils/get-initials'
-import Link from 'next/link'
+
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import {
   DropdownMenu,
@@ -14,19 +14,22 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
-
 export async function ProfileButton() {
   const { user } = await auth()
   const currentOrg = await getCurrentOrg()
   const permissions = currentOrg ? await ability(currentOrg) : null
-  const canAccessSettings = Boolean(currentOrg && permissions?.can('manage', 'all'))
+  const canAccessSettings = Boolean(
+    currentOrg && permissions?.can('manage', 'all'),
+  )
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className='flex items-center space-x-2'>
+      <DropdownMenuTrigger className="flex items-center space-x-2">
         <div className="flex flex-col items-end">
           <span className="text-sm font-medium">{user.name}</span>
-          <span className="text-xs text-muted-foreground text-ellipsis">{user.email}</span>
+          <span className="text-muted-foreground text-xs text-ellipsis">
+            {user.email}
+          </span>
         </div>
         <Avatar className="size-10">
           {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
@@ -34,20 +37,25 @@ export async function ProfileButton() {
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           )}
         </Avatar>
-        <ChevronDown className="size-4 text-muted-foreground" />
+        <ChevronDown className="text-muted-foreground size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+            <p className="text-sm leading-none font-medium">{user.name}</p>
+            <p className="text-muted-foreground text-xs leading-none">
+              {user.email}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         {canAccessSettings && (
           <DropdownMenuItem asChild>
-            <Link href={`/org/${currentOrg}/settings`} className="cursor-pointer">
+            <Link
+              href={`/org/${currentOrg}/settings`}
+              className="cursor-pointer"
+            >
               <Settings className="mr-2 size-4" />
               <span>Configurações</span>
             </Link>
@@ -69,7 +77,6 @@ export async function ProfileButton() {
           </a>
         </DropdownMenuItem>
       </DropdownMenuContent>
-
     </DropdownMenu>
   )
 }

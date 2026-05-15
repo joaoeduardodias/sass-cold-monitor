@@ -5,6 +5,7 @@
   "private": true,
   "exports": {
     "./library": "./library.cjs",
+    "./next": "./next.cjs",
     "./next-js": "./next.cjs",
     "./node": "./node.cjs"
   },

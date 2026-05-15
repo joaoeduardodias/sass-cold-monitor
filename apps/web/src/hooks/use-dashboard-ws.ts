@@ -1,17 +1,23 @@
-"use client"
+'use client'
 
-import type { DashboardWsMessage } from "@/components/instrument-grid.types"
-import { useDashboardWsStore } from "@/stores/dashboard-ws-store"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from 'react'
+
+import type { DashboardWsMessage } from '@/components/instrument-grid.types'
+import { useDashboardWsStore } from '@/stores/dashboard-ws-store'
 
 type UseDashboardWsParams = {
   organizationId: string
   onMessage: (message: DashboardWsMessage) => void
 }
 
-export function useDashboardWs({ organizationId, onMessage }: UseDashboardWsParams) {
+export function useDashboardWs({
+  organizationId,
+  onMessage,
+}: UseDashboardWsParams) {
   const subscribe = useDashboardWsStore((state) => state.subscribe)
-  const connected = useDashboardWsStore((state) => state.connections[organizationId]?.connected ?? false)
+  const connected = useDashboardWsStore(
+    (state) => state.connections[organizationId]?.connected ?? false,
+  )
   const onMessageRef = useRef(onMessage)
 
   useEffect(() => {

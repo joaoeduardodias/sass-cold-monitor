@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import type { DashboardWsMessage } from "@/components/instrument-grid.types"
-import { getCookie } from "cookies-next"
-import { create } from "zustand"
+import { getCookie } from 'cookies-next'
+import { create } from 'zustand'
+
+import type { DashboardWsMessage } from '@/components/instrument-grid.types'
 
 type MessageListener = (message: DashboardWsMessage) => void
 
@@ -25,7 +26,10 @@ function getWsUrl() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
   if (!apiUrl) return null
 
-  return apiUrl.replace("http://", "ws://").replace("https://", "wss://") + "/ws/dashboard"
+  return (
+    apiUrl.replace('http://', 'ws://').replace('https://', 'wss://') +
+    '/ws/dashboard'
+  )
 }
 
 function createEntry(): ConnectionEntry {
@@ -39,7 +43,9 @@ function createEntry(): ConnectionEntry {
 }
 
 function setConnectionState(
-  set: (updater: (state: DashboardWsStore) => Partial<DashboardWsStore>) => void,
+  set: (
+    updater: (state: DashboardWsStore) => Partial<DashboardWsStore>,
+  ) => void,
   organizationId: string,
   updater: (current: ConnectionEntry) => ConnectionEntry,
 ) {
@@ -94,13 +100,13 @@ export const useDashboardWsStore = create<DashboardWsStore>((set, get) => ({
       const ownedSocket = ws
 
       ownedSocket.onopen = () => {
-        const token = getCookie("token")
+        const token = getCookie('token')
         ownedSocket.send(
           JSON.stringify({
-            type: "AUTH",
+            type: 'AUTH',
             payload: {
               organizationId,
-              token: typeof token === "string" ? token : undefined,
+              token: typeof token === 'string' ? token : undefined,
             },
           }),
         )

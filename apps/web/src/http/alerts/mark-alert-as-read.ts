@@ -1,14 +1,14 @@
-import { api } from "../api"
+import { api } from '../api'
 
 type MarkAlertAsReadRequest = {
   org: string
   instrumentId: string
   signature: string
-  severity: "warning" | "critical"
+  severity: 'warning' | 'critical'
   value: number
   minThreshold: number
   maxThreshold: number
-  thresholdType: "min" | "max"
+  thresholdType: 'min' | 'max'
   alertTimestamp: string
 }
 

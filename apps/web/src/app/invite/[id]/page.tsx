@@ -21,27 +21,6 @@ interface InvitePageProps {
   }>
 }
 
-const roleLabels: Record<string, string> = {
-  admin: "Administrador",
-  editor: "Editor",
-  operator: "Operador",
-  viewer: "Visualizador",
-}
-
-const roleDescriptions: Record<string, string> = {
-  admin: "Acesso completo, incluindo configurações e gerenciamento de usuários",
-  editor: "Visualiza instrumentos e histórico, além de editar e gerar dados históricos",
-  operator: "Acessa somente o tempo real e os controles operacionais do instrumento",
-  viewer: "Visualiza instrumentos e histórico sem editar ou gerar dados",
-}
-
-const roleColors: Record<string, string> = {
-  admin: "bg-red-50 text-red-700 border-red-200",
-  editor: "bg-purple-50 text-purple-700 border-purple-200",
-  operator: "bg-blue-50 text-blue-700 border-blue-200",
-  viewer: "bg-zinc-100 text-zinc-700 border-zinc-200",
-}
-
 export default async function InvitePage({ params }: InvitePageProps) {
   const { id: inviteId } = await params
 
@@ -78,16 +57,16 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
   if (!invite) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4">
+      <div className="bg-muted/30 flex min-h-screen flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6 text-center">
           <div className="flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
               <XCircle className="h-8 w-8 text-red-500" />
             </div>
           </div>
           <div className="space-y-2">
             <h1 className="text-xl font-semibold">Convite nao encontrado</h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Este convite pode ter sido revogado ou o link esta incorreto.
             </p>
           </div>
@@ -110,12 +89,20 @@ export default async function InvitePage({ params }: InvitePageProps) {
             {invite.author?.avatarUrl && (
               <AvatarImage src={invite.author.avatarUrl} />
             )}
-            <AvatarFallback className='bg-blue-100 text-blue-700 text-lg font-semibold'>{getInitials(invite.author?.name ?? '')}</AvatarFallback>
+            <AvatarFallback className="bg-blue-100 text-lg font-semibold text-blue-700">
+              {getInitials(invite.author?.name ?? '')}
+            </AvatarFallback>
           </Avatar>
 
-          <p className="text-balance text-center leading-relaxed text-muted-foreground">
-            <span className="font-medium text-foreground">{invite.author?.name}</span> convidou voce para participar de{" "}
-            <span className="font-medium text-foreground">{invite.organization.name}</span>.{" "}
+          <p className="text-muted-foreground text-center leading-relaxed text-balance">
+            <span className="text-foreground font-medium">
+              {invite.author?.name}
+            </span>{' '}
+            convidou voce para participar de{' '}
+            <span className="text-foreground font-medium">
+              {invite.organization.name}
+            </span>
+            .{' '}
             <span className="text-xs">{dayjs(invite.createdAt).fromNow()}</span>
           </p>
         </div>
@@ -142,13 +129,13 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
         {isUserAuthenticated && !userIsAuthenticatedWithSameEmailFromInvite && (
           <div className="space-y-4">
-            <p className="text-balance text-center text-sm leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm leading-relaxed text-balance">
               Este convite foi enviado para{' '}
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 {invite.email}
               </span>{' '}
               mas você está autenticado como{' '}
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 {currentUserEmail}
               </span>
               .

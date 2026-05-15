@@ -1,30 +1,56 @@
-"use client"
+'use client'
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  Clock,
+  Filter,
+  RefreshCw,
+} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
-} from "@/components/ui/pagination"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from '@/components/ui/pagination'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   AuditLog,
-  auditLogTypes,
   AuditLogType,
+  auditLogTypes,
   getAuditLogs,
-} from "@/http/audit-logs/get-audit-logs"
-import { getOrganizations } from "@/http/organizations/get-organizations"
-import { ChevronsLeft, ChevronsRight, Clock, Filter, RefreshCw } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
-import { toast } from "sonner"
+} from '@/http/audit-logs/get-audit-logs'
+import { getOrganizations } from '@/http/organizations/get-organizations'
 
 type SecuritySettingsProps = {
   organizationSlug?: string
@@ -36,55 +62,59 @@ type OrganizationOption = {
   slug: string
 }
 
-type TimeRangeOption = "24h" | "7d" | "30d" | "90d" | "custom"
+type TimeRangeOption = '24h' | '7d' | '30d' | '90d' | 'custom'
 
-const ALL_ORGANIZATIONS = "__all__"
+const ALL_ORGANIZATIONS = '__all__'
 
 const timeRangeLabels: Record<TimeRangeOption, string> = {
-  "24h": "Últimas 24 horas",
-  "7d": "Últimos 7 dias",
-  "30d": "Últimos 30 dias",
-  "90d": "Últimos 90 dias",
-  custom: "Período customizado",
+  '24h': 'Últimas 24 horas',
+  '7d': 'Últimos 7 dias',
+  '30d': 'Últimos 30 dias',
+  '90d': 'Últimos 90 dias',
+  custom: 'Período customizado',
 }
 
 const typeLabels: Record<AuditLogType, string> = {
-  SYSTEM: "Sistema",
-  MEMBER: "Membros",
-  INVITE: "Convites",
-  INSTRUMENT: "Instrumentos",
-  DATA: "Leituras",
-  NOTIFICATION: "Notificações",
-  ALERT: "Alertas",
+  SYSTEM: 'Sistema',
+  MEMBER: 'Membros',
+  INVITE: 'Convites',
+  INSTRUMENT: 'Instrumentos',
+  DATA: 'Leituras',
+  NOTIFICATION: 'Notificações',
+  ALERT: 'Alertas',
 }
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20] as const
 
 const toDateTimeLocal = (date: Date) => {
   const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  const hours = String(date.getHours()).padStart(2, "0")
-  const minutes = String(date.getMinutes()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
 
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
-const resolveDateRange = (timeRange: TimeRangeOption, customStart: string, customEnd: string) => {
+const resolveDateRange = (
+  timeRange: TimeRangeOption,
+  customStart: string,
+  customEnd: string,
+) => {
   const now = new Date()
 
-  if (timeRange === "custom") {
+  if (timeRange === 'custom') {
     return {
       startDate: customStart ? new Date(customStart).toISOString() : undefined,
       endDate: customEnd ? new Date(customEnd).toISOString() : undefined,
     }
   }
 
-  const rangeDays: Record<Exclude<TimeRangeOption, "custom">, number> = {
-    "24h": 1,
-    "7d": 7,
-    "30d": 30,
-    "90d": 90,
+  const rangeDays: Record<Exclude<TimeRangeOption, 'custom'>, number> = {
+    '24h': 1,
+    '7d': 7,
+    '30d': 30,
+    '90d': 90,
   }
 
   const start = new Date(now)
@@ -99,14 +129,14 @@ const resolveDateRange = (timeRange: TimeRangeOption, customStart: string, custo
 const formatDateTime = (value: string) => {
   const date = new Date(value)
 
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "medium",
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'medium',
   }).format(date)
 }
 
-const getStatusBadge = (status: AuditLog["status"]) => {
-  if (status === "success") {
+const getStatusBadge = (status: AuditLog['status']) => {
+  if (status === 'success') {
     return <Badge className="bg-green-600 hover:bg-green-600">Sucesso</Badge>
   }
 
@@ -125,19 +155,22 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
   const [selectedOrganization, setSelectedOrganization] = useState<string>(
     organizationSlug ?? ALL_ORGANIZATIONS,
   )
-  const [timeRange, setTimeRange] = useState<TimeRangeOption>("7d")
-  const [customStart, setCustomStart] = useState<string>(toDateTimeLocal(defaultRangeStart))
-  const [customEnd, setCustomEnd] = useState<string>(toDateTimeLocal(defaultRangeEnd))
-  const [selectedType, setSelectedType] = useState<"ALL" | AuditLogType>("ALL")
-  const [actorFilter, setActorFilter] = useState("")
+  const [timeRange, setTimeRange] = useState<TimeRangeOption>('7d')
+  const [customStart, setCustomStart] = useState<string>(
+    toDateTimeLocal(defaultRangeStart),
+  )
+  const [customEnd, setCustomEnd] = useState<string>(
+    toDateTimeLocal(defaultRangeEnd),
+  )
+  const [selectedType, setSelectedType] = useState<'ALL' | AuditLogType>('ALL')
+  const [actorFilter, setActorFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState<number>(10)
 
-  const {
-    data: organizations = [],
-    error: organizationsError,
-  } = useQuery<OrganizationOption[]>({
-    queryKey: ["organizations"],
+  const { data: organizations = [], error: organizationsError } = useQuery<
+    OrganizationOption[]
+  >({
+    queryKey: ['organizations'],
     queryFn: async () => {
       const { organizations: response } = await getOrganizations()
       return response.map((org) => ({
@@ -159,7 +192,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
   useEffect(() => {
     if (organizationsError) {
-      toast.error("Não foi possível carregar as organizações.")
+      toast.error('Não foi possível carregar as organizações.')
     }
   }, [organizationsError])
 
@@ -169,14 +202,15 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
   )
 
   const customRangeInvalid =
-    timeRange === "custom" &&
+    timeRange === 'custom' &&
     (!!startDate && !!endDate ? new Date(startDate) > new Date(endDate) : true)
 
   const organizationExists =
     selectedOrganization === ALL_ORGANIZATIONS ||
     organizations.some((org) => org.slug === selectedOrganization)
 
-  const canQueryAuditLogs = organizations.length > 0 && organizationExists && !customRangeInvalid
+  const canQueryAuditLogs =
+    organizations.length > 0 && organizationExists && !customRangeInvalid
 
   const {
     data: auditData,
@@ -186,7 +220,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
     refetch,
   } = useQuery({
     queryKey: [
-      "audit-logs",
+      'audit-logs',
       selectedOrganization,
       startDate,
       endDate,
@@ -194,7 +228,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
       actorFilter,
       currentPage,
       pageSize,
-      organizations.map((org) => org.slug).join("|"),
+      organizations.map((org) => org.slug).join('|'),
     ],
     queryFn: async () => {
       const targetOrganizations =
@@ -219,7 +253,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
               org: orgSlug,
               startDate,
               endDate,
-              type: selectedType === "ALL" ? undefined : selectedType,
+              type: selectedType === 'ALL' ? undefined : selectedType,
               actor: actorFilter,
               page: 1,
               pageSize: totalRequested,
@@ -229,9 +263,15 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
         const mergedLogs = responses
           .flatMap((response) => response.logs)
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
 
-        const totalLogs = responses.reduce((acc, response) => acc + response.pagination.total, 0)
+        const totalLogs = responses.reduce(
+          (acc, response) => acc + response.pagination.total,
+          0,
+        )
         const totalPages = Math.max(1, Math.ceil(totalLogs / pageSize))
         const safePage = Math.min(currentPage, totalPages)
         const startIndex = (safePage - 1) * pageSize
@@ -249,7 +289,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
         org: selectedOrganization,
         startDate,
         endDate,
-        type: selectedType === "ALL" ? undefined : selectedType,
+        type: selectedType === 'ALL' ? undefined : selectedType,
         actor: actorFilter,
         page: currentPage,
         pageSize,
@@ -271,7 +311,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
   useEffect(() => {
     if (auditLogsError) {
-      toast.error("Não foi possível carregar os logs de auditoria.")
+      toast.error('Não foi possível carregar os logs de auditoria.')
     }
   }, [auditLogsError])
 
@@ -283,7 +323,15 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [selectedOrganization, timeRange, customStart, customEnd, selectedType, actorFilter, pageSize])
+  }, [
+    selectedOrganization,
+    timeRange,
+    customStart,
+    customEnd,
+    selectedType,
+    actorFilter,
+    pageSize,
+  ])
 
   const logs = auditData?.logs ?? []
   const totalLogs = auditData?.totalLogs ?? 0
@@ -291,7 +339,9 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
   const groupedLogs = useMemo(() => {
     if (selectedOrganization !== ALL_ORGANIZATIONS) {
-      const organizationName = organizations.find((org) => org.slug === selectedOrganization)?.name
+      const organizationName = organizations.find(
+        (org) => org.slug === selectedOrganization,
+      )?.name
 
       return [
         {
@@ -489,12 +539,12 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
   const handleRefresh = async () => {
     if (customRangeInvalid) {
-      toast.error("A data inicial precisa ser menor que a data final.")
+      toast.error('A data inicial precisa ser menor que a data final.')
       return
     }
 
     if (!organizationExists) {
-      toast.error("Selecione uma organização válida.")
+      toast.error('Selecione uma organização válida.')
       return
     }
 
@@ -511,18 +561,25 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
             <Filter className="h-5 w-5 text-blue-600" />
             Filtros de Auditoria
           </CardTitle>
-          <CardDescription>Filtre logs por organização, período, categoria e usuário</CardDescription>
+          <CardDescription>
+            Filtre logs por organização, período, categoria e usuário
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
               <Label>Organização</Label>
-              <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+              <Select
+                value={selectedOrganization}
+                onValueChange={setSelectedOrganization}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a organização" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_ORGANIZATIONS}>Todas as organizações</SelectItem>
+                  <SelectItem value={ALL_ORGANIZATIONS}>
+                    Todas as organizações
+                  </SelectItem>
                   {organizations.map((org) => (
                     <SelectItem key={org.id} value={org.slug}>
                       {org.name}
@@ -534,7 +591,12 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
             <div className="space-y-2">
               <Label>Período</Label>
-              <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRangeOption)}>
+              <Select
+                value={timeRange}
+                onValueChange={(value) =>
+                  setTimeRange(value as TimeRangeOption)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -550,7 +612,12 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
             <div className="space-y-2">
               <Label>Categoria</Label>
-              <Select value={selectedType} onValueChange={(value) => setSelectedType(value as "ALL" | AuditLogType)}>
+              <Select
+                value={selectedType}
+                onValueChange={(value) =>
+                  setSelectedType(value as 'ALL' | AuditLogType)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -576,7 +643,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
             </div>
           </div>
 
-          {timeRange === "custom" && (
+          {timeRange === 'custom' && (
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="custom-start">Data inicial</Label>
@@ -600,9 +667,9 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
           )}
 
           <div className="flex items-end justify-end gap-4">
-            <Button onClick={() => void handleRefresh()} disabled={loading}>
+            <Button onClick={() => handleRefresh()} disabled={loading}>
               {loading ? (
-                <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <RefreshCw className="mr-2 h-4 w-4" />
               )}
@@ -620,14 +687,16 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
 
         {!canQueryAuditLogs ? (
           <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
+            <CardContent className="text-muted-foreground py-8 text-center">
               Ajuste os filtros para carregar os logs.
             </CardContent>
           </Card>
         ) : groupedLogs.length === 0 || logs.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              {isPending ? "Carregando logs..." : "Nenhum log encontrado para os filtros selecionados."}
+            <CardContent className="text-muted-foreground py-8 text-center">
+              {isPending
+                ? 'Carregando logs...'
+                : 'Nenhum log encontrado para os filtros selecionados.'}
             </CardContent>
           </Card>
         ) : (
@@ -635,7 +704,9 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
             <Card key={group.slug}>
               <CardHeader>
                 <CardTitle className="text-base">{group.name}</CardTitle>
-                <CardDescription>{group.logs.length} evento(s) encontrado(s)</CardDescription>
+                <CardDescription>
+                  {group.logs.length} evento(s) encontrado(s)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border">
@@ -653,13 +724,17 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
                     <TableBody>
                       {group.logs.map((log) => (
                         <TableRow key={log.id}>
-                          <TableCell className="font-mono text-sm">{formatDateTime(log.timestamp)}</TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {formatDateTime(log.timestamp)}
+                          </TableCell>
                           <TableCell>
-                            <Badge variant="outline">{typeLabels[log.type]}</Badge>
+                            <Badge variant="outline">
+                              {typeLabels[log.type]}
+                            </Badge>
                           </TableCell>
                           <TableCell>{log.action}</TableCell>
                           <TableCell>{log.details}</TableCell>
-                          <TableCell>{log.actor ?? "Sistema"}</TableCell>
+                          <TableCell>{log.actor ?? 'Sistema'}</TableCell>
                           <TableCell>{getStatusBadge(log.status)}</TableCell>
                         </TableRow>
                       ))}
@@ -672,7 +747,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
         )}
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <span>Mostrando</span>
             <Select
               value={String(pageSize)}
@@ -681,7 +756,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
                 setCurrentPage(1)
               }}
             >
-              <SelectTrigger className="w-16 h-6">
+              <SelectTrigger className="h-6 w-16">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -694,7 +769,9 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
             </Select>
             <span>de {totalLogs} eventos</span>
             <span className="hidden md:inline">•</span>
-            <span className="hidden md:inline">Página {currentPage} de {totalPages}</span>
+            <span className="hidden md:inline">
+              Página {currentPage} de {totalPages}
+            </span>
           </div>
 
           <Pagination className="justify-end">
@@ -707,7 +784,7 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
                     e.preventDefault()
                     if (currentPage > 1) setCurrentPage(currentPage - 1)
                   }}
-                  className={`size-9 rounded-full ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+                  className={`size-9 rounded-full ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                 >
                   <ChevronsLeft />
                 </Button>
@@ -721,9 +798,10 @@ export function SecuritySettings({ organizationSlug }: SecuritySettingsProps) {
                   size="icon"
                   onClick={(e) => {
                     e.preventDefault()
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1)
+                    if (currentPage < totalPages)
+                      setCurrentPage(currentPage + 1)
                   }}
-                  className={`size-9 rounded-full ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
+                  className={`size-9 rounded-full ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
                 >
                   <ChevronsRight />
                 </Button>

@@ -1,5 +1,6 @@
-import { getOrganizations } from "@/http/organizations/get-organizations"
-import { SelectOrganizationView } from "./components/select-organization-view"
+import { getOrganizations } from '@/http/organizations/get-organizations'
+
+import { SelectOrganizationView } from './components/select-organization-view'
 
 export default async function SelectOrganizationPage() {
   const { organizations } = await getOrganizations()

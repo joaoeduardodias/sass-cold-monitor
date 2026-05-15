@@ -1,9 +1,10 @@
-"use client"
+'use client'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { History, Thermometer } from "lucide-react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ReactNode, useMemo } from "react"
+import { History, Thermometer } from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ReactNode, useMemo } from 'react'
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type InstrumentPageTabsProps = {
   history: ReactNode
@@ -21,14 +22,16 @@ export function InstrumentPageTabs({
   const searchParams = useSearchParams()
 
   const activeTab = useMemo(() => {
-    const validTabs = new Set(showHistoryTab ? ["realtime", "history"] : ["realtime"])
-    const tab = searchParams.get("tab")
-    return tab && validTabs.has(tab) ? tab : "realtime"
+    const validTabs = new Set(
+      showHistoryTab ? ['realtime', 'history'] : ['realtime'],
+    )
+    const tab = searchParams.get('tab')
+    return tab && validTabs.has(tab) ? tab : 'realtime'
   }, [searchParams, showHistoryTab])
 
   const handleTabChange = (nextTab: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", nextTab)
+    params.set('tab', nextTab)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 

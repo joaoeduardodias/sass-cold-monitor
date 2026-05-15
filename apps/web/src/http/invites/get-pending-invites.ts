@@ -1,5 +1,6 @@
-import type { Role } from "@cold-monitor/auth"
-import { api } from "../api"
+import type { Role } from '@cold-monitor/auth'
+
+import { api } from '../api'
 
 interface GetPendingInvitesResponse {
   invites: {

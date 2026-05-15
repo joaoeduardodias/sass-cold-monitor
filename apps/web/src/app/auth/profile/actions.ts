@@ -1,12 +1,13 @@
-"use server"
+'use server'
 
-import { updateProfile } from "@/http/users/update-profile"
-import { HTTPError } from "ky"
-import z from "zod"
+import { HTTPError } from 'ky'
+import z from 'zod'
+
+import { updateProfile } from '@/http/users/update-profile'
 
 const updateProfileSchema = z.object({
-  name: z.string().trim().min(2, "Informe um nome com pelo menos 2 caracteres"),
-  email: z.email("Informe um e-mail válido").trim(),
+  name: z.string().trim().min(2, 'Informe um nome com pelo menos 2 caracteres'),
+  email: z.email('Informe um e-mail válido').trim(),
   avatarUrl: z.string().trim().optional(),
 })
 
@@ -29,7 +30,7 @@ export async function updateProfileAction(data: FormData) {
       success: false,
       message: null,
       errors: {
-        avatarUrl: ["Informe uma URL válida para a foto"],
+        avatarUrl: ['Informe uma URL válida para a foto'],
       },
     }
   }
@@ -38,15 +39,15 @@ export async function updateProfileAction(data: FormData) {
     await updateProfile({
       name,
       email: email.toLowerCase(),
-      avatarUrl: avatarUrl ? avatarUrl : null,
+      avatarUrl: avatarUrl || null,
     })
 
     return {
       success: true,
-      message: "Perfil atualizado com sucesso.",
+      message: 'Perfil atualizado com sucesso.',
       errors: null,
     }
-  } catch (err: any) {
+  } catch (err) {
     if (err instanceof HTTPError) {
       const { message } = await err.response.json()
       return {
@@ -58,7 +59,7 @@ export async function updateProfileAction(data: FormData) {
 
     return {
       success: false,
-      message: "Não foi possível salvar seu perfil.",
+      message: 'Não foi possível salvar seu perfil.',
       errors: null,
     }
   }
